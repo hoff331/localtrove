@@ -1,0 +1,213 @@
+<?php
+// $Id$
+/**
+ * @file
+ * MoneyScripts Donation
+ * Copyright MoneyScripts.net
+ * http://www.moneyscripts.net
+ */
+
+/**
+ * Display help and module information
+ */
+function ms_donation_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/moneyscripts/ms_donation":
+    case "admin/help#ms_donation":
+      $output .= '<p>' . t("MoneyScripts Donation Module. This allows users to
+      enter an additional amount they wish to donate on top of their order total
+      during checkout.") . '</p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function ms_donation_menu() {
+  $items = array();
+
+  $items['admin/moneyscripts/ms_donation'] = array(
+    'title' => 'Donations',
+    'description' => 'Manage donation settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_donation_admin'),
+    'access arguments' => array('administer moneyscripts settings'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Admin Settings Form
+ */
+function ms_donation_admin() {
+  $form['main'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Main Settings'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+  // -----------------------------
+  // Main Settings
+  // -----------------------------
+  $form['main']['ms_donation_minimum_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum Donation Amount'),
+    '#size' => 32,
+    '#maxlength' => 64,
+    '#default_value' => variable_get('ms_donation_minimum_amount', 0.01),
+    '#description' => t("This is the minimum donation amount that will be accepted."),
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Show a form to enter a donation
+ */
+function ms_donation_enter_donation_form($form, $form_state) {
+  $form['donation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Donation'),
+    '#size' => 25,
+  );
+  $form['apply_donation'] = array(
+    '#type' => 'submit',
+    '#value' => t('Apply to order'),
+    '#validate' => array('ms_donation_enter_donation_form_validate'),
+    '#submit' => array('ms_donation_enter_donation_form_submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Validation function for the enter donation form
+ */
+function ms_donation_enter_donation_form_validate($form, $form_state) {
+  drupal_get_messages('error'); //clears out messages thrown by built in validation
+
+  $min = variable_get('ms_donation_minimum_amount', 0.01);
+  $amount = floatval($form_state['values']['donation']);
+
+  if ($amount < $min) {
+    form_set_error('donation', t("You must enter an amount greater than @min", array('@min' => $min)));
+  }
+  else {
+    ms_donation_add_donation_to_cart($amount);
+
+    // Redirect to ms/checkout
+    drupal_goto('ms/checkout');
+  }
+}
+
+/**
+ * Enter donation form for the cart
+ */
+function ms_donation_enter_coupon_cart_form($form, $form_state) {
+  $form = array();
+  $form['ms_donation'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Donation'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['ms_donation']['donation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Donation'),
+    '#default_value' => '',
+    '#size' => 25,
+  );
+  $form['ms_donation']['apply_donation'] = array(
+    '#type' => 'submit',
+    '#value' => t('Apply to order'),
+    '#validate' => array('ms_donation_enter_donation_form_validate'),
+    '#submit' => array('ms_donation_enter_donation_form_submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Validation for the enter donation form
+ */
+function ms_donation_enter_donation_cart_form_validate($form, $form_state) {
+  $amount = floatval($form_state['values']['donation']);
+  $min = variable_get('ms_donation_minimum_amount', 0.01);
+
+  if ($amount < $min) {
+    form_set_error('donation', t("You must enter an amount greater than @min", array('@min' => $min)));
+  }
+}
+
+/**
+ * Submit function for the enter donation form
+ */
+function ms_donation_enter_coupon_cart_form_submit($form, $form_state) {
+  $amount = floatval($form_state['values']['donation']);
+
+  ms_donation_add_donation_to_cart($amount);
+}
+
+/**
+ * Adds a donation to a cart
+ *
+ * @param $amount
+ *   The amount to add to the cart
+ */
+function ms_donation_add_donation_to_cart($amount) {
+  $adjustment = new MsAdjustment();
+  $adjustment->id = 'ms_donation';
+  $adjustment->display = t('Donation');
+  $adjustment->type = 'fixed';
+  $adjustment->scope = 'initial';
+  $adjustment->value = $amount;
+
+  // First, remove donation from the cart if needed
+  ms_core_remove_cart_adjustment_match('ms_donation');
+
+  // Add the coupon to the order
+  ms_core_add_cart_adjustment($adjustment, TRUE);
+
+  drupal_set_message(t('Donation @amount has been applied to your order.',
+    array('@amount' => ms_core_format_money($amount))));
+}
+
+/**
+ * Implements hook_ms_checkout_fields()
+ */
+function ms_donation_ms_checkout_fields($order) {
+  $fields = array();
+  // Show the Donation Entry Form
+  $fields[] = array(
+    'id' => 'ms_donation_enter_donation',
+    'title' => t('Donation'),
+    'type' => 'form',
+    'html' => 'ms_donation_enter_donation_form',
+    'weight' => 11,
+  );
+
+  return $fields;
+}
+
+/**
+ * Implements  hook_ms_cart_fields()
+ */
+function ms_donation_ms_cart_fields($cart) {
+  $fields = array();
+  // Show the Donation Entry Form
+  $fields[] = array(
+    'id' => 'ms_donation_enter_donation',
+    'title' => t('Donation'),
+    'html' => drupal_get_form('ms_donation_enter_donation_cart_form'),
+    'weight' => 11,
+  );
+
+  return $fields;
+}

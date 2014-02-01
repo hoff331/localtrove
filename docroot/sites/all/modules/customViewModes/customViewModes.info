@@ -1,0 +1,5 @@
+; $Id $
+name = customViewModes
+description = Custome view modes for content
+package = Custom
+core = 7.x

@@ -1,0 +1,8 @@
+name = PayFlow Pro
+description = A gateway used to process payments using PayPal PayFlow Pro.
+dependencies[] = ms_core
+package = MoneyScripts - Gateways
+version = "7.x-2.17"
+core = 7.x
+php = 5.0
+files[] = PayflowProRecurring.class.php

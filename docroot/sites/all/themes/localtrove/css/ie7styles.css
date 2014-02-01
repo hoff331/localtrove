@@ -1,0 +1,129 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/*
+
+COLORS
+
+orange: #FF931E
+blue:   #3FA9F5
+green:  #7AC943
+pink:   #FF7BAC
+darkgray:  #333
+lightgray: #E6E6E6
+
+*/
+
+
+/*------- HEADER -------*/
+#headerRight ul.menu{
+	padding-left:3px;
+}
+
+
+/*------- NAVIGATION -------*/
+#navigation{
+	width:936px;
+	height:54px;
+	margin:0 auto;
+	padding:0 36px;
+	background-color:#8CC63F;
+	border-bottom:4px solid #C9C9C7;
+	position:relative;
+}
+
+#navigationLeft{
+	width:624px;
+	float:left;
+}
+
+#navigationLeft .contextual-links-region{
+	position:static;
+}
+
+#navigationRight{
+	width:312px;
+	float:right;
+}
+
+#navigation ul.menu{
+	margin:0;
+}
+
+#navigation ul li{
+	display:block;
+	line-height:1em;
+	float:left;
+}
+
+#navigation ul li a,
+#navigation ul li a:visited{
+	color:#FFFFFF;
+	display:inline-block;
+	padding:9px 12px;
+	margin:7px 7px 7px 0;
+	text-decoration:none;
+}
+
+#navigation ul li a:hover,
+#navigation ul li a.active,
+#navigation ul li a.active-trail{
+	background-color:#7EAA39;
+	text-decoration:none;
+}
+
+#navigation ul li a:active{
+	color:#FF931E;
+}
+
+/*------- NAVIGATION CHILD -------*/
+#navigation ul li ul{
+	display:none;
+}
+
+
+/*------- NAVIGATION GRANDCHILD -------*/
+#navigation ul li ul li ul{
+	display:none;
+}
+
+#search{
+	float:right;
+	margin-top:9px;
+}
+
+#search input[type="text"]{
+	height:20px;
+}
+
+
+/*------- CONTENT -------*/
+#content,
+#intContent{
+	padding-top:36px;
+}
+
+.listingLeft{
+	float:left;
+	margin-right:12px;
+}
+
+.vertical-tabs-pane .listingLeft,
+#intContentRight .listingLeft{
+	width:70px;;
+}
+
+
+/*------- LISTING -------*/
+.listingRight{
+	float:left;
+	font-size:12px;
+}
+
+.vertical-tabs-pane .listingRight{
+	width:218px;
+}
+
+#intContentRight .listingRight{
+	width:212px;
+}

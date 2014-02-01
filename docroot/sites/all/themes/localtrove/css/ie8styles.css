@@ -1,0 +1,20 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/*
+
+COLORS
+
+orange: #FF931E
+blue:   #3FA9F5
+green:  #7AC943
+pink:   #FF7BAC
+darkgray:  #333
+lightgray: #E6E6E6
+
+*/
+
+#content,
+#intContent{
+	padding-top:36px;
+}

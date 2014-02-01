@@ -1,0 +1,318 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Products API Helper
+ * Licensed under the GNU GPLv2 License
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function ms_products_uninstall() {
+  // Delete related variables all at once.
+  db_delete('variable')
+    ->condition('name', 'ms_products_%%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function ms_products_schema() {
+  $schema['ms_products_plans'] = array(
+    'description' => 'Used to hold products',
+    'export' => array(
+      'key' => 'machine_name',
+      'key name' => 'Machine Name',
+      'admin_title' => 'name',
+      'admin_description' => 'description',
+      'identifier' => 'ms_products_plan',
+      'default hook' => 'default_ms_products_plan',
+      'api' => array(
+        'owner' => 'ms_products',
+        'api' => 'default_ms_products_plans',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+      'load callback' => 'ms_products_plan_load',
+    ),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'The unique product ID (primary)',
+        'not null' => TRUE,
+        'disp-width' => '11',
+      ),
+      'module' => array(
+        'type' => 'varchar',
+        'description' => 'The module of the Product',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'sku' => array(
+        'type' => 'varchar',
+        'description' => 'The unique sku',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => t('The user id who owns the products.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'description' => 'The name of the Product',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'description' => 'The machine name of the Membership Plan',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'description' => 'cart or recurring',
+        'length' => '100',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'type' => 'text',
+        'description' => 'Description of the Product',
+      ),
+      'signup_mail_subject' => array(
+        'type' => 'varchar',
+        'description' => 'Subject for Signup Email',
+        'length' => '255',
+      ),
+      'signup_mail_body' => array(
+        'type' => 'text',
+        'description' => 'Body for Signup Email',
+      ),
+      'eot_mail_subject' => array(
+        'type' => 'varchar',
+        'description' => 'Subject for End of Term Email',
+        'length' => '255',
+      ),
+      'eot_mail_body' => array(
+        'type' => 'text',
+        'description' => 'Body for End of Term Email',
+      ),
+      'cancel_mail_subject' => array(
+        'type' => 'varchar',
+        'description' => 'Subject for Cancellation Email',
+        'length' => '255',
+      ),
+      'cancel_mail_body' => array(
+        'type' => 'text',
+        'description' => 'Body for Cancellation Email',
+      ),
+      'modify_mail_subject' => array(
+        'type' => 'varchar',
+        'description' => 'Subject for Modification Email',
+        'length' => '255',
+      ),
+      'modify_mail_body' => array(
+        'type' => 'text',
+        'description' => 'Body for Modification Email',
+      ),
+      'expiring_mail_subject' => array(
+        'type' => 'varchar',
+        'description' => 'Subject for Expiring Soon Email',
+        'length' => '255',
+      ),
+      'expiring_mail_body' => array(
+        'type' => 'text',
+        'description' => 'Body for Expiring Soon Email',
+      ),
+      'expiring_mail_days' => array(
+        'type' => 'int',
+        'description' => 'How many days before the membership Expires to send the email',
+        'not null' => TRUE,
+        'disp-width' => '11',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'description' => 'Weight',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'recurring_schedule' => array(
+        'type' => 'text',
+        'description' => 'Serialized Array of the recurring schedule',
+        'serialize' => TRUE,
+      ),
+      'modify_options' => array(
+        'type' => 'text',
+        'description' => 'Which products can be changed to from this product',
+        'serialize' => TRUE,
+      ),
+      'allow_roles' => array(
+        'type' => 'text',
+        'description' => 'Which Roles can Purchase/Upgrade this role',
+        'serialize' => TRUE,
+      ),
+      'deny_roles' => array(
+        'type' => 'text',
+        'description' => 'Which Roles can not Purchase/Upgrade this role',
+        'serialize' => TRUE,
+      ),
+      'expire_when' => array(
+        'type' => 'varchar',
+        'description' => 'When to remove the role',
+        'length' => '32',
+        'default' => 'subscr_eot',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'description' => 'Serialized Array of Data for the plan',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+
+  $schema['ms_product_purchases'] = array(
+    'description' => 'Used to record all product purchases',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'description' => 'The unique ID (primary)',
+        'not null' => TRUE,
+        'disp-width' => '11',
+      ),
+      'oid' => array(
+        'type' => 'int',
+        'description' => 'The unique order ID',
+        'not null' => TRUE,
+        'disp-width' => '11',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'description' => 'The uid of the user making the record',
+        'not null' => TRUE,
+        'disp-width' => '11',
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'description' => 'The id of the product plan purchased',
+        'not null' => TRUE,
+        'disp-width' => '11',
+      ),
+      'status' => array(
+        'type' => 'varchar',
+        'description' => 'The Status of the Purchase',
+        'length' => '255',
+      ),
+      'expiration' => array(
+        'type' => 'int',
+        'description' => 'The Expiration of the Purchase',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'start_date' => array(
+        'type' => 'int',
+        'description' => 'Start Date for the Purchase',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'current_payments' => array(
+        'type' => 'int',
+        'description' => 'The current number of payments made',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'max_payments' => array(
+        'type' => 'int',
+        'description' => 'The max number of payments for the Purchase',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+// ======================================
+// Updates:
+// ======================================
+
+/**
+ * Add the uid field to the ms_order_products table
+ */
+function ms_products_update_7101(&$sandbox) {
+  if (!db_field_exists('ms_products_plans', 'uid')) {
+    db_add_field('ms_products_plans', 'uid', array(
+      'description' => t('The user id who owns the products.'),
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 1,
+    ));
+  }
+
+  return t('Successfully added the uid field to the ms_products_plans database table.');
+}
+
+/**
+ * Add the machine_name, allow_roles, deny_roles, and expire_when fields to the ms_products_plans table
+ */
+function ms_products_update_7301(&$sandbox) {
+  if (!db_field_exists('ms_products_plans', 'machine_name')) {
+    db_add_field('ms_products_plans', 'machine_name', array(
+      'type' => 'varchar',
+      'description' => 'The machine name of the Membership Plan',
+      'length' => '255',
+      'not null' => TRUE,
+      'default' => '',
+    ));
+  }
+  if (!db_field_exists('ms_products_plans', 'allow_roles')) {
+    db_add_field('ms_products_plans', 'allow_roles', array(
+      'type' => 'text',
+      'description' => 'Which Roles can Purchase/Upgrade this role',
+      'serialize' => TRUE,
+    ));
+  }
+  if (!db_field_exists('ms_products_plans', 'deny_roles')) {
+    db_add_field('ms_products_plans', 'deny_roles', array(
+      'type' => 'text',
+      'description' => 'Which Roles can not Purchase/Upgrade this role',
+      'serialize' => TRUE,
+    ));
+  }
+  if (!db_field_exists('ms_products_plans', 'expire_when')) {
+    db_add_field('ms_products_plans', 'expire_when', array(
+      'type' => 'varchar',
+      'description' => 'When to remove the role',
+      'length' => '32',
+      'default' => 'subscr_eot',
+    ));
+  }
+
+  // Set the default for all of the product plans for allow_roles and deny_roles and machine_name
+  $result = db_query("SELECT * FROM {ms_products_plans}");
+  foreach ($result as $plan) {
+    $plan->allow_roles = array();
+    $plan->deny_roles = array();
+    $plan->machine_name = preg_replace('/_+/', '_',
+        preg_replace('/[^a-z0-9]/', '_',
+           strtolower($plan->name)
+      )) . '_' . $plan->pid;
+    drupal_write_record('ms_products_plans', $plan, 'pid');
+  }
+  return t('Successfully added the new fields to the ms_products_plans database table.');
+}

@@ -1,0 +1,5 @@
+; $Id $
+name = customFormAlter
+description = Custome alterations to various LocalTrove forms
+package = Custom
+core = 7.x

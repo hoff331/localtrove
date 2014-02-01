@@ -1,0 +1,5 @@
+; $Id $
+name = customItemForSale
+description = Prepopulates IFS entity reference with Parent Node
+package = Custom
+core = 7.x

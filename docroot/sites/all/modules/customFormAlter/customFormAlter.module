@@ -1,0 +1,35 @@
+<?php
+
+function customFormAlter_form_alter(&$form, $form_state, $form_id) {
+	switch ($form_id) {
+		case 'auction_node_form':
+		  $form['field_ifs_add']['und']['actions']['ief_add']['#value'] = t('Add Item for Sale');
+		  $form['field_ifs_add']['und']['form']['#title'] = t('Add Item for Sale page');
+		  $form['field_ifs_add']['und']['form']['actions']['ief_add_save']['#value'] = t('Save Item for Sale');
+		  break;
+		case 'garage_sale_node_form':
+		  $form['field_ifs_add']['und']['actions']['ief_add']['#value'] = t('Add Item for Sale');
+		  $form['field_ifs_add']['und']['form']['#title'] = t('Add Item for Sale page');
+		  $form['field_ifs_add']['und']['form']['actions']['ief_add_save']['#value'] = t('Save Item for Sale');
+		  break;
+		case 'estate_sale_node_form':
+		  $form['field_ifs_add']['und']['actions']['ief_add']['#value'] = t('Add Item for Sale');
+		  $form['field_ifs_add']['und']['form']['#title'] = t('Add Item for Sale page');
+		  $form['field_ifs_add']['und']['form']['actions']['ief_add_save']['#value'] = t('Save Item for Sale');
+		  break;
+		case 'vendor_node_form':
+		  $form['field_vendor_coupon']['und']['actions']['ief_add']['#value'] = t('Add Coupon');
+		  $form['field_vendor_coupon']['und']['form']['#title'] = t('LocalTrove.com Coupons');
+		  $form['field_vendor_coupon']['und']['form']['actions']['ief_add_save']['#value'] = t('Save Coupon');
+		  break;
+	}
+	/*
+	This conditional will change the length of the zip text field to keep it on 1 line
+	if($form_id == 'auction_node_form' || 'garage_sale_node_form' || 'estate_sale_node_form'){
+		//print '<pre>';
+		//print_r($form);
+		//print '</pre>';
+	//$form['field_event_address']['und']['#entity']['locality_block']['locality']['#size'] = 20;
+	}
+  */
+}

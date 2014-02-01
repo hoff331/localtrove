@@ -1,0 +1,26 @@
+<?php
+/* Add custom view modes */
+/**
+* Implements hook_entity_info_alter().
+* The first attribute in the array defines an arbitrary label for the view mode machine name.
+* 'custom settings' => TRUE displays the view mode as a default at the top of the display modes settings screen
+*/
+function customViewModes_entity_info_alter(&$entity_info)
+{
+	$entity_info['field_collection_item']['view modes']['item_for_sale'] = array
+	(
+		'label' => t('Item for Sale'),
+		'custom settings' => TRUE,
+	);
+}
+/* Add custom templates for view modes */
+/**
+* Implements hook_preprocess_node().
+*/
+function customViewModes_theme_preprocess_node(&$vars) {
+  if($vars['view_mode'] == 'view_mode_A') {
+    $vars['theme_hook_suggestions'][] = 'node__view_mode_A';
+    $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__view_mode_A';
+  }
+}
+?>

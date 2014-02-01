@@ -1,0 +1,20 @@
+<?php
+/**
+ * Implements hook_entity_insert().
+ *
+ * When a node of type "Auction" has been created, set its id
+ * on the child "IFS".
+ * Done this way because Iinline Entity Field saves the child entity before the parent entity, making it
+ * impossible to know the parent nid inside the Inline Entity Field controller.
+ */
+function customItemForSale_entity_insert($entity, $type) {
+  if ($type != 'node' || $entity->type != 'auction') {
+    return;
+  }
+
+  $auction_wrapper = entity_metadata_wrapper('node', $entity);
+  $IFS_wrapper = $auction_wrapper->field_ifs_add;
+  $IFS_wrapper->field_item_for_sale_reference = $auction_wrapper->nid->value();
+  $IFS_wrapper->save();
+}
+?>

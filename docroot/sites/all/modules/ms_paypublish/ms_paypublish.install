@@ -1,0 +1,310 @@
+<?php
+// $Id$
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function ms_paypublish_uninstall() {
+  // Delete related variables all at once.
+  db_delete('variable')
+    ->condition('name', 'ms_paypublish_%%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function ms_paypublish_schema() {
+  $schema['ms_paypublish_plans'] = array(
+    'description' => 'Used to hold node payment plans',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'The unique Plan ID (primary)',
+        'not null' => TRUE,
+        'disp-width' => '11'
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'description' => 'The name of the Pay to Publish Plan',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => t('The user id who owns the products.'), 
+        'type' => 'int', 
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 1,
+      ),
+      'main_amount' => array(
+        'type' => 'numeric',
+        'description' => 'The Regular Fee',
+        'precision' => '10',
+        'scale' => '2',
+        'not null' => TRUE,
+        'default' => 0.00,
+      ),
+      'main_length' => array(
+        'type' => 'int',
+        'description' => 'The Regular Period Length',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'main_unit' => array(
+        'type' => 'varchar',
+        'description' => 'The Regular Period Unit',
+        'length' => '128',
+        'default' => 'D',
+      ),
+      'trial_amount' => array(
+        'type' => 'numeric',
+        'description' => 'The Trial Fee',
+        'precision' => '10',
+        'scale' => '2',
+        'not null' => TRUE,
+        'default' => 0.00,
+      ),
+      'trial_length' => array(
+        'type' => 'int',
+        'description' => 'The Trial Period Length',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'trial_unit' => array(
+        'type' => 'varchar',
+        'description' => 'The Trial Period Unit',
+        'length' => '128',
+        'default' => 'D',
+      ),
+      'recurring' => array(
+        'type' => 'int',
+        'description' => 'The Subscription is Recurring',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'total_occurrences' => array(
+        'type' => 'int',
+        'description' => 'The Number of Payments',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 1,
+      ),
+      'offer_sticky' => array(
+        'type' => 'int',
+        'description' => 'Whether or not to offer sticky',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'sticky_amount' => array(
+        'type' => 'numeric',
+        'description' => 'The Sticky Fee',
+        'precision' => '10',
+        'scale' => '2',
+        'not null' => TRUE,
+        'default' => 0.00,
+      ),
+      'offer_promote' => array(
+        'type' => 'int',
+        'description' => 'Whether or not to offer promote',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'show_add' => array(
+        'type' => 'int',
+        'description' => 'Whether or not to show on add days pages',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 1,
+      ),
+      'promote_amount' => array(
+        'type' => 'numeric',
+        'description' => 'The Promote Fee',
+        'precision' => '10',
+        'scale' => '2',
+        'not null' => TRUE,
+        'default' => 0.00,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'description' => 'Weight',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'description' => 'Serialized Array of Data for the plan',
+        'serialize' => TRUE
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+
+  $schema['ms_paypublish_nodes'] = array(
+    'description' => 'Used to hold information on nodes',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'description' => 'The unique ID (primary)',
+        'not null' => TRUE,
+        'disp-width' => '11'
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'nid',
+        'disp-width' => '11'
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'description' => 'Plan ID',
+        'disp-width' => '11'
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'description' => 'uid',
+        'disp-width' => '11'
+      ),
+      'oid' => array(
+        'type' => 'int',
+        'description' => 'The unique order ID',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'description' => 'status',
+        'disp-width' => '11'
+      ),
+      'start_date' => array(
+        'type' => 'int',
+        'description' => 'Start Date',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+      'current_payments' => array(
+        'type' => 'int',
+        'description' => 'The current number of payments made',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+      'max_payments' => array(
+        'type' => 'int',
+        'description' => 'The max number of payments',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+      'expiration_date' => array(
+        'type' => 'int',
+        'description' => 'Expiration Timestamp',
+        'disp-width' => '32',
+        'default' => 0
+      ),
+      'is_sticky' => array(
+        'type' => 'int',
+        'description' => 'Whether or not the sticky is active',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+      'is_promoted' => array(
+        'type' => 'int',
+        'description' => 'Whether or not the promote is active',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+      'sticky_expiration' => array(
+        'type' => 'int',
+        'description' => 'The expiration date for the sticky',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+      'promote_expiration' => array(
+        'type' => 'int',
+        'description' => 'The expiration date for the promote',
+        'not null' => TRUE,
+        'disp-width' => '11',
+        'default' => 0
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+// ======================================
+// Updates:
+// ======================================
+
+/**
+ * Migrate Override Settings
+ */
+function ms_paypublish_update_7501(&$sandbox) {
+  foreach (ms_paypublish_get_plans() as $id => $name) {
+    $product = ms_paypublish_load_plan($id);
+    
+    if (isset($product->data['override_settings']) AND is_array($product->data['override_settings'])) {
+      $old_override_settings = $product->data['override_settings'];
+      $new_override_settings = array();
+      
+      foreach ($old_override_settings as $module => $info) {
+        if ($info['override']) {
+          foreach ($info['settings'] as $key => $value) {
+            if (is_array($value)) {
+              foreach ($value as $child_key => $child_value) {
+                if (!is_array($child_value)) {
+                  if ($child_value != variable_get($child_key, '')) {
+                    $new_override_settings[$child_key] = $child_value;
+                  }
+                }
+              }
+            }
+            else {
+              if ($value != variable_get($key, '')) {
+                $new_override_settings[$key] = $value;
+              }
+            }
+          }
+        }
+      }
+  
+      $product->data['override_settings'] = $new_override_settings;
+      
+      drupal_write_record('ms_paypublish_plans', $product, 'pid');
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Add the uid field to the ms_paypublish_plans table
+ */
+function ms_paypublish_update_7502(&$sandbox) {
+  if (!db_field_exists('ms_paypublish_plans', 'uid')) {
+  db_add_field('ms_paypublish_plans', 'uid', array(
+      'description' => t('The user id who owns the products.'), 
+      'type' => 'int', 
+      'unsigned' => TRUE, 
+      'not null' => TRUE, 
+      'default' => 1,
+    ));
+  }
+  
+  return t('Successfully added the uid field to the ms_paypublish_plans database table.');
+}

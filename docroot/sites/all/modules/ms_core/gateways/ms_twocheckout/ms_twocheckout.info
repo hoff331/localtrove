@@ -1,0 +1,10 @@
+;$Id: $
+name = 2Checkout
+description = Gateway to use 2Checkout
+version = "7.x-2.17"
+core = 7.x
+package = MoneyScripts - Gateways
+dependencies[] = ms_core
+files[] = ms_twocheckout.install
+files[] = ms_twocheckout.module
+configure = admin/moneyscripts/gateways/ms_twocheckout

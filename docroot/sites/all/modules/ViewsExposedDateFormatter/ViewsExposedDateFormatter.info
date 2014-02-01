@@ -1,0 +1,5 @@
+; $Id $
+name = ViewsExposedDateFormatter
+description = Changes the format of exposed date filters from YYYY/MM/DD to MM/DD/YYYY
+package = Custom
+core = 7.x

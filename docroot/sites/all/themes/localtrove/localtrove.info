@@ -1,0 +1,47 @@
+name        = localtrove
+description = Local Trove - Markets, Auctions and Sales
+
+screenshot  = screenshot.png
+version     = v1
+core        = 7.x
+engine      = phptemplate
+
+stylesheets[all][]        = css/reset.css
+stylesheets[all][]        = css/styles.css
+stylesheets[all][]        = css/MyFontsWebfontsKit.css
+;stylesheets[print][]      = css/print.css
+
+
+stylesheets-conditional[IE 8][all][]  = css/ie8styles.css
+stylesheets-conditional[lte IE 7][all][]  = css/ie7styles.css
+
+
+;scripts[] = js/script.js
+
+regions[headerLeft]      = Header Left
+regions[headerRight]     = Header Right
+regions[navigation]      = Navigation
+regions[eventsNav]       = Events Nav
+regions[search]          = Search
+regions[sidedish1]       = Sidedish 1
+regions[sidedish2]       = Sidedish 2
+regions[sidedish3]       = Sidedish 3
+regions[subNav]          = Sub Navigation
+regions[feature]         = Feature
+regions[addEvent]        = Add Event Badge
+regions[nearbyMap]       = Nearby Map
+regions[content]         = Content
+regions[footerLeft1]     = Footer Left 1
+regions[footerLeft2]     = Footer Left 2
+regions[footerLeft3]     = Footer Left 3
+regions[footerRight]     = Footer Right
+
+
+features[] = logo
+features[] = name
+features[] = slogan
+features[] = node_user_picture
+features[] = comment_user_picture
+features[] = favicon
+features[] = main_menu
+features[] = secondary_menu

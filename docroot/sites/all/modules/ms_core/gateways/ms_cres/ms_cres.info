@@ -1,0 +1,11 @@
+;$Id$
+name = CRE Secure
+description = Payment Gateway for CRE Secure - Fully PCI Compliant
+version = "7.x-2.17"
+core = 7.x
+package = MoneyScripts - Gateways
+
+dependencies[] = ms_core
+files[] = ms_cres.install
+files[] = ms_cres.module
+configure = admin/moneyscripts/gateways/ms_cres
