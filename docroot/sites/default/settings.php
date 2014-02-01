@@ -575,3 +575,8 @@ ini_set('memory_limit', '128M');
 if (file_exists('/var/www/site-php')) {
   require('/var/www/site-php/eechoffman/eechoffman-settings.inc');
 }
+
+#memcached https://docs.acquia.com/cloud/performance/memcached
+$conf['cache_backends'][] = './sites/all/modules/memcache/memcache.inc';
+$conf['cache_default_class'] = 'MemCacheDrupal';
+$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
