@@ -35,6 +35,8 @@ regions[footerLeft1]     = Footer Left 1
 regions[footerLeft2]     = Footer Left 2
 regions[footerLeft3]     = Footer Left 3
 regions[footerRight]     = Footer Right
+regions[copyLeft]        = Copy Left
+regions[copyRight]       = Copy Right
 
 
 features[] = logo

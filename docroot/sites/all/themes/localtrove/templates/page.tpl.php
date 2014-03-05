@@ -102,7 +102,7 @@
 </div>
 
 <div id="footerWrapper">
-	<div id="footer">
+    <div id="footer">
     	<div id="footerLeft1"><?php print render($page['footerLeft1']); ?></div>
         <div id="footerLeft2"><?php print render($page['footerLeft2']); ?></div>
         <div id="footerLeft3"><?php print render($page['footerLeft3']); ?></div>
@@ -112,10 +112,16 @@
 </div>
 
 <div id="copyWrapper">
-	<div id="copy">
-    	<div id="copyLeft">localtrove.com &copy; copyright 2013</div>
+    <div id="copy">
+    	<div id="copyLeft">
+    	<?php print render($page['copyLeft']); ?>
+	<!--localtrove.com &copy; copyright 2013-->
+	</div>
         <div id="copyCenter"></div>
-        <div id="copyRight"><a href="http://getJumpStartNow.com">website design by Jumpstart</a></div>
+        <div id="copyRight">
+	<?php print render($page['copyRight']); ?>
+	<!--Powered by Drupal, Hosted on Acquia, <a href="http://www.getJumpStartNow.com">Built by Jumpstart</a>-->
+	</div>
     	<div class="clearfix"></div>
     </div>
 </div>
