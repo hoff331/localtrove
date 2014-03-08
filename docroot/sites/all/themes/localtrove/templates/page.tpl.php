@@ -45,9 +45,11 @@
 <div id="contentWrapper">
 	<div id="intContent">
     	<!--if subNav, feature and nearbyMap print intContentLeft with class notFull-->
-		<div id="intContentLeft"<?php if($page['subNav'] || $page['feature'] || $page['addEvent'] || $page['nearbyMap']){
-        echo("class='notFull'");
-		}?>>
+		<div id="intContentLeft"
+		<?php if ($page['subNav'] || $page['feature'] || $page['addEvent'] || $page['nearbyMap']): ?>
+        <?php echo("class='notFull'"); ?>
+        <?php endif; ?>
+        >
         		<?php if ($breadcrumb): ?>
 					<?php print $breadcrumb; ?>
 				<?php endif; ?>
@@ -68,7 +70,7 @@
         </div>
         
         <!--if subNav, feature or nearbyMap print intContentRight-->
-		<?php if( ($page['subNav']) || ($page['feature']) || ($page['addEvent']) || ($page['nearbyMap']) ): ?>
+		<?php if ($page['subNav'] || $page['feature'] || $page['addEvent'] || $page['nearbyMap']): ?>
         <div id="intContentRight">
         	
 			<?php if ($page['subNav']): ?>
