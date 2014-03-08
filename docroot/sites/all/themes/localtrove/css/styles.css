@@ -729,14 +729,14 @@ a.feature.browse:hover{
 }
 
 #intContentLeft{
-	width:606px;
-	margin-right:36px;
+	width:936px;
+	margin-right:0;
 	float:left;
 }
 
-#intContentLeft.full{
-	width:936px;
-	margin-right:0;
+#intContentLeft.notFull{
+	width:606px;
+	margin-right:36px;
 	float:left;
 }
 

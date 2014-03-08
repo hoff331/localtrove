@@ -44,8 +44,10 @@
 
 <div id="contentWrapper">
 	<div id="intContent">
-    	<!--if NO subNav, feature and nearbyMap print intContentLeft with class full-->
-        <div id="intContentLeft">
+    	<!--if subNav, feature and nearbyMap print intContentLeft with class notFull-->
+		<div id="intContentLeft"<?php if($page['subNav'] || $page['feature'] || $page['addEvent'] || $page['nearbyMap']){
+        echo("class='notFull'");
+		}?>>
         		<?php if ($breadcrumb): ?>
 					<?php print $breadcrumb; ?>
 				<?php endif; ?>
@@ -115,12 +117,10 @@
     <div id="copy">
     	<div id="copyLeft">
     	<?php print render($page['copyLeft']); ?>
-	<!--localtrove.com &copy; copyright 2013-->
 	</div>
         <div id="copyCenter"></div>
         <div id="copyRight">
 	<?php print render($page['copyRight']); ?>
-	<!--Powered by Drupal, Hosted on Acquia, <a href="http://www.getJumpStartNow.com">Built by Jumpstart</a>-->
 	</div>
     	<div class="clearfix"></div>
     </div>
