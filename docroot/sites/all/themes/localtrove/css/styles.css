@@ -779,6 +779,11 @@ li.vertical-tab-button{
 	list-style-type:none;
 }
 
+.multipage-controls-list input.form-submit{
+	background:#FFFFFF;
+	margin:18px 18px 0 0;
+}
+
 
 /****** SUB NAV ******/
 #subNav{
