@@ -299,9 +299,6 @@ $drupal_hash_salt = 'F-rw7UEiVAk0YIZke2TVnTRbuzKsh1tSw-ZfXoY-ZKg';
  * for you.
  */
 // $base_url = 'http://localtrove.com';  // NO trailing slash!
-if (isset($_ENV['AH_SITE_ENVIRONMENT']) && $_ENV['AH_SITE_ENVIRONMENT'] == 'prod') {
-  $base_url = 'http://localtrove.com';
-} 
 
 /**
  * PHP settings:
@@ -590,6 +587,12 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
 # $conf['allow_authorize_operations'] = FALSE;
 
 # ini_set('memory_limit', '128M');
+
+if (isset($_ENV['AH_SITE_ENVIRONMENT']) && $_ENV['AH_SITE_ENVIRONMENT'] == 'prod') {
+  $base_url = 'http://localtrove.com';
+  // Turn off all error reporting
+  error_reporting(0);
+}
 
 // On Acquia Cloud, this include file configures Drupal to use the correct
 // database in each site environment (Dev, Stage, or Prod). To use this 
