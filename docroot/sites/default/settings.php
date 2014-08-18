@@ -298,7 +298,7 @@ $drupal_hash_salt = 'F-rw7UEiVAk0YIZke2TVnTRbuzKsh1tSw-ZfXoY-ZKg';
  * It is not allowed to have a trailing slash; Drupal will add it
  * for you.
  */
-/* $base_url = 'http://localtrove.com';  // NO trailing slash!
+// $base_url = 'http://localtrove.com';  // NO trailing slash!
 if (isset($_ENV['AH_SITE_ENVIRONMENT']) && $_ENV['AH_SITE_ENVIRONMENT'] == 'prod') {
   $base_url = 'http://localtrove.com';
 } 
