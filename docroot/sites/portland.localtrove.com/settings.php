@@ -147,7 +147,7 @@
  *     'authmap'   => 'shared_',
  *   ),
  * @endcode
- * You can also use a reference to a schema/database as a prefix. This maybe
+ * You can also use a reference to a schema/database as a prefix. This may be
  * useful if your Drupal installation exists in a schema that is not the default
  * or you want to access several databases from the same code base at the same
  * time.
@@ -210,41 +210,7 @@
  *   );
  * @endcode
  */
-$databases = array (
-  'default' => 
-  array (
-    'default' => 
-    array (
-      'database' => 'loc1230010500526',
-      'username' => 'loc1230010500526',
-      'password' => 'mm44dagYYY!',
-      'host' => 'loc1230010500526.db.2705600.hostedresource.com',
-      'port' => '',
-      'driver' => 'mysql',
-      'prefix' => '',
-    ),
-  ),
-);
-
-/**
- * Access controls for php-fpm: https://docs.acquia.com/articles/password-protect-your-non-production-environments-acquia-hosting
- */
-// Make sure Drush keeps working. 
-// Modified from function drush_verify_cli()
-$cli = (php_sapi_name() == 'cli');
-// PASSWORD-PROTECT NON-PRODUCTION SITES (i.e. staging/dev)
-if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) {
-  $username = 'admin';
-  $password = 'mm44dagYYY!';
-  if (!(isset($_SERVER['PHP_AUTH_USER']) && ($_SERVER['PHP_AUTH_USER']==$username && $_SERVER['PHP_AUTH_PW']==$password))) {
-    header('WWW-Authenticate: Basic realm="This site is protected"');
-    header('HTTP/1.0 401 Unauthorized');
-    // Fallback message when the user presses cancel / escape
-    echo 'Access denied';
-    exit;
-  }
-}
-
+$databases = array();
 
 /**
  * Access control for update.php script.
@@ -276,7 +242,7 @@ $update_free_access = FALSE;
  *   $drupal_hash_salt = file_get_contents('/home/example/salt.txt');
  *
  */
-$drupal_hash_salt = 'F-rw7UEiVAk0YIZke2TVnTRbuzKsh1tSw-ZfXoY-ZKg';
+$drupal_hash_salt = '';
 
 /**
  * Base URL (optional).
@@ -298,14 +264,14 @@ $drupal_hash_salt = 'F-rw7UEiVAk0YIZke2TVnTRbuzKsh1tSw-ZfXoY-ZKg';
  * It is not allowed to have a trailing slash; Drupal will add it
  * for you.
  */
-// $base_url = 'http://localtrove.com';  // NO trailing slash!
+# $base_url = 'http://www.example.com';  // NO trailing slash!
 
 /**
  * PHP settings:
  *
  * To see what PHP settings are possible, including whether they can be set at
  * runtime (by using ini_set()), read the PHP documentation:
- * http://www.php.net/manual/en/ini.list.php
+ * http://www.php.net/manual/ini.list.php
  * See drupal_environment_initialize() in includes/bootstrap.inc for required
  * runtime settings and the .htaccess file for non-runtime settings. Settings
  * defined there should not be duplicated here so as to avoid conflict issues.
@@ -341,7 +307,7 @@ ini_set('session.cookie_lifetime', 2000000);
  * output filter may not have sufficient memory to process it.  If you
  * experience this issue, you may wish to uncomment the following two lines
  * and increase the limits of these variables.  For more information, see
- * http://php.net/manual/en/pcre.configuration.php.
+ * http://php.net/manual/pcre.configuration.php.
  */
 # ini_set('pcre.backtrack_limit', 200000);
 # ini_set('pcre.recursion_limit', 200000);
@@ -469,7 +435,7 @@ ini_set('session.cookie_lifetime', 2000000);
 /**
  * String overrides:
  *
- * To override specific strings on your site with or without enabling locale
+ * To override specific strings on your site with or without enabling the Locale
  * module, add an entry to this list. This functionality allows you to change
  * a small number of your site's default English language interface strings.
  *
@@ -542,7 +508,7 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  * sure that you understand the effects of this feature before uncommenting the
  * line below.
  */
- drupal_fast_404();
+# drupal_fast_404();
 
 /**
  * External access proxy settings:
@@ -586,23 +552,6 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  */
 # $conf['allow_authorize_operations'] = FALSE;
 
-# ini_set('memory_limit', '128M');
-
-if (isset($_ENV['AH_SITE_ENVIRONMENT']) && $_ENV['AH_SITE_ENVIRONMENT'] == 'prod') {
-  $base_url = 'http://portland.localtrove.com';
-  // Turn off all error reporting
-  error_reporting(0);
-}
-
-// On Acquia Cloud, this include file configures Drupal to use the correct
-// database in each site environment (Dev, Stage, or Prod). To use this 
-// settings.php for development on your local workstation, set $db_url
-// (Drupal 5 or 6) or $databases (Drupal 7) as described in comments above.
 if (file_exists('/var/www/site-php')) {
   require '/var/www/site-php/eechoffman/portland-settings.inc';
 }
-
-# memcached https://docs.acquia.com/cloud/performance/memcached
- $conf['cache_backends'][] = './sites/all/modules/memcache/memcache.inc';
- $conf['cache_default_class'] = 'MemCacheDrupal';
- $conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
