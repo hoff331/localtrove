@@ -552,6 +552,23 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  */
 # $conf['allow_authorize_operations'] = FALSE;
 
-if (file_exists('/var/www/site-php')) {
-  require '/var/www/site-php/eechoffman/portland-settings.inc';
-}
+// Use the portland database as our default database, but delay connecting.
+$conf['acquia_hosting_settings_autoconnect'] = FALSE;
+require('/var/www/site-php/eechoffman/portland-settings.inc');
+
+// Use the eechoffman database for users, sessions, and profiles.
+$shared = $databases['eechoffman']['default']['database'] . '.';
+$databases['default']['default']['prefix'] = array(
+  'default' => '',
+  'authmap' => $shared,
+  'profile_fields' => $shared,
+  'profile_values' => $shared,
+  'permission' => $shared,
+  'role' => $shared,
+  'sessions' => $shared,
+  'users' => $shared,
+  'users_roles' => $shared,
+);
+
+// Connect to the database.
+acquia_hosting_db_choose_active();
