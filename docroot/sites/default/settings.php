@@ -210,21 +210,6 @@
  *   );
  * @endcode
  */
-$databases = array (
-  'default' => 
-  array (
-    'default' => 
-    array (
-      'database' => 'loc1230010500526',
-      'username' => 'loc1230010500526',
-      'password' => 'mm44dagYYY!',
-      'host' => 'loc1230010500526.db.2705600.hostedresource.com',
-      'port' => '',
-      'driver' => 'mysql',
-      'prefix' => '',
-    ),
-  ),
-);
 
 /**
  * Access controls for php-fpm: https://docs.acquia.com/articles/password-protect-your-non-production-environments-acquia-hosting
@@ -246,6 +231,31 @@ if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) 
   }
 }
 */
+
+if (isset($_ENV['AH_SITE_ENVIRONMENT'])) {
+  $username = 'admin';
+  $password = 'mm44dagYYY!';
+  switch ($_ENV['AH_SITE_ENVIRONMENT']) {
+    case ‘dev’:
+      if (!(isset($_SERVER['PHP_AUTH_USER']) && ($_SERVER['PHP_AUTH_USER']==$username && $_SERVER['PHP_AUTH_PW']==$password))) {
+      header('WWW-Authenticate: Basic realm="This site is protected"');
+      header('HTTP/1.0 401 Unauthorized');
+      // Fallback message when the user presses cancel / escape
+      echo 'Access denied';
+      exit;
+      break;
+    case ‘test’:
+      if (!(isset($_SERVER['PHP_AUTH_USER']) && ($_SERVER['PHP_AUTH_USER']==$username && $_SERVER['PHP_AUTH_PW']==$password))) {
+      header('WWW-Authenticate: Basic realm="This site is protected"');
+      header('HTTP/1.0 401 Unauthorized');
+      // Fallback message when the user presses cancel / escape
+      echo 'Access denied';
+      exit;
+      break;
+    case 'prod':
+      break;
+  }
+}
 
 /**
  * Access control for update.php script.
