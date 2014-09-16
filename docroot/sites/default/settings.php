@@ -218,7 +218,7 @@
 // Modified from function drush_verify_cli()
 $cli = (php_sapi_name() == 'cli');
 // PASSWORD-PROTECT NON-PRODUCTION SITES (i.e. staging/dev)
-/*
+
 if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) {
   $username = 'admin';
   $password = 'mm44dagYYY!';
@@ -228,32 +228,6 @@ if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) 
     // Fallback message when the user presses cancel / escape
     echo 'Access denied';
     exit;
-  }
-}
-*/
-
-if (isset($_ENV['AH_SITE_ENVIRONMENT'])) {
-  $username = 'admin';
-  $password = 'mm44dagYYY!';
-  switch ($_ENV['AH_SITE_ENVIRONMENT']) {
-    case ‘dev’:
-      if (!(isset($_SERVER['PHP_AUTH_USER']) && ($_SERVER['PHP_AUTH_USER']==$username && $_SERVER['PHP_AUTH_PW']==$password))) {
-      header('WWW-Authenticate: Basic realm="This site is protected"');
-      header('HTTP/1.0 401 Unauthorized');
-      // Fallback message when the user presses cancel / escape
-      echo 'Access denied';
-      exit;
-      break;
-    case ‘test’:
-      if (!(isset($_SERVER['PHP_AUTH_USER']) && ($_SERVER['PHP_AUTH_USER']==$username && $_SERVER['PHP_AUTH_PW']==$password))) {
-      header('WWW-Authenticate: Basic realm="This site is protected"');
-      header('HTTP/1.0 401 Unauthorized');
-      // Fallback message when the user presses cancel / escape
-      echo 'Access denied';
-      exit;
-      break;
-    case 'prod':
-      break;
   }
 }
 
