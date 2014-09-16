@@ -233,6 +233,7 @@ $databases = array (
 // Modified from function drush_verify_cli()
 $cli = (php_sapi_name() == 'cli');
 // PASSWORD-PROTECT NON-PRODUCTION SITES (i.e. staging/dev)
+/*
 if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) {
   $username = 'admin';
   $password = 'mm44dagYYY!';
@@ -244,7 +245,7 @@ if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) 
     exit;
   }
 }
-
+*/
 
 /**
  * Access control for update.php script.
