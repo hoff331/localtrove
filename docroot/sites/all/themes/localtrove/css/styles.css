@@ -240,6 +240,7 @@ strong{
 #intContent input[type="text"],
 #intContent input[type="email"],
 #intContent input[type="password"]{
+	width: 100%;
 	vertical-align:top;
 	padding:2px 5px;
 	margin:3px 0 0;
