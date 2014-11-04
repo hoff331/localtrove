@@ -1321,3 +1321,8 @@ input[value="Apply"]:hover{
 .views-exposed-form .views-exposed-widget .form-submit{
 	margin:1em 0 0;
 }
+
+/******* DRUAPL TEXT FILTER *******/
+fieldset.filter-wrapper.form-wrapper{
+	display:none;
+}
