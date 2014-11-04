@@ -240,7 +240,6 @@ strong{
 #intContent input[type="text"],
 #intContent input[type="email"],
 #intContent input[type="password"]{
-	width: 100%;
 	vertical-align:top;
 	padding:2px 5px;
 	margin:3px 0 0;
@@ -749,6 +748,12 @@ a.feature.browse:hover{
 #intContentRight p{
 	line-height:1.2em;
 	margin-bottom:1em;
+}
+
+#intContentRight input[type="text"],
+#intContentRight input[type="email"],
+#intContentRight input[type="password"]{
+        width: 100%;
 }
 
 .submitted{
