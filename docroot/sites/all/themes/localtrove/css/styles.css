@@ -375,7 +375,7 @@ strong{
 }
 
 #navigationLeft{
-	width:685px;
+	width:712px;
 	float:left;
 }
 
@@ -384,7 +384,7 @@ strong{
 }
 
 #navigationRight{
-	width:250px;
+	width:224px;
 	float:right;
 }
 
@@ -543,7 +543,7 @@ strong{
 
 #search input[type="text"]{
 	vertical-align:top;
-	width:162px;
+	width:140px;
 	padding:2px 5px;
 	margin:5px 0 0;
 	line-height:18px;
