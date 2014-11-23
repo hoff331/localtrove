@@ -18,11 +18,11 @@ ul.nice-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
-  border-top: 1px solid #7EAA39;
+  /*border-top: 1px solid #7EAA39;*/
 }
 
 ul.nice-menu li {
-  border: 1px solid #7EAA39;
+  /*border: 1px solid #7EAA39;*/
   border-top: 0;
   float: left; /* LTR */
   background-color: #8CC63F;
@@ -36,7 +36,7 @@ ul.nice-menu ul {
   top: 1.8em;
   left: -1px; /* LTR */
   border: 0;
-  border-top: 1px solid #7EAA39;
+  /*border-top: 1px solid #7EAA39;*/
   margin-right: 0; /* LTR */
 }
 
@@ -117,7 +117,7 @@ ul.nice-menu-down {
 }
 
 ul.nice-menu-down li {
-  border-top: 1px solid #7EAA39;
+  /*border-top: 1px solid #7EAA39;*/
 }
 
 ul.nice-menu-down li li {
@@ -154,62 +154,5 @@ ul.nice-menu-down li li.menuparent {
 }
 
 ul.nice-menu-down li li.menuparent:hover {
-  background: #7EAA39 url("../images/arrow-right.png") right center no-repeat; /* LTR */
-}
-
-/******************************
- Garland-specific CSS
-******************************/
-
-/**
- * Global CSS for ALL menu types
- */
-ul.nice-menu li {
-  margin: 0;
-  padding-left: 0; /* LTR */
-  background-image: none;
-}
-
-#header-region ul.nice-menu li {
-  margin: 0;
-  /* Padding rules are needed to deal with Garland's header line-height. */
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
-  background: #8CC63F;
-}
-
-#header-region ul.nice-menu ul {
-  top: 1.8em;
-  left: -1px; /* LTR */
-  border: 0;
-  border-top: 1px solid #7EAA39;
-  margin-right: 0; /* LTR */
-}
-
-#header-region ul.nice-menu ul {
-  top: 1.7em;
-}
-
-/**
- * HORIZONTAL (down) menus
- */
-#header-region ul.nice-menu-down li ul li ul {
-  left: 12.5em; /* LTR */
-  top: -1px;
-}
-
-#header-region ul.nice-menu-down li.menuparent {
-  background: #8CC63F url("../images/arrow-down.png") right center no-repeat; /* LTR */
-}
-
-#header-region ul.nice-menu-down li.menuparent:hover {
-  background: #7EAA39 url("../images/arrow-down.png") right center no-repeat; /* LTR */
-}
-
-#header-region ul.nice-menu-down li li.menuparent {
-  background: #8CC63F url("../images/arrow-right.png") right center no-repeat; /* LTR */
-}
-
-#header-region ul.nice-menu-down li li.menuparent:hover {
   background: #7EAA39 url("../images/arrow-right.png") right center no-repeat; /* LTR */
 }
