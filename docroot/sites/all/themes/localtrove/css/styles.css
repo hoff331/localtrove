@@ -272,12 +272,12 @@ strong{
 }
 
 #headerLeft{
-	width:552px;/*624 - 72*/
+	width:440;
 	float:left;
 }
 
 #headerMiddle{
-	width:294px;
+	width:440px;
 	float:right;
 }
 
