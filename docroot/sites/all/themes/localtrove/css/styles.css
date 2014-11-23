@@ -395,6 +395,7 @@ strong{
 #navigation ul li{
 	display:inline-block;
 	line-height:1em;
+	position:relatvie;
 }
 
 #navigation ul li a,
@@ -429,6 +430,7 @@ strong{
 #navigation ul ul li{
     padding-top:1px; /* Introducing a padding between the li and the a give the illusion spaced items */
     float:none;
+	display:inline;
 }
 #navigation ul ul a{
     white-space:nowrap; /* Stop text wrapping and creating multi-line dropdown items */
