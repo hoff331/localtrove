@@ -395,7 +395,7 @@ strong{
 #navigation ul li{
 	display:inline-block;
 	line-height:1em;
-	position:relatvie;
+	position:relative;
 }
 
 #navigation ul li a,
