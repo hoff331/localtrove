@@ -426,6 +426,7 @@ strong{
     position:absolute;
     left:-9999px; /* Hide off-screen when not needed (this is more accessible than display:none;) */
 	top:54px;
+	z-index:100;
 }
 
 #navigation ul ul li{
