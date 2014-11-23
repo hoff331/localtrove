@@ -419,6 +419,7 @@ strong{
 }
 
 /*------- NAVIGATION CHILD -------*/
+/*
 #navigation ul li ul{
 	display:none;
 }
@@ -529,13 +530,16 @@ strong{
 	background-position:-864px -520px;
 	background-color:transparent;
 }
-
+*/
 /*------- NAVIGATION GRANDCHILD -------*/
+/*
 #navigation ul li ul li ul,
 #navigation ul li:nth-child(2) ul li ul{
 	display:none;
 }
+*/
 
+/*------ SEARCH ------*/
 #search{
 	float:right;
 	margin-top:9px;
