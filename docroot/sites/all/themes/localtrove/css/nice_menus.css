@@ -18,14 +18,14 @@ ul.nice-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #7EAA39;
 }
 
 ul.nice-menu li {
-  border: 1px solid #ccc;
+  border: 1px solid #7EAA39;
   border-top: 0;
   float: left; /* LTR */
-  background-color: #eee;
+  background-color: #8CC63F;
 }
 
 ul.nice-menu a {
@@ -36,7 +36,7 @@ ul.nice-menu ul {
   top: 1.8em;
   left: -1px; /* LTR */
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #7EAA39;
   margin-right: 0; /* LTR */
 }
 
@@ -71,12 +71,12 @@ ul.nice-menu-right ul ul {
 
 ul.nice-menu-right li.menuparent,
 ul.nice-menu-right li li.menuparent {
-  background: #eee url("../images/arrow-right.png") right center no-repeat;
+  background: #8CC63F url("../images/arrow-right.png") right center no-repeat;
 }
 
 ul.nice-menu-right li.menuparent:hover,
 ul.nice-menu-right li li.menuparent:hover {
-  background: #ccc url("../images/arrow-right.png") right center no-repeat;
+  background: #7EAA39 url("../images/arrow-right.png") right center no-repeat;
 }
 
 /* VERTICAL menus where submenus pop LEFT. */
@@ -94,12 +94,12 @@ ul.nice-menu-left li ul li ul {
 
 ul.nice-menu-left li.menuparent,
 ul.nice-menu-left li li.menuparent {
-  background: #eee url("../images/arrow-left.png") left center no-repeat;
+  background: #8CC63F url("../images/arrow-left.png") left center no-repeat;
 }
 
 ul.nice-menu-left li.menuparent:hover,
 ul.nice-menu-left li li.menuparent:hover {
-  background: #ccc url("../images/arrow-left.png") left center no-repeat;
+  background: #7EAA39 url("../images/arrow-left.png") left center no-repeat;
 }
 
 ul.nice-menu-left a,
@@ -117,7 +117,7 @@ ul.nice-menu-down {
 }
 
 ul.nice-menu-down li {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #7EAA39;
 }
 
 ul.nice-menu-down li li {
@@ -142,19 +142,19 @@ ul.nice-menu-down .menuparent a {
 }
 
 ul.nice-menu-down li.menuparent {
-  background: #eee url("../images/arrow-down.png") right center no-repeat; /* LTR */
+  background: #8CC63F url("../images/arrow-down.png") right center no-repeat; /* LTR */
 }
 
 ul.nice-menu-down li.menuparent:hover {
-  background: #ccc url("../images/arrow-down.png") right center no-repeat; /* LTR */
+  background: #7EAA39 url("../images/arrow-down.png") right center no-repeat; /* LTR */
 }
 
 ul.nice-menu-down li li.menuparent {
-  background: #eee url("../images/arrow-right.png") right center no-repeat; /* LTR */
+  background: #8CC63F url("../images/arrow-right.png") right center no-repeat; /* LTR */
 }
 
 ul.nice-menu-down li li.menuparent:hover {
-  background: #ccc url("../images/arrow-right.png") right center no-repeat; /* LTR */
+  background: #7EAA39 url("../images/arrow-right.png") right center no-repeat; /* LTR */
 }
 
 /******************************
@@ -175,14 +175,14 @@ ul.nice-menu li {
   /* Padding rules are needed to deal with Garland's header line-height. */
   padding-top: 0.1em;
   padding-bottom: 0.1em;
-  background: #eee;
+  background: #8CC63F;
 }
 
 #header-region ul.nice-menu ul {
   top: 1.8em;
   left: -1px; /* LTR */
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #7EAA39;
   margin-right: 0; /* LTR */
 }
 
@@ -199,17 +199,17 @@ ul.nice-menu li {
 }
 
 #header-region ul.nice-menu-down li.menuparent {
-  background: #eee url("../images/arrow-down.png") right center no-repeat; /* LTR */
+  background: #8CC63F url("../images/arrow-down.png") right center no-repeat; /* LTR */
 }
 
 #header-region ul.nice-menu-down li.menuparent:hover {
-  background: #ccc url("../images/arrow-down.png") right center no-repeat; /* LTR */
+  background: #7EAA39 url("../images/arrow-down.png") right center no-repeat; /* LTR */
 }
 
 #header-region ul.nice-menu-down li li.menuparent {
-  background: #eee url("../images/arrow-right.png") right center no-repeat; /* LTR */
+  background: #8CC63F url("../images/arrow-right.png") right center no-repeat; /* LTR */
 }
 
 #header-region ul.nice-menu-down li li.menuparent:hover {
-  background: #ccc url("../images/arrow-right.png") right center no-repeat; /* LTR */
+  background: #7EAA39 url("../images/arrow-right.png") right center no-repeat; /* LTR */
 }
