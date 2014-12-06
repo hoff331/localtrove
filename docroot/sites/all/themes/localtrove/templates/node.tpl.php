@@ -2,7 +2,7 @@
 
 ?>
 <?php if ($teaser): ?>
-    <div class="listing">
+    <div class="listing contextual-links-region">
         <div class="listingLeft">
             <?php if (isset($content['field_farmers_market_marker'])): ?>
                 <?php print render($content['field_farmers_market_marker']); ?>
