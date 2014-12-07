@@ -299,7 +299,9 @@ strong{
 	text-decoration:none;
 }
 
-#headerMiddle ul.menu li a:hover{
+#headerMiddle ul.menu li a:hover,
+#headerMiddle ul.menu li a.active-trail,
+#headerMiddle ul.menu li a.active{
 	color:#8CC63F;
 }
 
