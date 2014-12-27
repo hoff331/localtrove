@@ -26,8 +26,7 @@
             
             <a href="<?php print $node_url; ?>">more information</a>
             
-            <?php print render($content['links']); ?>
-            <?php print render($content['comments']); ?>
+            <!--Remove php print render Links/Comments-->
         </div>
         <div class="clearfix"></div>
     </div>
@@ -60,6 +59,8 @@
     </div>
 
     <?php print render($content['links']); ?>
+    <!--added because private comments removes default commend header-->
+    <h2 class="title comment-form">Contact this vendor</h2>
     <?php print render($content['comments']); ?>
     
     </div>
