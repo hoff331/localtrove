@@ -59,8 +59,8 @@
     </div>
 
     <?php print render($content['links']); ?>
-    <!--added because private comments removes default commend header-->
-    <h2 class="title comment-form">Contact this vendor</h2>
+    <!--added because private comments removes default commend header
+    <h2 class="title comment-form">Contact this vendor</h2>-->
     <?php print render($content['comments']); ?>
     
     </div>
