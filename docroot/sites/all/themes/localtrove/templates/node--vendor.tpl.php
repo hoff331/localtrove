@@ -60,7 +60,8 @@
 
     <?php print render($content['links']); ?>
     <!--added because private comments removes default commend header
-    <h2 class="title comment-form">Contact this vendor</h2>-->
+    <h2 class="title comment-form">Contact vendor</h2>
+    <div class="description">Comments left here are private and are only visibile to the vendor.</div>
     <?php print render($content['comments']); ?>
     
     </div>
