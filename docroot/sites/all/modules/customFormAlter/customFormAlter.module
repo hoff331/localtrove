@@ -22,7 +22,7 @@ function customFormAlter_form_alter(&$form, $form_state, $form_id) {
 		  $form['field_vendor_coupon']['und']['form']['#title'] = t('LocalTrove.com Coupons');
 		  $form['field_vendor_coupon']['und']['form']['actions']['ief_add_save']['#value'] = t('Save Coupon');
 		  break;
-		case 'farmers-market-node-form':
+		case 'farmers_market_node_form':
 		  dpm($form_id);
 		  break;
 	}
