@@ -14,7 +14,19 @@
         </div>
         <div id="navigationRight">
 			<div id="user">
-				<?php  print render($user_profile['user_picture']);?>
+				<?php 
+            		$user = user_load($user->uid);
+        
+					print theme_image_style(
+						array(
+							'style_name' => 'user',
+							'path' => $user->picture->uri,
+							'attributes' => array(
+								'class' => 'avatar'
+							)            
+						)
+					);        
+				?>
 			</div>
             <div id="userMenu">
 				<?php print render($page['user']); ?>
