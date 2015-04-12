@@ -13,7 +13,18 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-			<a id="user" href="#">menu</a>
+			<div id="user">
+				<?php 
+            		$user = user_load($user->uid);
+        
+					print theme_image_style(
+						array(
+							'style_name' => 'user',
+							'path' => $user->picture->uri          
+						)
+					);        
+				?>
+			</div>
             <div id="userMenu">
 				<?php print render($page['user']); ?>
 			</div>
