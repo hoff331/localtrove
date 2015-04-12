@@ -364,27 +364,32 @@ strong{
 }
 
 /*------ VENDOR REGISTRATION ------*/
-#vendor-registration{
-	position:absolute;
+#vendorRegistrationWrapper{
+	padding:0 36px;
 }
 
-#vendor-registration ul.menu{
+#vendorRegistration{
+	position:absolute;
+	width:100%;
+}
+
+#vendorRegistration ul.menu{
 	text-align:center;
 	margin:0;
 }
 
-#vendor-registration ul.menu li{
+#vendorRegistration ul.menu li{
 	list-style-type:none;
 	margin:0;
 	line-height:1em;
 }
 
-#vendor-registration ul.menu li a,
-#vendor-registration ul.menu li a:visited{
+#vendorRegistration ul.menu li a,
+#vendorRegistration ul.menu li a:visited{
 	display:block;
+	float:right;
 	position:relative;
 	top:-4px;
-	right:0;
 	font-size:12px;
 	color:#FFFFFF;
 	text-decoration:none;
@@ -397,7 +402,7 @@ strong{
 	border-radius:0;
 }
 
-#vendor-registration ul.menu li a:hover{
+#vendorRegistration ul.menu li a:hover{
 	color:#FFFFFF;
 	top:0;
 }

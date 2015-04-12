@@ -1,7 +1,9 @@
-<div id="vendor-registration">
-	<ul class="menu">
-		<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
-	</ul>
+<div id="vendorRegistrationWrapper">
+	<div id="vendorRegistration">
+		<ul class="menu">
+			<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
+		</ul>
+	</div>
 </div>
 
 
