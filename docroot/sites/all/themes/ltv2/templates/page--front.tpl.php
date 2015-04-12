@@ -13,7 +13,9 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-			<a id="user" href="#"></a>
+			<div id="user">
+				<?php print $user_picture; ?>
+			</div>
             <div id="userMenu">
 				<?php print render($page['user']); ?>
 			</div>
