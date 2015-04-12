@@ -483,7 +483,7 @@ strong{
 	z-index:2;
 	width:90%;
 	padding:0 5%;
-	background-color:rgba(45,31,31,.8);
+	background-color:rgb(45,31,31);
 	color:#c7b299;
 }
 
@@ -578,6 +578,7 @@ a.feature.browse{
 a.feature.browse:hover{
 	background-position:-552px -276px;
 }
+
 
 /****** INT CONTENT ******/
 #intContent{
@@ -690,6 +691,7 @@ li.vertical-tab-button{
 #feature .block{
 	margin-bottom:36px;
 }
+
 
 /****** EVENT LISTINGS ******/
 .node-sticky>.listing{
@@ -871,24 +873,23 @@ li.vertical-tab-button{
 }
 
 #footerLeft1{
-	width:208px;
+	width:22%;
 	float:left;
 }
 
 #footerLeft2{
-	width:208px;
+	width:22%;
 	float:left;
 }
 
 #footerLeft3{
-	width:208px;
+	width:22%;
 	float:left;
 }
 
 #footerRight{
-	width:276px;
+	width:34%;
 	float:left;
-	padding:0 18px;
 }
 
 
