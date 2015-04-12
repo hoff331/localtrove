@@ -555,6 +555,14 @@ strong{
 	background:url(/sites/default/files/banner.jpg) no-repeat;
 }
 
+#filter{
+	width:60%;
+	padding:5%;
+	margin:0 auto;
+	background-color:rgba(45,31,31,.8);
+	color:#c7b299;
+}
+
 .sidedish{
 	width:30%;
 	float:left;

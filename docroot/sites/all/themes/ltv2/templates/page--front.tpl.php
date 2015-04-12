@@ -31,8 +31,8 @@
 </div>
 
 
-<section>
-	<div id="banner">
+<section id="banner">
+	<div id="filter">
 		<?php print render($page['banner']); ?>
 	</div>
 </section>
