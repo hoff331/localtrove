@@ -13,7 +13,7 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-			<a id="user" href="#"></a>
+			<a id="user" href="#">menu</a>
             <div id="userMenu">
 				<?php print render($page['user']); ?>
 			</div>
