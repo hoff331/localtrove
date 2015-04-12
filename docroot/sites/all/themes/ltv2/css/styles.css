@@ -396,6 +396,10 @@ strong{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
+#banner input{
+	font-size:18px;
+}
+
 #filter{
 	padding:2% 5%;
 	background-color:rgba(45,31,31,.8);
@@ -1131,10 +1135,6 @@ div.password-parent{
 }
 
 /******* DRUAPL INPUTS *******/
-input{
-	font-size:18px;
-}
-
 input[value="Create new account"],
 input[value="Save"],
 input[value="Log in"],
