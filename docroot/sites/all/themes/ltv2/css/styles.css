@@ -393,8 +393,10 @@ strong{
 	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
 	background-position:-900px -569px;
 	padding:10px 0 0;
+	margin:0;
 	position:relative;
 	top:-4px;
+	border-radius:0;
 }
 
 #navigationRight ul.menu li a:hover{
@@ -525,7 +527,6 @@ strong{
 	background-color:transparent;
 	margin:18px 0 0 0;
 	cursor:pointer;
-	
 }
 
 #contentLeft input[value="Reset Map"]:hover{
