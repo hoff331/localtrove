@@ -92,6 +92,10 @@ h6 a:hover{
 	color:#8CC63F;
 }
 
+img{
+	max-width:100%;
+}
+
 a{
 	text-decoration:underline;
 	color:#333333;
