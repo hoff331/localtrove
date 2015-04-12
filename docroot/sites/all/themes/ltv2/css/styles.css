@@ -546,9 +546,9 @@ strong{
 }
 
 .sidedish{
-	width:276px;/*312-36*/
+	width:30%;
 	float:left;
-	padding:0 18px;
+	padding:0 3.33%;
 }
 
 a.feature{
