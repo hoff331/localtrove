@@ -475,9 +475,14 @@ strong{
 }
 
 #contentLeft div.view-filters{
-	padding:90px 36px 0;
+	position:absolute;
+	top:36px;
+	z-index:2;
+	width:100%;
+	padding:36px;
 	background-color:#2d1f1f;
 	color:#c7b299;
+	opacity:.5;
 }
 
 #contentLeft div.view-filters .views-exposed-widget{
