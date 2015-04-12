@@ -551,7 +551,8 @@ strong{
 }
 
 #banner{
-	background-image:;
+	height:400px;
+	background:url(/sites/default/files/banner.jpg) no-repeat;
 }
 
 .sidedish{
