@@ -1,12 +1,19 @@
+<div id="vendor-registration">
+	<ul class="menu">
+		<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
+	</ul>
+</div>
+
+
 <div id="navigationWrapper">
 	<nav id="navigation">
         <div id="navigationLeft">
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-        	<ul class="menu">
-            	<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
-            </ul>
+        	<div id="search">
+            	<?php print render($page['search']); ?>
+            </div>
         </div>
         <div class="clearfix"></div>
     </nav>

@@ -323,9 +323,6 @@ strong{
 	float:left;
 }
 
-#navigationLeft .contextual-links-region{
-}
-
 #navigationRight{
 	float:right;
 }
@@ -367,23 +364,23 @@ strong{
 }
 
 /*------ VENDOR REGISTRATION ------*/
-#navigationRight{
-	float:right;
+#vendor-registration{
+	position:fixed;
 }
 
-#navigationRight ul.menu{
+#vendor-registration ul.menu{
 	text-align:center;
 	margin:0;
 }
 
-#navigationRight ul.menu li{
+#vendor-registration ul.menu li{
 	list-style-type:none;
 	margin:0;
 	line-height:1em;
 }
 
-#navigationRight ul.menu li a,
-#navigationRight ul.menu li a:visited{
+#vendor-registration ul.menu li a,
+#vendor-registration ul.menu li a:visited{
 	display:block;
 	font-size:12px;
 	color:#FFFFFF;
@@ -399,7 +396,7 @@ strong{
 	border-radius:0;
 }
 
-#navigationRight ul.menu li a:hover{
+#vendor-registration ul.menu li a:hover{
 	color:#FFFFFF;
 	top:0;
 }
