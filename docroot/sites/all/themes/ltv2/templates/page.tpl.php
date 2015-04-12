@@ -13,9 +13,7 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-        	<div id="search">
-            	<?php print render($page['search']); ?>
-            </div>
+            <?php print render($page['user']); ?>
         </div>
         <div class="clearfix"></div>
     </nav>
