@@ -253,6 +253,12 @@ strong{
 	color:#262626;
 }
 
+/*------- DRUPAL RESETS -------*/
+ul.menu li{
+	padding:0;
+	margin:0;
+}
+
 /*------- WRAPPERS -------*/
 
 
