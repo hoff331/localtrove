@@ -428,6 +428,10 @@ ul.menu li{
 	list-style:none;
 }
 
+#userMenu a{
+	text-decoration:none;
+}
+
 
 /*------ BANNER ------*/
 #banner{
