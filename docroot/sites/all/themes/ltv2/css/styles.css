@@ -319,7 +319,6 @@ strong{
 	padding:0 36px;
 	background-color:#8CC63F;
 	border-bottom:4px solid #C9C9C7;
-	position:relative;
 }
 
 #navigationLeft{
@@ -327,7 +326,6 @@ strong{
 }
 
 #navigationLeft .contextual-links-region{
-	position:static;
 }
 
 #navigationRight{
@@ -341,7 +339,6 @@ strong{
 #navigation ul li{
 	display:inline-block;
 	line-height:1em;
-	position:relative;
 }
 
 #navigation ul li a,
