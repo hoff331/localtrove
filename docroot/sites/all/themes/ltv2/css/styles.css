@@ -346,7 +346,7 @@ ul.menu li{
 
 /*------- NAVIGATION -------*/
 #navigation{
-	padding:12px 36px;
+	padding:9px 36px;
 	background-color:#8CC63F;
 	border-bottom:4px solid #C9C9C7;
 }
@@ -358,6 +358,7 @@ ul.menu li{
 #navigationRight{
 	float:right;
 	margin-right:112px;
+	position:absolute;
 }
 
 #navigation ul.menu{
@@ -408,6 +409,12 @@ ul.menu li{
 
 #user:hover{
 	background-position:-648px -612px;
+}
+
+#userMenu{
+	background:#FFFFFF;
+	border:3px solid #8CC63F;
+	position:relative;
 }
 
 
