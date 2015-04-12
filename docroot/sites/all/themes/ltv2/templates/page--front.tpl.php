@@ -1,3 +1,18 @@
+<div id="navigationWrapper">
+	<nav id="navigation">
+        <div id="navigationLeft">
+        	<?php print render($page['navigation']); ?>
+        </div>
+        <div id="navigationRight">
+        	<div id="search">
+            	<?php print render($page['search']); ?>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </nav>
+</div><!--end navigationWrapper-->
+
+
 <div id="headerWrapper">
 	<header id="header">
     	<div id="headerLeft">
@@ -14,20 +29,6 @@
         <div class="clearfix"></div>
     </header>
 </div>
-
-<div id="navigationWrapper">
-	<nav id="navigation">
-        <div id="navigationLeft">
-        	<?php print render($page['navigation']); ?>
-        </div>
-        <div id="navigationRight">
-        	<div id="search">
-            	<?php print render($page['search']); ?>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-    </nav>
-</div><!--end navigationWrapper-->
 
 
 <div id="eventsNavWrapper">
