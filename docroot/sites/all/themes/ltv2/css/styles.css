@@ -418,6 +418,7 @@ ul.menu li{
 	position:absolute;
 	right:0;
 	padding:9px 18px;
+	min-width:132px;
 }
 
 #userMenu ul{
@@ -426,6 +427,7 @@ ul.menu li{
 
 #userMenu li{
 	list-style:none;
+	text-align:right;
 }
 
 #userMenu a{
