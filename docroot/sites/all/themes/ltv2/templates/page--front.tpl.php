@@ -20,10 +20,7 @@
 					print theme_image_style(
 						array(
 							'style_name' => 'user',
-							'path' => $user->picture->uri,
-							'attributes' => array(
-								'class' => 'avatar'
-							)            
+							'path' => $user->picture->uri          
 						)
 					);        
 				?>
