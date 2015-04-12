@@ -28,12 +28,11 @@
 </div>
 
 
-<div id="eventsNavWrapper">
-	<div id="eventsNav">
-        <?php print render($page['eventsNav']); ?>
-        <div class="clearfix"></div>
-    </div>
-</div><!--end eventsNavWrapper-->
+<section id="intbanner">
+	<div id="intfilter">
+		<?php print render($page['banner']); ?>
+	</div>
+</section>
 
 
 <div id="contentWrapper">
