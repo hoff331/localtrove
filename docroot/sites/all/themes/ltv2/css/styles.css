@@ -392,7 +392,13 @@ strong{
 
 
 /*------ USER ------*/
-
+#user{
+	display:block;
+	height:36px;
+	width:36px;
+	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
+	background-position:-792px -576px;
+}
 
 
 /*------ BANNER ------*/

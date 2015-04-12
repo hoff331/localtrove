@@ -13,7 +13,10 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-            <?php print render($page['user']); ?>
+			<a id="user" href="#"></a>
+            <div id="userMenu">
+				<?php print render($page['user']); ?>
+			</div>
         </div>
         <div class="clearfix"></div>
     </nav>
