@@ -271,77 +271,48 @@ strong{
 
 /*------- HEADER -------*/
 #header{
-	margin:0 auto;
 	padding:0 36px;
 }
 
 #headerLeft{
-	width:440;
+	width:66.6%;
 	float:left;
 }
 
-#headerMiddle{
-	width:440px;
-	float:right;
-}
-
-#headerMiddle ul.menu{
-	float:right;
-	padding:6px 18px;
-	margin:0;
-}
-
-#headerMiddle ul.menu li{
-	display:inline;
-}
-
-#headerMiddle ul.menu li a,
-#headerMiddle ul.menu li a:visited{
-	display:inline;
-	font-size:12px;
-	color:#808080;
-	text-decoration:none;
-}
-
-#headerMiddle ul.menu li a:hover,
-#headerMiddle ul.menu li a.active{
-	color:#8CC63F;
-}
-
 #headerRight{
+	width:33.3%;
 	float:right;
 }
 
-#headerRight ul.menu{
-	text-align:center;
-	margin:0;
+
+/*------ SEARCH ------*/
+#search{
+	float:right;
+	margin-top:9px;
 }
 
-#headerRight ul.menu li{
-	list-style-type:none;
-	margin:0;
-	line-height:1em;
+#search input[type="text"]{
+	vertical-align:top;
+	width:140px;
+	padding:2px 5px;
+	margin:5px 0 0;
+	line-height:18px;
+	font-size:12px;
+	color:#262626;
 }
 
-#headerRight ul.menu li a,
-#headerRight ul.menu li a:visited{
-	display:block;
+#search input[type="submit"]{
+	vertical-align:top;
+	padding:3px 5px 3px;
+	margin:5px 0 0;
+	border:1px solid #719933;
+	line-height:18px;
 	font-size:12px;
 	color:#FFFFFF;
-	text-decoration:none;
-	height:81px;
-	width:90px;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
-	background-position:-900px -569px;
-	padding:10px 0 0;
-	position:relative;
-	top:-4px;
+	background-color:#80AD3A;
 }
 
-#headerRight ul.menu li a:hover{
-	color:#FFFFFF;
-	top:0;
-}
+
 
 
 /*------- NAVIGATION -------*/
@@ -405,31 +376,40 @@ strong{
 	display:none;
 }
 
-/*------ SEARCH ------*/
-#search{
+/*------ VENDOR REGISTRATION ------*/
+#navigationRight{
 	float:right;
-	margin-top:9px;
 }
 
-#search input[type="text"]{
-	vertical-align:top;
-	width:140px;
-	padding:2px 5px;
-	margin:5px 0 0;
-	line-height:18px;
-	font-size:12px;
-	color:#262626;
+#navigationRight ul.menu{
+	text-align:center;
+	margin:0;
 }
 
-#search input[type="submit"]{
-	vertical-align:top;
-	padding:3px 5px 3px;
-	margin:5px 0 0;
-	border:1px solid #719933;
-	line-height:18px;
+#navigationRight ul.menu li{
+	list-style-type:none;
+	margin:0;
+	line-height:1em;
+}
+
+#navigationRight ul.menu li a,
+#navigationRight ul.menu li a:visited{
+	display:block;
 	font-size:12px;
 	color:#FFFFFF;
-	background-color:#80AD3A;
+	text-decoration:none;
+	height:81px;
+	width:90px;
+	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
+	background-position:-900px -569px;
+	padding:10px 0 0;
+	position:relative;
+	top:-4px;
+}
+
+#navigationRight ul.menu li a:hover{
+	color:#FFFFFF;
+	top:0;
 }
 
 

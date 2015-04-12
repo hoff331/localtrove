@@ -4,9 +4,9 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-        	<div id="search">
-            	<?php print render($page['search']); ?>
-            </div>
+        	<ul class="menu">
+            	<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
+            </ul>
         </div>
         <div class="clearfix"></div>
     </nav>
@@ -19,12 +19,9 @@
         	<a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" height="90" width="312" /></a>
         </div>
         <div id="headerRight"><!--floats right -->
-            <ul class="menu">
-            	<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
-            </ul>
-        </div>
-        <div id="headerMiddle">
-			<?php print render($page['headerRight']); ?>
+            <div id="search">
+            	<?php print render($page['search']); ?>
+            </div>
         </div>
         <div class="clearfix"></div>
     </header>
