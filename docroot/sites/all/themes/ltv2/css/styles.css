@@ -420,6 +420,10 @@ ul.menu li{
 	padding:9px 18px;
 }
 
+#userMenu ul{
+	margin:0;
+}
+
 #userMenu li{
 	list-style:none;
 }
