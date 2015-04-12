@@ -365,7 +365,7 @@ strong{
 
 /*------ VENDOR REGISTRATION ------*/
 #vendor-registration{
-	position:fixed;
+	position:absolute;
 }
 
 #vendor-registration ul.menu{
@@ -382,6 +382,9 @@ strong{
 #vendor-registration ul.menu li a,
 #vendor-registration ul.menu li a:visited{
 	display:block;
+	position:relative;
+	top:-4px;
+	right:0;
 	font-size:12px;
 	color:#FFFFFF;
 	text-decoration:none;
@@ -391,8 +394,6 @@ strong{
 	background-position:-900px -569px;
 	padding:10px 0 0;
 	margin:0;
-	position:relative;
-	top:-4px;
 	border-radius:0;
 }
 
