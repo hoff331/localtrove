@@ -41,7 +41,7 @@
 <div id="contentWrapper">
 	<div id="content">
     	<!--if NO feature print contentLeft with class full-->
-        <div id="contentLeft" class="full">
+        <main id="contentLeft" class="full">
                 <?php print render($title_prefix); ?>
 				<?php if ($title): ?>
 					<h1 style="display:none;"><?php print $title; ?></h1>
@@ -56,7 +56,7 @@
 					<ul class="action-links"><?php print render($action_links); ?></ul>
 				<?php endif; ?>
                 <?php print render($page['content']); ?>
-        </div>
+        </main>
 
         <?php if ($page['feature']): ?>
         <aside id="contentRight">
