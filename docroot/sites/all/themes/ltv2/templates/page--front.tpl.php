@@ -14,7 +14,7 @@
         </div>
         <div id="navigationRight">
 			<div id="user">
-				<?php print $user_picture; ?>
+				<?php  print render($user_profile['user_picture']);?>
 			</div>
             <div id="userMenu">
 				<?php print render($page['user']); ?>

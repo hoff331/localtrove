@@ -405,6 +405,7 @@ ul.menu li{
 	width:36px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
 	background-position:-648px -576px;
+	cursor:pointer;
 }
 
 #user.active{
