@@ -254,19 +254,6 @@ strong{
 }
 
 /*------- WRAPPERS -------*/
-#headerWrapper{
-}
-
-#contentWrapper,
-#copyWrapper{
-}
-
-#footerWrapper{
-}
-
-#navigationWrapper,
-#eventsNavigationWrapper{
-}
 
 
 /*------- HEADER -------*/
@@ -364,9 +351,6 @@ strong{
 }
 
 /*------ VENDOR REGISTRATION ------*/
-#vendorRegistrationWrapper{
-}
-
 #vendorRegistration{
 	position:absolute;
 	right:36px;
@@ -409,7 +393,7 @@ strong{
 /*------ BANNER ------*/
 #banner{
 	padding:10%;
-	background:url(/sites/default/files/banner.jpg) no-repeat;
+	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
 #filter{
@@ -1159,7 +1143,7 @@ input[value="Apply"]{
 	padding:9px 18px;
 	margin-right:18px;
 	color:#FFFFFF;
-	font-size:14px;
+	font-size:18px;
 	background-color:#8CC63F;
 	border-radius:6px;
 	border:none;
