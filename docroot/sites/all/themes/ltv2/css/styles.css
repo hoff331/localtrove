@@ -387,7 +387,7 @@ ul.menu li{
 
 #navigationRight{
 	position:absolute;
-	right:36px;
+	right:140px;
 }
 
 
@@ -414,7 +414,8 @@ ul.menu li{
 #userMenu{
 	background:#FFFFFF;
 	border:3px solid #7EAA39;
-	position:relative;
+	position:absolute;
+	right:0;
 }
 
 
