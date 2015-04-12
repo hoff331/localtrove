@@ -412,6 +412,7 @@ ul.menu li{
 }
 
 #userMenu{
+	display:none;
 	background:#FFFFFF;
 	border:3px solid #7EAA39;
 	position:absolute;
