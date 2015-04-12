@@ -581,14 +581,11 @@ a.feature.browse:hover{
 
 /****** INT CONTENT ******/
 #intContent{
-	margin:0 auto;
 	padding:36px;
 	background:url(/sites/all/themes/localtrove/images/contentBG.png) repeat;
 }
 
 #intContentLeft{
-	margin-right:0;
-	float:left;
 }
 
 #intContentLeft.notFull{
