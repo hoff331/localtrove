@@ -17,7 +17,7 @@ lightgray: #E6E6E6
 body{
 	font-family:Helvetica, sans-serif;
 	color:#4D4D4D;
-	/*background:url(/sites/all/themes/localtrove/images/bodyBG.jpg) repeat;*/
+	/*background:url(/sites/all/themes/ltv2/images/bodyBG.jpg) repeat;*/
 }
 
 h1,
@@ -325,7 +325,7 @@ strong{
 	text-decoration:none;
 	height:69px;
 	width:90px;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
+	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
 	background-position:-900px -569px;
 	padding:10px 0 0;
 	margin:0;
@@ -352,6 +352,7 @@ strong{
 
 #navigationRight{
 	float:right;
+	margin-right:72px;
 }
 
 #navigation ul.menu{
@@ -396,7 +397,7 @@ strong{
 	display:block;
 	height:36px;
 	width:36px;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
+	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
 	background-position:-792px -576px;
 }
 
@@ -454,7 +455,7 @@ strong{
 #content{
 	margin:0 auto;
 	padding:36px;
-	background:url(/sites/all/themes/localtrove/images/contentBG.png) repeat;
+	background:url(/sites/all/themes/ltv2/images/contentBG.png) repeat;
 }
 
 #contentLeft{
@@ -554,7 +555,7 @@ a.feature{
 	display:block;
 	height:276px;
 	width:276px;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
+	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
 }
 
 a.feature.find{
@@ -585,7 +586,7 @@ a.feature.browse:hover{
 /****** INT CONTENT ******/
 #intContent{
 	padding:36px;
-	background:url(/sites/all/themes/localtrove/images/contentBG.png) repeat;
+	background:url(/sites/all/themes/ltv2/images/contentBG.png) repeat;
 }
 
 #intContentLeft{
@@ -723,7 +724,7 @@ li.vertical-tab-button{
 	right:18px;
 	width:60px;
 	height:60px;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
+	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
 	background-position:-792px -576px;
 }
 
