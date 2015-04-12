@@ -393,12 +393,16 @@ strong{
 
 
 /*------ USER ------*/
-#user{
+a #user{
 	display:block;
 	height:36px;
 	width:36px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
-	background-position:-792px -576px;
+	background-position:-648px -576px;
+}
+
+a:hover #user{
+	background-position:-648px -612px;
 }
 
 
