@@ -1,6 +1,3 @@
-<?php
-
-?>
 <!DOCTYPE html>
 <html <?php print $rdf_namespaces; ?>>
 
