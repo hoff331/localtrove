@@ -16,7 +16,7 @@ stylesheets-conditional[IE 8][all][]  = css/ie8styles.css
 stylesheets-conditional[lte IE 7][all][]  = css/ie7styles.css
 
 
-;scripts[] = js/script.js
+scripts[] = js/script.js
 
 regions[headerLeft]      = Header Left
 regions[headerRight]     = Header Right
