@@ -396,7 +396,8 @@ strong{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
-#banner input{
+#banner input,
+#banner select{
 	font-size:18px;
 }
 
