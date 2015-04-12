@@ -66,6 +66,12 @@
         <?php endif; ?>
         
         <div class="clearfix"></div>
+		
+		<section>
+			<div id="banner">
+				<?php print render($page['banner']); ?>
+			</div>
+		</section>
         
         <section>
         <div class="sidedish">

@@ -94,6 +94,7 @@ h6 a:hover{
 
 img{
 	max-width:100%;
+	height:auto;
 }
 
 a{
@@ -547,6 +548,10 @@ strong{
 	width:294px;/*312-18*/
 	float:left;
 	margin:54px 0 0;
+}
+
+#banner{
+	background-image:;
 }
 
 .sidedish{

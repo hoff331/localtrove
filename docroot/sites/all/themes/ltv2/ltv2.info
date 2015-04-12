@@ -23,6 +23,7 @@ regions[headerRight]     = Header Right
 regions[navigation]      = Navigation
 regions[eventsNav]       = Events Nav
 regions[search]          = Search
+regions[banner]          = Banner
 regions[sidedish1]       = Sidedish 1
 regions[sidedish2]       = Sidedish 2
 regions[sidedish3]       = Sidedish 3
