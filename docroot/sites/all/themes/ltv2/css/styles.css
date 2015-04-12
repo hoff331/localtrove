@@ -416,6 +416,11 @@ ul.menu li{
 	border:3px solid #7EAA39;
 	position:absolute;
 	right:0;
+	padding:9px 18px;
+}
+
+#userMenu li{
+	list-style:none;
 }
 
 
