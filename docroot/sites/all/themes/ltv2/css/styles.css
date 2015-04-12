@@ -591,19 +591,18 @@ a.feature.browse:hover{
 }
 
 #intContentLeft{
-	width:936px;
 	margin-right:0;
 	float:left;
 }
 
 #intContentLeft.notFull{
-	width:606px;
-	margin-right:36px;
+	width:60%;
+	margin-right:10%;
 	float:left;
 }
 
 #intContentRight{
-	width:294px;/*312-18*/
+	width:30%;
 	float:left;
 }
 
