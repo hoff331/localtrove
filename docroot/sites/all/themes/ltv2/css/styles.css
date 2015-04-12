@@ -365,12 +365,11 @@ strong{
 
 /*------ VENDOR REGISTRATION ------*/
 #vendorRegistrationWrapper{
-	padding:0 36px;
 }
 
 #vendorRegistration{
 	position:absolute;
-	width:100%;
+	right:36px;
 }
 
 #vendorRegistration ul.menu{
@@ -387,7 +386,6 @@ strong{
 #vendorRegistration ul.menu li a,
 #vendorRegistration ul.menu li a:visited{
 	display:block;
-	float:right;
 	position:relative;
 	top:-4px;
 	font-size:12px;
