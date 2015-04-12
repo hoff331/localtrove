@@ -266,7 +266,6 @@ strong{
 
 /*------- HEADER -------*/
 #header{
-	width:936px;
 	margin:0 auto;
 	padding:0 36px;
 }
@@ -342,37 +341,12 @@ strong{
 
 /*------- NAVIGATION -------*/
 #navigation{
-	width:936px;
 	height:54px;
 	margin:0 auto;
 	padding:0 36px;
 	background-color:#8CC63F;
 	border-bottom:4px solid #C9C9C7;
 	position:relative;
-}
-
-#navigation:after{
-	content:"";
-	display:block;
-	height:72px;
-	width:12px;
-	position:absolute;
-	left:-12px;
-	top:0;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
-	background-position:-864px -576px;
-}
-
-#navigation:before{
-	content:"";
-	display:block;
-	height:72px;
-	width:12px;
-	position:absolute;
-	right:-12px;
-	top:0;
-	background:url(/sites/all/themes/localtrove/images/FINALsprite.png) no-repeat;
-	background-position:-882px -576px;
 }
 
 #navigationLeft{
@@ -472,7 +446,6 @@ strong{
 
 /****** CONTENT ******/
 #content{
-	width:936px;
 	margin:0 auto;
 	padding:36px;
 	background:url(/sites/all/themes/localtrove/images/contentBG.png) repeat;
@@ -876,7 +849,6 @@ li.vertical-tab-button{
 
 /****** FOOTER ******/
 #footer{
-	width:936px;
 	margin:0 auto;
 	padding:18px 36px;
 	background-color:#828282;
@@ -930,7 +902,6 @@ li.vertical-tab-button{
 
 /*------- COPY -------*/
 #copy{
-	width:936px;
 	margin:0 auto;
 	padding:9px 36px;
 	font-size:10px;
