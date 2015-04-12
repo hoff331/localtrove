@@ -1,5 +1,5 @@
-<section id="headerWrapper">
-	<div id="header">
+<div id="headerWrapper">
+	<header id="header">
 		<div id="headerLeft">
 			<a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" /></a>
 			<nav><?php print render($page['navigation']); ?></nav>
@@ -8,8 +8,8 @@
 			<?php print render($page['headerRight']); ?>
 		</div>
 		<div class="clearfix"></div>
-	</div>
-</section><!--end headerWrapper-->
+	</header>
+</div><!--end headerWrapper-->
 
 
 <main id="contentWrapper">

@@ -1,8 +1,8 @@
 name        = localtrove
-description = Local Trove - Markets, Auctions and Sales
+description = Local Trove 2 - The new, responive search focused theme
 
 screenshot  = screenshot.png
-version     = v1
+version     = v2
 core        = 7.x
 engine      = phptemplate
 
