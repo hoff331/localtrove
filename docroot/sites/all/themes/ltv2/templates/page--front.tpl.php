@@ -31,47 +31,28 @@
 </div>
 
 
-<div id="eventsNavWrapper">
-	<div id="eventsNav">
-        <?php print render($page['eventsNav']); ?>
-        <div class="clearfix"></div>
-    </div>
-</div><!--end eventsNavWrapper-->
+<section>
+	<div id="banner">
+		<?php print render($title_prefix); ?>
+		<?php if ($title): ?>
+			<h1 style="display:none;"><?php print $title; ?></h1>
+		<?php endif; ?>
+		<?php print render($title_suffix); ?>
+		<?php print $messages; ?>
+		<?php if ($tabs = render($tabs)): ?>
+			<div class="tabs"><?php print $tabs; ?></div>
+		<?php endif; ?>
+		<?php print render($page['help']); ?>
+		<?php if ($action_links): ?>
+			<ul class="action-links"><?php print render($action_links); ?></ul>
+		<?php endif; ?>
+		<?php print render($page['content']); ?>
+	</div>
+</section>
 
 
 <div id="contentWrapper">
 	<div id="content">
-    	<!--if NO feature print contentLeft with class full-->
-        <main id="contentLeft" class="full">
-                <?php print render($title_prefix); ?>
-				<?php if ($title): ?>
-					<h1 style="display:none;"><?php print $title; ?></h1>
-				<?php endif; ?>
-				<?php print render($title_suffix); ?>
-                <?php print $messages; ?>
-				<?php if ($tabs = render($tabs)): ?>
-					<div class="tabs"><?php print $tabs; ?></div>
-				<?php endif; ?>
-				<?php print render($page['help']); ?>
-				<?php if ($action_links): ?>
-					<ul class="action-links"><?php print render($action_links); ?></ul>
-				<?php endif; ?>
-                <?php print render($page['content']); ?>
-        </main>
-
-        <?php if ($page['feature']): ?>
-        <aside id="contentRight">
-			<?php print render($page['feature']); ?>
-        </aside>
-        <?php endif; ?>
-        
-        <div class="clearfix"></div>
-		
-		<section>
-			<div id="banner">
-				<?php print render($page['banner']); ?>
-			</div>
-		</section>
         
         <section>
         <div class="sidedish">
