@@ -551,14 +551,12 @@ strong{
 }
 
 #banner{
-	height:400px;
+	padding:10%;
 	background:url(/sites/default/files/banner.jpg) no-repeat;
 }
 
 #filter{
-	width:60%;
-	padding:5%;
-	margin:0 auto;
+	padding:2% 5%;
 	background-color:rgba(45,31,31,.8);
 	color:#c7b299;
 }
