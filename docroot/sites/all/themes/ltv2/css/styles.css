@@ -17,7 +17,7 @@ lightgray: #E6E6E6
 body{
 	font-family:Helvetica, sans-serif;
 	color:#4D4D4D;
-	background:url(/sites/all/themes/localtrove/images/bodyBG.jpg) repeat;
+	/*background:url(/sites/all/themes/localtrove/images/bodyBG.jpg) repeat;*/
 }
 
 h1,
@@ -503,8 +503,6 @@ strong{
 }
 
 #contentLeft div.view-filters{
-	float:left;
-	width:240px;
 	height:413px;
 	padding:90px 36px 0;
 	background-color:#2d1f1f;
@@ -560,8 +558,8 @@ strong{
 }
 
 #contentLeft div.view-content{
+	width:100%;
 	float:left;
-	width:624px;
 }
 
 #eventClaim{
