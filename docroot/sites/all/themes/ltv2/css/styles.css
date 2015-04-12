@@ -393,7 +393,7 @@ strong{
 
 
 /*------ USER ------*/
-a #user{
+#user{
 	display:block;
 	height:36px;
 	width:36px;
@@ -401,7 +401,7 @@ a #user{
 	background-position:-648px -576px;
 }
 
-a:hover #user{
+#user:hover{
 	background-position:-648px -612px;
 }
 
