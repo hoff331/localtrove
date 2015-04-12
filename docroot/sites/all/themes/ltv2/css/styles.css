@@ -407,7 +407,7 @@ ul.menu li{
 	background-position:-648px -576px;
 }
 
-#user:hover{
+#user.active{
 	background-position:-648px -612px;
 }
 
