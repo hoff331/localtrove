@@ -17,7 +17,7 @@
 				<?php 
             		$user = user_load($user->uid);
         
-					print theme_image(
+					print theme_image_style(
 						array(
 							'style_name' => 'user',
 							'path' => $user->picture->uri          
