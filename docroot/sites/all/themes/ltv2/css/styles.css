@@ -459,14 +459,13 @@ strong{
 }
 
 #contentLeft.full{
-	width:936px;
+	width:100%;
 	margin-right:0;
 	float:left;
 }
 
 #contentLeft div.view-header{
 	position:absolute;
-	bottom:413px;
 	left:36px;
 	color:#8CC63F;
 	font-size:24px;
