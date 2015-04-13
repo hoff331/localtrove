@@ -124,7 +124,7 @@
 <div id="footerWrapper">
     <footer id="footer">
     	<div id="footerLeft"><?php print render($page['footerLeft']); ?></div>
-        <div id="footerCenter"><?php print render($page['footerMiddle']); ?></div>
+        <div id="footerCenter"><?php print render($page['footerCenter']); ?></div>
         <div id="footerRight"><?php print render($page['footerRight']); ?></div>
         <div class="clearfix"></div>
     </footer>
