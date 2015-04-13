@@ -14,12 +14,14 @@ lightgray: #E6E6E6
 
 */
 
+
+/*------- HTML ELEMENTS -------*/
 body{
 	font-family:Helvetica, sans-serif;
 	color:#4D4D4D;
-	/*background:url(/sites/all/themes/ltv2/images/bodyBG.jpg) repeat;*/
 }
 
+/* HEADERS */
 h1,
 h1 a{
 	font-size:36px;
@@ -97,6 +99,7 @@ img{
 	height:auto;
 }
 
+/* ANCHORS */
 a{
 	text-decoration:underline;
 	color:#333333;
@@ -111,6 +114,7 @@ a:active{
 	color:#FF931E;
 }
 
+/* PARAGRAPHS */
 p{
 	line-height:1.5em;
 	margin-bottom:.5em;
@@ -120,6 +124,15 @@ p:last-child{
 	margin-bottom:0;
 }
 
+em{
+	font-style:italic;
+}
+
+strong{
+	font-weight:bolder;
+}
+
+/* LISTS */
 ul,
 ol{
 	margin-bottom:1.5em;
@@ -140,6 +153,7 @@ ol li{
 	list-style-type:decimal;
 }
 
+/* TABLES */
 table{
 	width:100%;
 	font-size:12px;
@@ -171,6 +185,7 @@ iframe{
 	display:none;
 }
 
+/*------ REUSABLE CLASSES ------*/
 .definition{
 	font-style:italic;
 	color:#FF7BAC;
@@ -238,34 +253,6 @@ a.BTN2:hover{
 }
 
 
-em{
-	font-style:italic;
-}
-
-strong{
-	font-weight:bolder;
-}
-
-#intContent input[type="text"],
-#intContent input[type="email"],
-#intContent input[type="password"]{
-	vertical-align:top;
-	padding:2px 5px;
-	margin:3px 0 0;
-	line-height:21px;
-	font-size:12px;
-	color:#262626;
-}
-
-/*------- DRUPAL RESETS -------*/
-ul.menu li{
-	padding:0;
-	margin:0;
-}
-
-/*------- WRAPPERS -------*/
-
-
 /*------- HEADER -------*/
 #header{
 	padding:0 36px;
@@ -280,35 +267,7 @@ ul.menu li{
 }
 
 
-/*------ SEARCH ------*/
-#search{
-	float:right;
-	margin-top:9px;
-}
-
-#search input[type="text"]{
-	vertical-align:top;
-	width:140px;
-	padding:2px 5px;
-	margin:5px 0 0;
-	line-height:18px;
-	font-size:12px;
-	color:#262626;
-}
-
-#search input[type="submit"]{
-	vertical-align:top;
-	padding:3px 5px 3px;
-	margin:5px 0 0;
-	border:1px solid #719933;
-	line-height:18px;
-	font-size:12px;
-	color:#FFFFFF;
-	background-color:#80AD3A;
-}
-
-
-/*------ VENDOR REGISTRATION ------*/
+/* VENDOR REGISTRATION */
 #vendorRegistration{
 	padding:9px 36px 36px;
 	color:#FFFFFF;
@@ -405,13 +364,10 @@ ul.menu li{
 	color:#FF931E;
 }
 
-
-/*------- NAVIGATION CHILD -------*/
 #navigation ul li ul,
 #navigation ul li ul li ul{
 	display:none;
 }
-
 
 #navigationRight{
 	position:absolute;
@@ -419,7 +375,7 @@ ul.menu li{
 	top:8px;
 }
 
-/*------ USER ------*/
+/* USER */
 #user{
 	display:block;
 	height:36px;
@@ -981,7 +937,12 @@ li.vertical-tab-button{
 }
 
 
-/****** DRUPAL SPECIFIC ******/
+/****** DRUPAL RESETS ******/
+ul.menu li{
+	padding:0;
+	margin:0;
+}
+
 .field{
 	margin:0 0 1em;
 }
@@ -1214,6 +1175,17 @@ input[value="Checkout"]:hover,
 input[value="Submit"]:hover,
 input[value="Apply"]:hover{
 	background-color:#7EAA39;
+}
+
+#intContent input[type="text"],
+#intContent input[type="email"],
+#intContent input[type="password"]{
+	vertical-align:top;
+	padding:2px 5px;
+	margin:3px 0 0;
+	line-height:21px;
+	font-size:12px;
+	color:#262626;
 }
 
 .views-exposed-form .views-exposed-widget .form-submit{
