@@ -986,6 +986,16 @@ ul li.leaf {
   list-style-image: none;
 }
 
+/* VENDOR SCHEDULE */
+div.vertical-tabs {
+  margin: 1em 0 1em 10em;
+}
+
+.vertical-tabs ul.vertical-tabs-list {
+  width: 10em;
+  margin: -1px 0 -1px -10em
+}
+
 
 /****** DRUPAL PROFILES ******/
 .profile h3{
