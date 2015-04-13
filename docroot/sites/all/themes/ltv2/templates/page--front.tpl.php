@@ -77,15 +77,16 @@
     </div>
 </div>
 
+
 <div id="footerWrapper">
     <footer id="footer">
-    	<div id="footerLeft1"><?php print render($page['footerLeft1']); ?></div>
-        <div id="footerLeft2"><?php print render($page['footerLeft2']); ?></div>
-        <div id="footerLeft3"><?php print render($page['footerLeft3']); ?></div>
+    	<div id="footerLeft"><?php print render($page['footerLeft']); ?></div>
+        <div id="footerCenter"><?php print render($page['footerMiddle']); ?></div>
         <div id="footerRight"><?php print render($page['footerRight']); ?></div>
         <div class="clearfix"></div>
     </footer>
 </div>
+
 
 <div id="copyWrapper">
     <div id="copy">

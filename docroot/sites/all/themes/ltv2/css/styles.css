@@ -908,24 +908,22 @@ li.vertical-tab-button{
 	line-height:1em;
 }
 
-#footerLeft1{
-	width:22%;
-	float:left;
+#footerLeft{
+	width: 30%;
+	float: left;
+	padding: 0 1.66%;
 }
 
-#footerLeft2{
-	width:22%;
-	float:left;
-}
-
-#footerLeft3{
-	width:22%;
-	float:left;
+#footerCenter{
+	width: 30%;
+	float: left;
+	padding: 0 1.66%;
 }
 
 #footerRight{
-	width:34%;
-	float:left;
+	width: 30%;
+	float: left;
+	padding: 0 1.66%;
 }
 
 
