@@ -4,7 +4,7 @@
 	</aside>
 	<div id="vendorRegistrationFlag">
 		<ul class="menu">
-			<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
+			<li><a href="#">Vendor<br/>Registration</a></li>
 		</ul>
 	</div>
 </div>
