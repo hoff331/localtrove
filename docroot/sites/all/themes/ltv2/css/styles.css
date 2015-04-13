@@ -346,13 +346,11 @@ ul.menu li{
 
 /*------- NAVIGATION -------*/
 #navigation{
-	padding:9px 36px;
 	background-color:#8CC63F;
 	border-bottom:4px solid #C9C9C7;
 }
 
 #navigationLeft{
-	float:left;
 }
 
 #navigationLeft ul.menu{
@@ -1245,6 +1243,10 @@ fieldset.filter-wrapper.form-wrapper{
 
 @media all and (min-width: 829px) {
 	/*------- NAVIGATION -------*/
+	#navigation{
+		padding:9px 36px;
+	}
+	
 	#navigationLeft{
 		float:left;
 	}
@@ -1256,6 +1258,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#navigationLeft ul li{
 		display:inline-block;
 		line-height:1em;
+		border:none;
 	}
 	
 	#navigationLeft ul li a,
