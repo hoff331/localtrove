@@ -361,12 +361,13 @@ ul.menu li{
 
 #navigationLeft ul li{
 	line-height:1em;
+	list-style:none;
 }
 
 #navigationLeft ul li a,
 #navigationLeft ul li a:visited{
 	color:#FFFFFF;
-	padding:0x;
+	padding:9px;
 	margin:0;
 	text-decoration:none;
 }
