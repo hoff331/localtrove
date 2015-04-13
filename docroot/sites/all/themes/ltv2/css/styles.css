@@ -308,6 +308,7 @@ ul.menu li{
 #vendorRegistration{
 	position:absolute;
 	right:36px;
+	z-index:2;
 }
 
 #vendorRegistration ul.menu{
@@ -360,7 +361,7 @@ ul.menu li{
 #navigationLeft ul li{
 	line-height:1em;
 	list-style:none;
-	border-bottom:1px solid #333333;
+	border-bottom:1px solid #7EAA39;
 }
 
 #navigationLeft ul li a,
