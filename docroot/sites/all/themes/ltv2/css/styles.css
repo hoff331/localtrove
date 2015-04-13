@@ -181,6 +181,12 @@ td{
 	vertical-align:top;
 }
 
+/* INPUTS */
+input{
+	width:100%;
+}
+
+/* MISC */
 iframe{
 	display:none;
 }
