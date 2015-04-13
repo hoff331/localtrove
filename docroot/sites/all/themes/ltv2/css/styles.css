@@ -320,6 +320,12 @@ ul.menu li{
 	color:#FFFFFF;
 }
 
+#vendorRegistration a,
+#vendorRegistration a:hover,{
+	color:#FFFFFF;
+	text-decoration:none;
+}
+
 #vendorRegistrationFlag{
 	position:absolute;
 	right:36px;
