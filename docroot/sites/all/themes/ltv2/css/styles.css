@@ -949,14 +949,9 @@ li.vertical-tab-button{
 }
 
 #copyLeft{
-	width:50%;
-	float:left;
 }
 
 #copyRight{
-	width:50%;
-	float:right;
-	text-align:right;
 }
 
 
@@ -1232,5 +1227,35 @@ fieldset.filter-wrapper.form-wrapper{
 		float:left;
 		padding:0 1.66%;
 		text-align:center;
+	}
+	
+	/*------- COPY -------*/
+	#copy{
+		margin:0 auto;
+		padding:9px 36px;
+		font-size:10px;
+		color:#828282;
+	}
+	
+	#copy a,
+	#copy a:visited{
+		color:#828282;
+		text-decoration:none;
+	}
+	
+	#copy a:hover,
+	#copy a.active{
+		color:#8CC63F;
+	}
+	
+	#copyLeft{
+		width:50%;
+		float:left;
+	}
+	
+	#copyRight{
+		width:50%;
+		float:right;
+		text-align:right;
 	}
 }
