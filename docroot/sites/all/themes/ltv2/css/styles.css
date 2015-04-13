@@ -988,12 +988,12 @@ ul li.leaf {
 
 /* VENDOR SCHEDULE */
 div.vertical-tabs {
-  margin: 1em 0 1em 10em;
+  margin: 1em 0 1em 8em;
 }
 
 .vertical-tabs ul.vertical-tabs-list {
-  width: 10em;
-  margin: -1px 0 -1px -10em
+  width: 8em;
+  margin: -1px 0 -1px -8em
 }
 
 
