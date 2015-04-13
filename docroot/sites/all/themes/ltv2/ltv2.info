@@ -20,6 +20,7 @@ scripts[] = js/script.js
 
 regions[headerLeft]      = Header Left
 regions[headerRight]     = Header Right
+regions[vendorReg]       = Vendor Registration
 regions[navigation]      = Navigation
 regions[eventsNav]       = Events Nav
 regions[user]            = User

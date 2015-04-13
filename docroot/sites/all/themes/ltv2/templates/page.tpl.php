@@ -1,5 +1,8 @@
 <div id="vendorRegistrationWrapper">
-	<div id="vendorRegistration">
+	<aside id="vendorRegistration">
+		<?php print render($page['vendorReg']); ?>
+	</aside>
+	<div id="vendorRegistrationFlag">
 		<ul class="menu">
 			<li><a href="/vendor-registration">Vendor<br/>Registration</a></li>
 		</ul>

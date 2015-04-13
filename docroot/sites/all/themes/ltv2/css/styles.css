@@ -306,24 +306,28 @@ ul.menu li{
 
 /*------ VENDOR REGISTRATION ------*/
 #vendorRegistration{
+	background:#821426;
+}
+
+#vendorRegistrationFlag{
 	position:absolute;
 	right:36px;
 	z-index:2;
 }
 
-#vendorRegistration ul.menu{
+#vendorRegistrationFlag ul.menu{
 	text-align:center;
 	margin:0;
 }
 
-#vendorRegistration ul.menu li{
+#vendorRegistrationFlag ul.menu li{
 	list-style-type:none;
 	margin:0;
 	line-height:1em;
 }
 
-#vendorRegistration ul.menu li a,
-#vendorRegistration ul.menu li a:visited{
+#vendorRegistrationFlag ul.menu li a,
+#vendorRegistrationFlag ul.menu li a:visited{
 	display:block;
 	position:relative;
 	top:-4px;
@@ -339,7 +343,7 @@ ul.menu li{
 	border-radius:0;
 }
 
-#vendorRegistration ul.menu li a:hover{
+#vendorRegistrationFlag ul.menu li a:hover{
 	color:#FFFFFF;
 	top:0;
 }
