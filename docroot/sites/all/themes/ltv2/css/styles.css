@@ -1205,7 +1205,7 @@ fieldset.filter-wrapper.form-wrapper{
 	display:none;
 }
 
-@media all and (min-width: 481px) and (max-width: 828px) {
+@media all and (min-width: 481px) {
 	/*------- FOOTER -------*/
 	#footerLeft{
 		width: 30%;
