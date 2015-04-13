@@ -361,6 +361,7 @@ ul.menu li{
 #navigation{
 	background-color:#8CC63F;
 	border-bottom:4px solid #C9C9C7;
+	position:relative;
 }
 
 #navigationLeft{
