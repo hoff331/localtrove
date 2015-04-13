@@ -463,9 +463,6 @@ ul.menu li{
 
 /*------ SIDEDISH ------*/
 .sidedish{
-	width:30%;
-	float:left;
-	padding:0 1.66%;
 	text-align:center;
 }
 
@@ -1222,4 +1219,18 @@ input[value="Apply"]:hover{
 /******* DRUAPL TEXT FILTER *******/
 fieldset.filter-wrapper.form-wrapper{
 	display:none;
+}
+
+@media all and (min-width: 481px) and (max-width: 828px) {
+	
+}
+
+@media all and (min-width: 829) {
+	/*------ SIDEDISH ------*/
+	.sidedish{
+		width:30%;
+		float:left;
+		padding:0 1.66%;
+		text-align:center;
+	}
 }
