@@ -909,21 +909,12 @@ li.vertical-tab-button{
 }
 
 #footerLeft{
-	width: 30%;
-	float: left;
-	padding: 0 1.66%;
 }
 
 #footerCenter{
-	width: 30%;
-	float: left;
-	padding: 0 1.66%;
 }
 
 #footerRight{
-	width: 30%;
-	float: left;
-	padding: 0 1.66%;
 }
 
 
@@ -1215,6 +1206,25 @@ fieldset.filter-wrapper.form-wrapper{
 }
 
 @media all and (min-width: 481px) and (max-width: 828px) {
+	/*------- FOOTER -------*/
+	#footerLeft{
+		width: 30%;
+		float: left;
+		padding: 0 1.66%;
+	}
+	
+	#footerCenter{
+		width: 30%;
+		float: left;
+		padding: 0 1.66%;
+	}
+	
+	#footerRight{
+		width: 30%;
+		float: left;
+		padding: 0 1.66%;
+	}
+	
 	/*------- COPY -------*/
 	#copy{
 		margin:0 auto;
@@ -1232,7 +1242,7 @@ fieldset.filter-wrapper.form-wrapper{
 		width:50%;
 		float:right;
 		text-align:right;
-	}
+	}	
 }
 
 @media all and (min-width: 829px) {
