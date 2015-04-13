@@ -1237,17 +1237,6 @@ fieldset.filter-wrapper.form-wrapper{
 		color:#828282;
 	}
 	
-	#copy a,
-	#copy a:visited{
-		color:#828282;
-		text-decoration:none;
-	}
-	
-	#copy a:hover,
-	#copy a.active{
-		color:#8CC63F;
-	}
-	
 	#copyLeft{
 		width:50%;
 		float:left;
