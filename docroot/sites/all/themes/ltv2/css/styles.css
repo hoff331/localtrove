@@ -1225,7 +1225,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 }
 
-@media all and (min-width: 829) {
+@media all and (min-width: 829px) {
 	/*------ SIDEDISH ------*/
 	.sidedish{
 		width:30%;
