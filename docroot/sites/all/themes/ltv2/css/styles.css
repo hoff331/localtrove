@@ -310,7 +310,10 @@ ul.menu li{
 
 /*------ VENDOR REGISTRATION ------*/
 #vendorRegistration{
+	padding:36px;
 	background:#821426;
+	color:#FFFFFF;
+	display:none;
 }
 
 #vendorRegistrationFlag{
