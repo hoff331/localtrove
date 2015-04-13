@@ -360,24 +360,20 @@ ul.menu li{
 }
 
 #navigationLeft ul li{
-	display:inline-block;
 	line-height:1em;
 }
 
 #navigationLeft ul li a,
 #navigationLeft ul li a:visited{
 	color:#FFFFFF;
-	display:inline-block;
-	padding:9px 12px;
-	margin:0 9px 0 0;
+	padding:0x;
+	margin:0;
 	text-decoration:none;
 }
 
 #navigationLeft ul li a:hover,
 #navigationLeft ul li a.active,
 #navigationLeft ul li a.active-trail{
-	border-radius:4px;
-	background-color:#7EAA39;
 	text-decoration:none;
 }
 
@@ -419,7 +415,6 @@ ul.menu li{
 	position:absolute;
 	right:0;
 	padding:9px 18px;
-	min-width:132px;
 }
 
 #userMenu ul{
@@ -1246,6 +1241,40 @@ fieldset.filter-wrapper.form-wrapper{
 }
 
 @media all and (min-width: 829px) {
+	#navigationLeft{
+		float:left;
+	}
+	
+	#navigationLeft ul.menu{
+		margin:0;
+	}
+	
+	#navigationLeft ul li{
+		display:inline-block;
+		line-height:1em;
+	}
+	
+	#navigationLeft ul li a,
+	#navigationLeft ul li a:visited{
+		color:#FFFFFF;
+		display:inline-block;
+		padding:9px 12px;
+		margin:0 9px 0 0;
+		text-decoration:none;
+	}
+	
+	#navigationLeft ul li a:hover,
+	#navigationLeft ul li a.active,
+	#navigationLeft ul li a.active-trail{
+		border-radius:4px;
+		background-color:#7EAA39;
+		text-decoration:none;
+	}
+	
+	#navigationLeft ul li a:active{
+		color:#FF931E;
+	}
+	
 	/*------ SIDEDISH ------*/
 	.sidedish{
 		width:30%;
