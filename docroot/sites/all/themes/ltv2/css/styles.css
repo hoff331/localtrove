@@ -383,11 +383,6 @@ ul.menu li{
 	color:#FF931E;
 }
 
-#navigationRight{
-	position:absolute;
-	right:140px;
-}
-
 
 /*------- NAVIGATION CHILD -------*/
 #navigation ul li ul,
@@ -395,6 +390,12 @@ ul.menu li{
 	display:none;
 }
 
+
+#navigationRight{
+	position:absolute;
+	right:140px;
+	top:8px;
+}
 
 /*------ USER ------*/
 #user{
