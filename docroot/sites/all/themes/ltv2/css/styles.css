@@ -311,9 +311,8 @@ ul.menu li{
 /*------ VENDOR REGISTRATION ------*/
 #vendorRegistration{
 	padding:36px;
-	background:#821426;
 	color:#FFFFFF;
-	height:300px;
+	background:#821426 url(/sites/all/themes/ltv2/images/vendorRegBorder.gif) repeat-x bottom;
 	display:none;
 }
 
@@ -338,14 +337,14 @@ ul.menu li{
 #vendorRegistrationFlag ul.menu li a:visited{
 	display:block;
 	position:relative;
-	top:-4px;
+	top:-9px;
 	font-size:12px;
 	color:#FFFFFF;
 	text-decoration:none;
-	height:69px;
+	height:72px;
 	width:90px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
-	background-position:-900px -569px;
+	background-position:-900px -566px;
 	padding:10px 0 0;
 	margin:0;
 	border-radius:0;
@@ -353,7 +352,7 @@ ul.menu li{
 
 #vendorRegistrationFlag ul.menu li a:hover{
 	color:#FFFFFF;
-	top:0;
+	top:-4;
 }
 
 
