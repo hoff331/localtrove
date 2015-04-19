@@ -16,20 +16,11 @@
         	<?php print render($page['navigation']); ?>
         </div>
         <div id="navigationRight">
-			<div id="user">
-				<?php
-					if ($logged_in){ 
-						$user = user_load($user->uid);
-			
-						print theme_image_style(
-							array(
-								'style_name' => 'user',
-								'path' => $user->picture->uri          
-							)
-						);
-					}
-				?>
-			</div>
+			<?php if ($logged_in): ?>
+			<div id="user"></div>
+			<?php else: ?>
+			<div id="user"></div>
+			<?php endif; ?>
             <div id="userMenu">
 				<?php print render($page['user']); ?>
 			</div>
@@ -96,14 +87,12 @@
 <div id="copyWrapper">
     <div id="copy">
     	<div id="copyLeft">
-    	<?php print render($page['copyLeft']); ?>
-	<!--localtrove.com &copy; copyright 2013-->
-	</div>
+    		<?php print render($page['copyLeft']); ?>
+		</div>
         <div id="copyCenter"></div>
         <div id="copyRight">
-	<?php print render($page['copyRight']); ?>
-	<!--Powered by Drupal, Hosted on Acquia, <a href="http://www.getJumpStartNow.com">Built by Jumpstart</a>-->
-	</div>
+			<?php print render($page['copyRight']); ?>
+		</div>
     	<div class="clearfix"></div>
     </div>
 </div>
