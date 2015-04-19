@@ -1,7 +1,3 @@
-<?php
-
-?>
-
 <div id="couponWrapper">
 	<div id="printCoupon">
     	<div id="printCouponLeft">

@@ -17,15 +17,17 @@
         </div>
         <div id="navigationRight">
 			<div id="user">
-				<?php 
-            		$user = user_load($user->uid);
-        
-					print theme_image_style(
-						array(
-							'style_name' => 'user',
-							'path' => $user->picture->uri          
-						)
-					);        
+				<?php
+					if ($logged_in){ 
+						$user = user_load($user->uid);
+			
+						print theme_image_style(
+							array(
+								'style_name' => 'user',
+								'path' => $user->picture->uri          
+							)
+						);
+					}
 				?>
 			</div>
             <div id="userMenu">
