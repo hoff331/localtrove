@@ -783,14 +783,6 @@ li.vertical-tab-button{
 	font-size:12px;
 }
 
-.vertical-tabs-pane .listingRight{
-	width:218px;
-}
-
-#intContentRight .listingRight{
-	width:212px;
-}
-
 .field-collection-view,
 .field-collection-container{
 	border:none;
