@@ -302,6 +302,7 @@ a.BTN2:hover{
 #vendorRegistrationFlag ul.menu{
 	text-align:center;
 	margin:0;
+	padding:0;
 }
 
 #vendorRegistrationFlag ul.menu li{
