@@ -153,7 +153,7 @@ using field permissions module instead...
 */
 
 
-function localtrove_preprocess_page(&$vars) {
+function ltv2_preprocess_page(&$vars) {
     // - page--example.tpl.php  
 	if (isset($vars['node'])) {
 		$vars['theme_hook_suggestion'] = 'page__'.$vars['node']->type; //
