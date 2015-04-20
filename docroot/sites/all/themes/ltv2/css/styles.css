@@ -138,6 +138,7 @@ strong{
 ul,
 ol{
 	margin-bottom:1.5em;
+	padding:0;
 }
 
 li{
@@ -409,6 +410,7 @@ a.BTN2:hover{
 
 #userMenu ul{
 	margin:0;
+	padding:0;
 }
 
 #userMenu li{
