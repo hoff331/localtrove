@@ -336,7 +336,7 @@ a.BTN2:hover{
 /*------- NAVIGATION -------*/
 #navigation{
 	background-color:#8CC63F;
-	border-bottom:4px solid #C9C9C7;
+	box-shadow:0px 1px 5px 0px #CCC;
 	position:relative;
 }
 
