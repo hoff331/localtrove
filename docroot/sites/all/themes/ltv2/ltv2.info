@@ -6,10 +6,10 @@ version     = v2
 core        = 7.x
 engine      = phptemplate
 
-stylesheets[all][]        = css/reset.css
+stylesheets[all][]        = css/normalize.css
 stylesheets[all][]        = css/styles.css
 stylesheets[all][]        = css/MyFontsWebfontsKit.css
-;stylesheets[print][]      = css/print.css
+;stylesheets[print][]     = css/print.css
 
 
 stylesheets-conditional[IE 8][all][]  = css/ie8styles.css
@@ -18,9 +18,9 @@ stylesheets-conditional[lte IE 7][all][]  = css/ie7styles.css
 
 scripts[] = js/script.js
 
+regions[vendorReg]       = Vendor Registration
 regions[headerLeft]      = Header Left
 regions[headerRight]     = Header Right
-regions[vendorReg]       = Vendor Registration
 regions[navigation]      = Navigation
 regions[eventsNav]       = Events Nav
 regions[user]            = User
