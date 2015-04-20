@@ -6,7 +6,10 @@
   <title><?php print $head_title; ?></title>
   <?php print $styles; ?>
   <?php print $scripts; ?>
-  
+
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->  
 <!--Viewport-->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--Chrome Frame-->
