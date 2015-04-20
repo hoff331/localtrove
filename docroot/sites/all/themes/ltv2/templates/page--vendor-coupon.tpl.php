@@ -10,7 +10,7 @@
     </div>
 	
 	<?php global $user; //Load currently logged in user ?>
-	<?php if ($user->uid == 0): ?>
+	<?php if ($logged_in == false): ?>
     <div id="coupon">
         <h1>Sorry, you must be logged in to access LocalTrove.com coupons.</h1>
         <p>Don't worry, its free to <a href="/user/register">register</a>!</p>
