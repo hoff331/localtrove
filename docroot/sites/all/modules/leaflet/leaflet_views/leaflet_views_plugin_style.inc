@@ -205,6 +205,13 @@ class leaflet_views_plugin_style extends views_plugin_style {
       '#description' => t('Hide the Leaflet map if there are no results to display.'),
       '#default_value' => isset($this->options['hide_empty']) ? $this->options['hide_empty'] : TRUE,
     );
+	
+	$form['use_tokens'] = array(
+	'#title' => t('Use tokens?'),
+	'#type' => 'checkbox',
+	'#description' => t('Check this if you would like to use tokens in point settings.'),
+	'#default_value' => isset($this->options['use_tokens']) ? $this->options['use_tokens'] : TRUE,
+	);
 
     $form['zoom'] = leaflet_form_elements('zoom', $this->options);
     $form['icon'] = leaflet_form_elements('icon', $this->options, array('path' => 'style_options', 'fields' => $fields));
@@ -248,6 +255,11 @@ class leaflet_views_plugin_style extends views_plugin_style {
           elseif ($this->options['description_field']) {
             $description = $this->rendered_fields[$id][$this->options['description_field']];
           }
+		  
+          // Load the entity if the user wants to use tokens.
+		  if (!$entity && $this->options['use_tokens']) {
+			  $entity = entity_load_single($this->entity_type, $result->{$this->entity_info['entity keys']['id']});
+			  }
 
           $points = leaflet_process_geofield($geofield);
           // Attach pop-ups if we have rendered into $description:
