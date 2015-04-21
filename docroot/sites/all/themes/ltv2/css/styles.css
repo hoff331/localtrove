@@ -500,6 +500,10 @@ a.BTN2:hover{
 	font-style: normal;
 }
 
+.view-id-find_events .view-filters{
+	display:none;
+}
+
 #contentLeft div.view-filters{
 	position:absolute;
 	bottom:0;
