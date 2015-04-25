@@ -476,7 +476,7 @@ a.BTN2:hover{
 	padding:0;
 }
 
-#edit-submit-find-events{
+input#edit-submit-find-events{
 	border:none;
 	background:#8CC63F;
 }
