@@ -467,11 +467,10 @@ a.BTN2:hover{
 	background:none;
 }
 
-#filter .form-submit,
-#intfilter .form-submit{
+#filter .views-exposed-widget,
+#intfilter .views-exposed-widget{
 	display:inline-block;
 	padding:0;
-	margin:0;
 }
 
 
@@ -1233,7 +1232,7 @@ input[value="Apply"]:hover{
 }
 
 .views-exposed-form .views-exposed-widget .form-submit{
-	margin:1em 0 0;
+	margin:0;
 }
 
 /******* DRUAPL TEXT FILTER *******/
