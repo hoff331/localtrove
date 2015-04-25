@@ -457,6 +457,11 @@ a.BTN2:hover{
 	display:inline-block;
 }
 
+#filter select,
+#intfilter select{
+	background:none;
+}
+
 
 /*------ SIDEDISH ------*/
 .sidedish{
