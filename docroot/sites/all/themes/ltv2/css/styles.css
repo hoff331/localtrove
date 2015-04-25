@@ -449,14 +449,20 @@ a.BTN2:hover{
 
 #filter .views-exposed-widgets,
 #intfilter .views-exposed-widgets{
+	margin:0;
+}
+
+#filter .views-exposed-widget,
+#intfilter .views-exposed-widget{
+	display:inline-block;
 	margin-right:20px;
+	padding:0;
 }
 
 #filter label,
 #intfilter label{
 	color:#8cc63f;
 }
-
 
 #filter .views-widget,
 #intfilter .views-widget{
@@ -482,13 +488,6 @@ a.BTN2:hover{
 	background:none;
 	border:1px solid;
 	height:40px;
-}
-
-#filter .views-exposed-widget,
-#intfilter .views-exposed-widget{
-	display:inline-block;
-	padding:0;
-	margin:0;
 }
 
 input#edit-submit-find-events{
