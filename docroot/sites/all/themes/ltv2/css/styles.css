@@ -463,7 +463,9 @@ a.BTN2:hover{
 }
 
 #filter select,
-#intfilter select{
+#filter input,
+#intfilter select,
+#intfilter input{
 	background:none;
 }
 
