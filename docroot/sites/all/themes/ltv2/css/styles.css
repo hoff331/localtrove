@@ -437,14 +437,17 @@ a.BTN2:hover{
 #filter{
 	padding:2% 5%;
 	background-color:rgba(45,31,31,.8);
-	color:#8cc63f;
 	border-radius:6px;
 }
 
 #intfilter{
 	padding:2% 5%;
 	background-color:rgba(45,31,31,.8);
-	color:#c7b299;
+}
+
+#filter label,
+#intfilter label{
+	color:#8cc63f;
 }
 
 
