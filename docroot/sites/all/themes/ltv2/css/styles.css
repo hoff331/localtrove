@@ -449,7 +449,7 @@ a.BTN2:hover{
 
 #filter .views-exposed-widgets,
 #intfilter .views-exposed-widgets{
-	margin:0;
+	margin-right:20px;
 }
 
 #filter label,
@@ -461,7 +461,6 @@ a.BTN2:hover{
 #filter .views-widget,
 #intfilter .views-widget{
 	display:inline-block;
-	margin-right:20px;
 }
 
 #filter label,
@@ -489,6 +488,7 @@ a.BTN2:hover{
 #intfilter .views-exposed-widget{
 	display:inline-block;
 	padding:0;
+	margin:0;
 }
 
 input#edit-submit-find-events{
