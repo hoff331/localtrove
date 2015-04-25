@@ -450,6 +450,13 @@ a.BTN2:hover{
 	color:#8cc63f;
 }
 
+#filter label,
+#filter .views-widget,
+#intfilter label,
+#intfilter .views-widget{
+	display:inline-block;
+}
+
 
 /*------ SIDEDISH ------*/
 .sidedish{
