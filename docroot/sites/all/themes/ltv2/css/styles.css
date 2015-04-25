@@ -457,9 +457,20 @@ a.BTN2:hover{
 	display:inline-block;
 }
 
+#filter .description,
+#intfilter .description{
+	display:none
+}
+
 #filter select,
 #intfilter select{
 	background:none;
+}
+
+#filter .views-exposed-widget,
+#intfilter .views-exposed-widget{
+	display:inline-block;
+	padding:0;
 }
 
 
