@@ -1293,11 +1293,6 @@ fieldset.filter-wrapper.form-wrapper{
 		float:right;
 		text-align:right;
 	}
-	
-	div.view-header{
-		float:left;
-		padding-right:18px;
-	}
 }
 
 @media all and (min-width: 829px) {
@@ -1347,6 +1342,11 @@ fieldset.filter-wrapper.form-wrapper{
 		float:left;
 		padding:0 1.66%;
 		text-align:center;
+	}
+	
+	div.view-header{
+		float:left;
+		padding-right:18px;
 	}
 	
 }
