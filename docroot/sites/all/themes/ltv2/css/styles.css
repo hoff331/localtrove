@@ -459,7 +459,7 @@ a.BTN2:hover{
 
 #filter .description,
 #intfilter .description{
-	display:none
+	display:none;
 }
 
 #filter select,
@@ -467,6 +467,7 @@ a.BTN2:hover{
 #intfilter select,
 #intfilter input{
 	background:none;
+	border:1px solid;
 }
 
 #filter .views-exposed-widget,
