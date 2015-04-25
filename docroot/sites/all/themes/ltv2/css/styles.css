@@ -455,11 +455,18 @@ a.BTN2:hover{
 	color:#8cc63f;
 }
 
-#filter label,
+
 #filter .views-widget,
-#intfilter label,
 #intfilter .views-widget{
 	display:inline-block;
+	margin-right:20px;
+}
+
+#filter label,
+#intfilter label{
+	display:inline-block;
+	height:40px;
+	vertical-align:middle;
 }
 
 #filter .description,
