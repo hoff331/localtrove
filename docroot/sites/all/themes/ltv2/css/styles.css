@@ -1025,10 +1025,6 @@ ul.menu li{
 	margin:18px 0;
 }
 
-div.view-header{
-	margin:18px 0;
-}
-
 div.views-exposed-form{
 }
 
@@ -1296,7 +1292,12 @@ fieldset.filter-wrapper.form-wrapper{
 		width:50%;
 		float:right;
 		text-align:right;
-	}	
+	}
+	
+	div.view-header{
+		float:left;
+		padding-right:18px;
+	}
 }
 
 @media all and (min-width: 829px) {
