@@ -473,6 +473,7 @@ a.BTN2:hover{
 #intfilter input{
 	background:none;
 	border:1px solid;
+	height:40px;
 }
 
 #filter .views-exposed-widget,
