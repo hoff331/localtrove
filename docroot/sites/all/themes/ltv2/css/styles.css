@@ -442,8 +442,17 @@ a.BTN2:hover{
 #filter select,
 #intfilter input,
 #intfilter select{
+	background:none;
+	border:1px solid;
+	height:40px;
+	width:100%;
 	font-size:18px;
 	margin:0;
+}
+/*apply button fix*/
+input#edit-submit-find-events{
+	border:none;
+	background:#8CC63F;
 }
 
 #filter .views-exposed-widgets,
@@ -478,21 +487,10 @@ a.BTN2:hover{
 	display:none;
 }
 
-#filter select,
-#filter input,
-#intfilter select,
-#intfilter input{
-	background:none;
-	border:1px solid;
-	height:40px;
-	width:100%;
+#filter .form-item,
+#intfilter .form-item{
+	margin:0;
 }
-
-input#edit-submit-find-events{
-	border:none;
-	background:#8CC63F;
-}
-
 
 /*------ SIDEDISH ------*/
 .sidedish{
@@ -1355,6 +1353,13 @@ fieldset.filter-wrapper.form-wrapper{
 		color:#ffffff;
 	}
 	
+	#filter select,
+	#filter input,
+	#intfilter select,
+	#intfilter input{
+		width:auto;
+	}
+	
 	#filter .views-exposed-widget,
 	#intfilter .views-exposed-widget{
 		display:inline-block;
@@ -1370,7 +1375,6 @@ fieldset.filter-wrapper.form-wrapper{
 	#filter label,
 	#intfilter label{
 		display:inline-block;
-		line-height:40px;
 		color:#8cc63f;
 		vertical-align:middle;
 	}
@@ -1379,26 +1383,6 @@ fieldset.filter-wrapper.form-wrapper{
 	#intfilter .views-widget{
 		display:inline-block;
 		vertical-align:middle;
-	}
-	
-	#filter .description,
-	#intfilter .description{
-		display:none;
-	}
-	
-	#filter select,
-	#filter input,
-	#intfilter select,
-	#intfilter input{
-		background:none;
-		border:1px solid;
-		height:40px;
-		width:auto;
-	}
-	
-	input#edit-submit-find-events{
-		border:none;
-		background:#8CC63F;
 	}
 	
 	
@@ -1460,25 +1444,5 @@ fieldset.filter-wrapper.form-wrapper{
 	#intfilter .views-widget{
 		display:inline-block;
 		vertical-align:middle;
-	}
-	
-	#filter .description,
-	#intfilter .description{
-		display:none;
-	}
-	
-	#filter select,
-	#filter input,
-	#intfilter select,
-	#intfilter input{
-		background:none;
-		border:1px solid;
-		height:40px;
-		width:auto;
-	}
-	
-	input#edit-submit-find-events{
-		border:none;
-		background:#8CC63F;
 	}
 }
