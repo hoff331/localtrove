@@ -262,49 +262,6 @@ a.BTN2:hover{
 }
 
 
-/*------- HEADER -------*/
-#header{
-}
-
-#headerLeft{
-	text-align:center;
-}
-
-#headerRight{
-	background-color:#8CC63F;
-}
-
-/*------- MAIN NAV -------*/
-#headerRight ul.menu{
-	margin:0;
-}
-
-#headerRight ul li{
-	line-height:1em;
-	list-style:none;
-	border-bottom:1px solid #7EAA39;
-}
-
-#headerRight ul li a,
-#headerRight ul li a:visited{
-	color:#FFFFFF;
-	display:block;
-	padding:12px;
-	margin:0;
-	text-decoration:none;
-}
-
-#headerRight ul li a:hover,
-#headerRight ul li a.active,
-#headerRight ul li a.active-trail{
-	text-decoration:none;
-}
-
-#headerRight ul li a:active{
-	color:#FF931E;
-}
-
-
 /* VENDOR REGISTRATION */
 #vendorRegistration{
 	padding:9px 36px 36px;
@@ -449,6 +406,49 @@ a.BTN2:hover{
 
 #userMenu a{
 	text-decoration:none;
+}
+
+
+/*------- HEADER -------*/
+#header{
+}
+
+#headerLeft{
+	text-align:center;
+}
+
+#headerRight{
+	background-color:#8CC63F;
+}
+
+/*------- MAIN NAV -------*/
+#headerRight ul.menu{
+	margin:0;
+}
+
+#headerRight ul li{
+	line-height:1em;
+	list-style:none;
+	border-bottom:1px solid #7EAA39;
+}
+
+#headerRight ul li a,
+#headerRight ul li a:visited{
+	color:#FFFFFF;
+	display:block;
+	padding:12px;
+	margin:0;
+	text-decoration:none;
+}
+
+#headerRight ul li a:hover,
+#headerRight ul li a.active,
+#headerRight ul li a.active-trail{
+	text-decoration:none;
+}
+
+#headerRight ul li a:active{
+	color:#FF931E;
 }
 
 
@@ -1396,7 +1396,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#headerRight ul li a,
 	#headerRight ul li a:visited{
-		color:#7EAA39;
+		color:#8CC63F;
 		display:inline-block;
 		padding:9px 12px;
 		margin:0 9px 0 0;
@@ -1408,7 +1408,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#headerRight ul li a.active-trail{
 		color:#ffffff;
 		border-radius:4px;
-		background-color:#7EAA39;
+		background-color:#8CC63F;
 		text-decoration:none;
 	}
 	
