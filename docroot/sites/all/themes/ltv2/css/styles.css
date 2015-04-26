@@ -1381,6 +1381,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#headerRight{
 		float:right;
 		background-color:#ffffff;
+		padding:30px 0;
 	}
 	
 	#headerRight ul.menu{
