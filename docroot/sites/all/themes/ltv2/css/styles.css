@@ -426,11 +426,6 @@ a.BTN2:hover{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
-#banner input,
-#banner select{
-	font-size:18px;
-}
-
 #filter{
 	padding:5%;
 	background-color:rgba(0,0,0,.6);
@@ -441,6 +436,14 @@ a.BTN2:hover{
 	padding:5%;
 	background-color:rgba(0,0,0,.8);
 	color:#ffffff;
+}
+
+#filter input,
+#filter select,
+#intfilter input,
+#intfilter select{
+	font-size:18px;
+	margin:0;
 }
 
 #filter .views-exposed-widgets,
@@ -1339,11 +1342,6 @@ fieldset.filter-wrapper.form-wrapper{
 		padding:10%;
 	}
 	
-	#banner input,
-	#banner select{
-		font-size:18px;
-	}
-	
 	#filter{
 		padding:2% 5%;
 		background-color:rgba(0,0,0,.8);
@@ -1355,11 +1353,6 @@ fieldset.filter-wrapper.form-wrapper{
 		padding:2% 5%;
 		background-color:rgba(0,0,0,.8);
 		color:#ffffff;
-	}
-	
-	#filter .views-exposed-widgets,
-	#intfilter .views-exposed-widgets{
-		margin:0;
 	}
 	
 	#filter .views-exposed-widget,
