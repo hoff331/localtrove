@@ -273,13 +273,8 @@ a.BTN2:hover{
 #headerRight{
 }
 
-/*------- NAVIGATION -------*/
-#headerLeft{
-	float:left;
-}
-
+/*------- HEADER NAV -------*/
 #headerRight{
-	float:right;
 }
 
 #headerRight ul.menu{
@@ -287,33 +282,29 @@ a.BTN2:hover{
 }
 
 #headerRight ul li{
-	display:inline-block;
 	line-height:1em;
-	border:none;
+	list-style:none;
+	border-bottom:1px solid #7EAA39;
 }
 
 #headerRight ul li a,
 #headerRight ul li a:visited{
-	color:#7EAA39;
-	display:inline-block;
-	padding:9px 12px;
-	margin:0 9px 0 0;
+	color:#FFFFFF;
+	display:block;
+	padding:12px;
+	margin:0;
 	text-decoration:none;
 }
 
 #headerRight ul li a:hover,
 #headerRight ul li a.active,
 #headerRight ul li a.active-trail{
-	color:#ffffff;
-	border-radius:4px;
-	background-color:#7EAA39;
 	text-decoration:none;
 }
 
 #headerRight ul li a:active{
 	color:#FF931E;
 }
-
 
 
 /* VENDOR REGISTRATION */
@@ -1376,6 +1367,47 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	#navigationLeft ul li a:active{
+		color:#FF931E;
+	}
+	
+	/*------- HEADER -------*/
+	#headerLeft{
+		float:left;
+	}
+	
+	#headerRight{
+		float:right;
+	}
+	
+	#headerRight ul.menu{
+		margin:0;
+	}
+	
+	#headerRight ul li{
+		display:inline-block;
+		line-height:1em;
+		border:none;
+	}
+	
+	#headerRight ul li a,
+	#headerRight ul li a:visited{
+		color:#7EAA39;
+		display:inline-block;
+		padding:9px 12px;
+		margin:0 9px 0 0;
+		text-decoration:none;
+	}
+	
+	#headerRight ul li a:hover,
+	#headerRight ul li a.active,
+	#headerRight ul li a.active-trail{
+		color:#ffffff;
+		border-radius:4px;
+		background-color:#7EAA39;
+		text-decoration:none;
+	}
+	
+	#headerRight ul li a:active{
 		color:#FF931E;
 	}
 	
