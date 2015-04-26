@@ -35,7 +35,7 @@
     	<div id="headerLeft">
         	<a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>"/></a>
         </div>
-        <div id="headerRight"><!--floats right -->
+        <div id="headerRight">
            	<?php print render($page['headerRight']); ?>
         </div>
         <div class="clearfix"></div>

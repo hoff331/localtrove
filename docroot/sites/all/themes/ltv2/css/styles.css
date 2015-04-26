@@ -273,6 +273,42 @@ a.BTN2:hover{
 #headerRight{
 }
 
+/*------- NAVIGATION -------*/
+#headerRight ul.menu{
+	margin:0;
+}
+
+#headerRight ul li{
+	line-height:1em;
+	list-style:none;
+	border-bottom:1px solid #7EAA39;
+}
+
+#headerRight ul li a,
+#headerRight ul li a:visited{
+	color:#FFFFFF;
+	display:block;
+	padding:12px;
+	margin:0;
+	text-decoration:none;
+}
+
+#headerRight ul li a:hover,
+#headerRight ul li a.active,
+#headerRight ul li a.active-trail{
+	text-decoration:none;
+}
+
+#headerRight ul li a:active{
+	color:#FF931E;
+}
+
+#headerRight ul li ul,
+#headerRight ul li ul li ul{
+	display:none;
+}
+
+
 
 /* VENDOR REGISTRATION */
 #vendorRegistration{
