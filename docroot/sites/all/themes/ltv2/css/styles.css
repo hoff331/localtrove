@@ -1398,18 +1398,24 @@ fieldset.filter-wrapper.form-wrapper{
 @media all and (min-width: 1200px) {
 		/*------ BANNER ------*/
 	#banner{
-		padding:10%;
+		padding:10% 0;
 	}
 	
 	#filter{
-		padding:2% 5%;
+		display:block;
+		width:90%;
+		margin:0 auto;
+		padding:0;
 		background-color:rgba(0,0,0,.8);
 		border-radius:6px;
 		color:#ffffff;
 	}
 	
 	#intfilter{
-		padding:2% 5%;
+		display:block;
+		width:90%;
+		margin:0 auto;
+		padding:0;
 		background-color:rgba(0,0,0,.8);
 		color:#ffffff;
 	}
