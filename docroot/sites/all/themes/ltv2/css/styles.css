@@ -1337,20 +1337,26 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	/*------ BANNER ------*/
 	#banner{
-		padding:10%;
+		padding:10% 0;
 	}
 	
 	#filter{
+		display:block;
+		width:90%;
+		margin:0 auto;
+		padding:0;
 		background-color:rgba(0,0,0,.8);
 		border-radius:6px;
 		color:#ffffff;
-		padding:0;
 	}
 	
 	#intfilter{
+		display:block;
+		width:90%;
+		margin:0 auto;
+		padding:0;
 		background-color:rgba(0,0,0,.8);
 		color:#ffffff;
-		padding:0;
 	}
 	
 	#filter select,
