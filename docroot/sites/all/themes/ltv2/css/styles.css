@@ -1341,14 +1341,12 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	#filter{
-		padding:2% 5%;
 		background-color:rgba(0,0,0,.8);
 		border-radius:6px;
 		color:#ffffff;
 	}
 	
 	#intfilter{
-		padding:2% 5%;
 		background-color:rgba(0,0,0,.8);
 		color:#ffffff;
 	}
@@ -1363,20 +1361,8 @@ fieldset.filter-wrapper.form-wrapper{
 	#filter .views-exposed-widget,
 	#intfilter .views-exposed-widget{
 		display:inline-block;
-		margin:0 30px 0 0;
+		margin:10px;
 		padding:0;
-	}
-	
-	#filter .views-submit-button,
-	#intfilter .views-submit-button{
-		margin:0 !important; /*no padding on button*/
-	}
-	
-	#filter label,
-	#intfilter label{
-		display:inline-block;
-		color:#8cc63f;
-		vertical-align:middle;
 	}
 	
 	#filter .views-widget,
