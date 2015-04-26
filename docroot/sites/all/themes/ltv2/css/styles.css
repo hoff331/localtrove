@@ -1364,7 +1364,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#filter .views-submit-button,
 	#intfilter .views-submit-button{
-		padding:0 !important; /*no padding on button*/
+		margin:0 !important; /*no padding on button*/
 	}
 	
 	#filter label,
@@ -1415,4 +1415,70 @@ fieldset.filter-wrapper.form-wrapper{
 		padding-right:18px;
 	}
 	
+}
+
+@media all and (min-width: 1200px) {
+		/*------ BANNER ------*/
+	#banner{
+		padding:10%;
+	}
+	
+	#filter{
+		padding:2% 5%;
+		background-color:rgba(0,0,0,.8);
+		border-radius:6px;
+		color:#ffffff;
+	}
+	
+	#intfilter{
+		padding:2% 5%;
+		background-color:rgba(0,0,0,.8);
+		color:#ffffff;
+	}
+	
+	#filter .views-exposed-widget,
+	#intfilter .views-exposed-widget{
+		display:inline-block;
+		margin:0 30px 0 0;
+		padding:0;
+	}
+	
+	#filter .views-submit-button,
+	#intfilter .views-submit-button{
+		margin:0 !important; /*no padding on button*/
+	}
+	
+	#filter label,
+	#intfilter label{
+		display:inline-block;
+		line-height:40px;
+		color:#8cc63f;
+		vertical-align:middle;
+	}
+	
+	#filter .views-widget,
+	#intfilter .views-widget{
+		display:inline-block;
+		vertical-align:middle;
+	}
+	
+	#filter .description,
+	#intfilter .description{
+		display:none;
+	}
+	
+	#filter select,
+	#filter input,
+	#intfilter select,
+	#intfilter input{
+		background:none;
+		border:1px solid;
+		height:40px;
+		width:auto;
+	}
+	
+	input#edit-submit-find-events{
+		border:none;
+		background:#8CC63F;
+	}
 }
