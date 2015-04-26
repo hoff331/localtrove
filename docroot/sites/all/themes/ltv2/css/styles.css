@@ -274,8 +274,12 @@ a.BTN2:hover{
 }
 
 /*------- NAVIGATION -------*/
-#headerRight{
+#headerLeft{
 	float:left;
+}
+
+#headerRight{
+	float:right;
 }
 
 #headerRight ul.menu{
