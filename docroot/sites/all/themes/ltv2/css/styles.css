@@ -1344,11 +1344,13 @@ fieldset.filter-wrapper.form-wrapper{
 		background-color:rgba(0,0,0,.8);
 		border-radius:6px;
 		color:#ffffff;
+		padding:0;
 	}
 	
 	#intfilter{
 		background-color:rgba(0,0,0,.8);
 		color:#ffffff;
+		padding:0;
 	}
 	
 	#filter select,
