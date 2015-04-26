@@ -425,7 +425,6 @@ a.BTN2:hover{
 
 /*------ BANNER ------*/
 #banner{
-	padding:10%;
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
@@ -435,14 +434,13 @@ a.BTN2:hover{
 }
 
 #filter{
-	padding:2% 5%;
-	background-color:rgba(0,0,0,.8);
-	border-radius:6px;
+	padding:5%;
+	background-color:rgba(0,0,0,.6);
 	color:#ffffff;
 }
 
 #intfilter{
-	padding:2% 5%;
+	padding:5%;
 	background-color:rgba(0,0,0,.8);
 	color:#ffffff;
 }
@@ -501,6 +499,38 @@ input#edit-submit-find-events{
 /*------ SIDEDISH ------*/
 .sidedish{
 	text-align:center;
+}
+
+a.feature{
+	display:block;
+	height:276px;
+	width:276px;
+	margin:0 auto;
+	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
+}
+
+a.feature.find{
+	background-position:0 0;
+}
+
+a.feature.find:hover{
+	background-position:0 -276px;
+}
+
+a.feature.add{
+	background-position:-276px 0;
+}
+
+a.feature.add:hover{
+	background-position:-276px -276px;
+}
+
+a.feature.browse{
+	background-position:-552px 0;
+}
+
+a.feature.browse:hover{
+	background-position:-552px -276px;
 }
 
 
@@ -622,38 +652,6 @@ input#edit-submit-find-events{
 	width:294px;/*312-18*/
 	float:left;
 	margin:54px 0 0;
-}
-
-a.feature{
-	display:block;
-	height:276px;
-	width:276px;
-	margin:0 auto;
-	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
-}
-
-a.feature.find{
-	background-position:0 0;
-}
-
-a.feature.find:hover{
-	background-position:0 -276px;
-}
-
-a.feature.add{
-	background-position:-276px 0;
-}
-
-a.feature.add:hover{
-	background-position:-276px -276px;
-}
-
-a.feature.browse{
-	background-position:-552px 0;
-}
-
-a.feature.browse:hover{
-	background-position:-552px -276px;
 }
 
 
@@ -1339,6 +1337,31 @@ fieldset.filter-wrapper.form-wrapper{
 	#navigationLeft ul li a:active{
 		color:#FF931E;
 	}
+	
+	
+	/*------ BANNER ------*/
+	#banner{
+		padding:10%;
+	}
+	
+	#banner input,
+	#banner select{
+		font-size:18px;
+	}
+	
+	#filter{
+		padding:2% 5%;
+		background-color:rgba(0,0,0,.8);
+		border-radius:6px;
+		color:#ffffff;
+	}
+	
+	#intfilter{
+		padding:2% 5%;
+		background-color:rgba(0,0,0,.8);
+		color:#ffffff;
+	}
+	
 	
 	/*------ SIDEDISH ------*/
 	.sidedish{
