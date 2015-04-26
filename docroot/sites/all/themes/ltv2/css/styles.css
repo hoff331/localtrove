@@ -422,8 +422,7 @@ a.BTN2:hover{
 
 
 /*------ BANNER ------*/
-#banner,
-#intbanner{
+#banner{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
@@ -433,9 +432,12 @@ a.BTN2:hover{
 	color:#ffffff;
 }
 
+#intbanner{
+	background-color:rgba(0,0,0,.8);
+}
+
 #intfilter{
 	padding:5%;
-	background-color:rgba(0,0,0,.8);
 	color:#ffffff;
 }
 
@@ -1351,12 +1353,15 @@ fieldset.filter-wrapper.form-wrapper{
 		color:#ffffff;
 	}
 	
+	#intbanner{
+		background-color:rgba(0,0,0,.8);
+	}
+	
 	#intfilter{
 		display:block;
 		width:90%;
 		margin:0 auto;
 		padding:0;
-		background-color:rgba(0,0,0,.8);
 		color:#ffffff;
 	}
 	
