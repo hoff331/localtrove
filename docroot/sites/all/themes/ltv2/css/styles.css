@@ -1395,7 +1395,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 }
 
-@media all and (min-width: 1200px) {
+@media all and (min-width: 1024px) {
 		/*------ BANNER ------*/
 	#banner{
 		padding:10% 0;
