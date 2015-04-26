@@ -1345,7 +1345,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#filter{
 		display:block;
-		max-width:796px;
+		max-width:774px;
 		margin:0 auto;
 		padding:0;
 		background-color:rgba(0,0,0,.8);
@@ -1375,7 +1375,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#filter .views-exposed-widget,
 	#intfilter .views-exposed-widget{
 		display:inline-block;
-		margin:18px;
+		margin:15px;
 		padding:0;
 	}
 		
