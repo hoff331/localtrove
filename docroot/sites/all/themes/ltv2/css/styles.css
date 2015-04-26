@@ -1404,7 +1404,7 @@ fieldset.filter-wrapper.form-wrapper{
 @media all and (min-width: 1024px) {
 	/*------ BANNER ------*/
 	#filter{
-		max-width:900px;
+		max-width:940px;
 	}
 	
 	#filter .views-exposed-widget,
