@@ -1373,6 +1373,11 @@ fieldset.filter-wrapper.form-wrapper{
 		padding:0;
 	}
 	
+	#filter .views-submit-button,
+	#intfilter .views-submit-button{
+		
+	}
+	
 	#filter .views-widget,
 	#intfilter .views-widget{
 		display:inline-block;
@@ -1406,7 +1411,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#filter .views-submit-button,
 	#intfilter .views-submit-button{
-		margin:0 !important; /*no padding on button*/
+		
 	}
 	
 	#filter label,
