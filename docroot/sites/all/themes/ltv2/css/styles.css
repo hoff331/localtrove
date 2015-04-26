@@ -433,7 +433,7 @@ a.BTN2:hover{
 }
 
 #intbanner{
-	background-color:rgba(0,0,0,.8);
+	background-color:#828282;
 }
 
 #intfilter{
@@ -1355,7 +1355,6 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#intbanner{
 		padding:0 36px;
-		background-color:rgba(0,0,0,.8);
 	}
 	
 	#intfilter{
