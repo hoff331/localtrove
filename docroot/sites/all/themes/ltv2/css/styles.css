@@ -264,19 +264,16 @@ a.BTN2:hover{
 
 /*------- HEADER -------*/
 #header{
-	padding:0 36px;
 }
 
 #headerLeft{
+	text-align:center;
 }
 
 #headerRight{
 }
 
-/*------- HEADER NAV -------*/
-#headerRight{
-}
-
+/*------- MAIN NAV -------*/
 #headerRight ul.menu{
 	margin:0;
 }
@@ -1371,6 +1368,10 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	/*------- HEADER -------*/
+	#header{
+		padding:0 36px;
+	}
+	
 	#headerLeft{
 		float:left;
 	}
