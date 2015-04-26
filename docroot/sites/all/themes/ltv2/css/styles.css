@@ -274,38 +274,39 @@ a.BTN2:hover{
 }
 
 /*------- NAVIGATION -------*/
+#headerRight{
+	float:left;
+}
+
 #headerRight ul.menu{
 	margin:0;
 }
 
 #headerRight ul li{
+	display:inline-block;
 	line-height:1em;
-	list-style:none;
-	border-bottom:1px solid #7EAA39;
+	border:none;
 }
 
 #headerRight ul li a,
 #headerRight ul li a:visited{
 	color:#FFFFFF;
-	display:block;
-	padding:12px;
-	margin:0;
+	display:inline-block;
+	padding:9px 12px;
+	margin:0 9px 0 0;
 	text-decoration:none;
 }
 
 #headerRight ul li a:hover,
 #headerRight ul li a.active,
 #headerRight ul li a.active-trail{
+	border-radius:4px;
+	background-color:#7EAA39;
 	text-decoration:none;
 }
 
 #headerRight ul li a:active{
 	color:#FF931E;
-}
-
-#headerRight ul li ul,
-#headerRight ul li ul li ul{
-	display:none;
 }
 
 
