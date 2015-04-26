@@ -1400,6 +1400,7 @@ fieldset.filter-wrapper.form-wrapper{
 		background:none;
 		border:1px solid;
 		height:40px;
+		width:auto;
 	}
 	
 	input#edit-submit-find-events{
