@@ -422,7 +422,8 @@ a.BTN2:hover{
 
 
 /*------ BANNER ------*/
-#banner{
+#banner,
+#intbanner{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
