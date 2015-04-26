@@ -387,6 +387,7 @@ a.BTN2:hover{
 
 #userMenu{
 	display:none;
+	z-index:2;
 	background:#FFFFFF;
 	border:3px solid #7EAA39;
 	position:absolute;
