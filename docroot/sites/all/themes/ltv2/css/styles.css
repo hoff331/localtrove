@@ -271,6 +271,7 @@ a.BTN2:hover{
 }
 
 #headerRight{
+	background-color:#8CC63F;
 }
 
 /*------- MAIN NAV -------*/
@@ -1379,6 +1380,7 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#headerRight{
 		float:right;
+		background-color:#ffffff;
 	}
 	
 	#headerRight ul.menu{
