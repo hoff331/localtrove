@@ -1375,6 +1375,7 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	#headerLeft{
+		width:33.33%;
 		float:left;
 		text-align:left;
 	}
