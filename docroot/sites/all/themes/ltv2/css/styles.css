@@ -1340,12 +1340,11 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	/*------ BANNER ------*/
 	#banner{
-		padding:10% 0;
+		padding:10% 18px;
 	}
 	
 	#filter{
 		display:block;
-		width:90%;
 		margin:0 auto;
 		padding:0;
 		background-color:rgba(0,0,0,.8);
@@ -1354,6 +1353,7 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	#intbanner{
+		padding:0 18px;
 		background-color:rgba(0,0,0,.8);
 	}
 	
