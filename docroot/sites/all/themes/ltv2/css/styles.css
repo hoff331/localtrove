@@ -1331,8 +1331,7 @@ fieldset.filter-wrapper.form-wrapper{
 @media all and (min-width: 829px) {
 	/*------- NAVIGATION -------*/
 	#navigation{
-		font-size:12px;
-		padding:6px 36px;
+		padding:9px 36px;
 	}
 	
 	#navigationLeft{
@@ -1353,7 +1352,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#navigationLeft ul li a:visited{
 		color:#FFFFFF;
 		display:inline-block;
-		padding:0;
+		padding:9px 12px;
 		margin:0 9px 0 0;
 		text-decoration:none;
 	}
