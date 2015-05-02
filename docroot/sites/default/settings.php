@@ -574,6 +574,24 @@ if (file_exists('/var/www/site-php')) {
   require('/var/www/site-php/eechoffman/eechoffman-settings.inc');
 }
 
+// base URL: https://docs.acquia.com/articles/setting-baseurl-without-breaking-development-and-staging-environments
+if (isset($_ENV['AH_SITE_ENVIRONMENT'])) {
+switch ($_ENV['AH_SITE_ENVIRONMENT']) {
+  case 'dev':
+   $base_url = 'http://dev.localtrove.com';
+   break;
+
+  case 'test':
+   $base_url = 'http://test.localtrove.com';
+   break;
+
+  case 'prod':
+   $base_url = 'http://www.localtrove.com';
+   break;
+  }
+}
+
+// error reporting: https://docs.acquia.com/articles/errors-php-log
 if (isset($_SERVER["AH_PRODUCTION"]) && $_SERVER["AH_PRODUCTION"] == 1) {
   error_reporting(E_ALL & ~E_NOTICE);
 }
@@ -598,7 +616,7 @@ if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) 
   }
 }
 
-# memcached https://docs.acquia.com/cloud/performance/memcached
+// memcached https://docs.acquia.com/cloud/performance/memcached
  $conf['cache_backends'][] = './sites/all/modules/memcache/memcache.inc';
  $conf['cache_default_class'] = 'MemCacheDrupal';
  $conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
