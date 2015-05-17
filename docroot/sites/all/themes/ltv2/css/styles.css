@@ -189,6 +189,10 @@ input{
 	width:100%;
 }
 
+input[type=“checkbox”]{
+	width:auto;
+}
+
 /* MISC */
 iframe{
 	display:none;
