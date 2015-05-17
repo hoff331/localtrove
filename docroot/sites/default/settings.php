@@ -582,7 +582,7 @@ switch ($_ENV['AH_SITE_ENVIRONMENT']) {
    break;
 
   case 'test':
-   $base_url = 'http://test.localtrove.com';
+   $base_url = 'http://stage.localtrove.com';
    break;
 
   case 'prod':
