@@ -1,9 +1,0 @@
-;$Id$
-name = Role Discounts
-description = Add Discounts or Fees to certain roles
-version = "7.x-2.17"
-core = 7.x
-package = MoneyScripts
-dependencies[] = ms_core
-files[] = ms_role_discounts.module
-configure = admin/moneyscripts/ms_role_discounts
