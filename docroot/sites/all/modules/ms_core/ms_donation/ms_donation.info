@@ -1,0 +1,10 @@
+;$Id$
+name = Donations
+description = Allow users to donate extra during checkout
+version = "7.x-2.17"
+core = 7.x
+package = MoneyScripts
+dependencies[] = ms_core
+files[] = ms_donation.install
+files[] = ms_donation.module
+configure = admin/moneyscripts/ms_donation

@@ -1,0 +1,10 @@
+;$Id$
+name = Payza
+description = Gateway to use Payza (formerly AlertPay)
+version = "7.x-2.17"
+core = 7.x
+package = MoneyScripts - Gateways
+dependencies[] = ms_core
+files[] = ms_payza.install
+files[] = ms_payza.module
+configure = admin/moneyscripts/gateways/ms_payza

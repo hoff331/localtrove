@@ -1,0 +1,14 @@
+;$Id$
+name = Authorize.net
+description = Payment Gateway for Authorize.net
+version = "7.x-2.17"
+core = 7.x
+package = MoneyScripts - Gateways
+
+dependencies[] = ms_core
+files[] = ms_authorizenet.install
+files[] = ms_authorizenet.module
+files[] = includes/AuthnetARB.class.php
+files[] = includes/AuthnetCIM.class.php
+files[] = includes/authnet.class.php
+configure = admin/moneyscripts/gateways/ms_authorizenet

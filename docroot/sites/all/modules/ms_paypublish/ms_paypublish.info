@@ -1,0 +1,14 @@
+; $Id: $
+name = Pay to Publish
+description = Let users pay to publish nodes
+dependencies[] = ms_core
+package = MoneyScripts
+version = "7.x-5.5"
+core = 7.x
+project = "ms_paypublish"
+files[] = ms_paypublish.install
+files[] = ms_paypublish.module
+files[] = ms_paypublish.rules.inc
+configure = admin/moneyscripts/ms_paypublish
+l10n server = moneyscripts.net
+l10n url = https://www.moneyscripts.net/sites/default/filesnew/l10n_packager/l10n_server.xml

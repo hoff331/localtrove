@@ -1,0 +1,3957 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Module to allow users to Pay to Publish content
+ * Copyright 2011 Leighton Whiting
+ * 
+ * TODO - Add ability to let users specify the price
+ * TODO - Add an 'Allow Roles' setting to the plans
+ *   -See http://www.moneyscripts.net/forums/feature-requests/2011/04/6/plan-role
+ * TODO - Use adjustments as the sticky and promote options?
+ */
+
+/**
+ * Display help and module information
+ */
+function ms_paypublish_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#ms_paypublish":
+      $output = '<p>' .  t("Let Users Pay to Publish Content. For tutorials, <a href='@url'>click here</a>",
+        array('@url' => url('https://www.moneyscripts.net/tutorials'))) . '</p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implementation of hook_permission().
+ */
+function ms_paypublish_permission() {
+  $perms = array(
+    'administer pay to publish plans' => array(
+      'title' => t('Administer Pay to Publish Plans'),
+      'description' => t('Allows the user to add, edit and delete Pay to Publish Plans.'),
+      'restrict access' => TRUE,  
+    ),
+    'administer pay to publish nodes' => array(
+      'title' => t('Administer Pay to Publish Nodes'),
+      'description' => t('Allows the user to add, edit and delete Pay to Publish Nodes.'),
+      'restrict access' => TRUE,
+    ),
+    'view own pay to publish nodes' => array(
+      'title' => t('View own Pay to Publish Nodes'),
+      'description' => t('Adds a Tab in the User Account page showing the nodes that the user has paid to publish.'),
+    ),
+    'renew own pay to publish nodes' => array(
+      'title' => t('Renew own Pay to Publish Nodes'),
+      'description' => t('Allows users to pay to renew their expired Pay to Publish Nodes.'),
+    ),
+  );
+  
+  foreach (array_keys(node_type_get_types()) as $type) {
+    $perms['publish ' . $type . ' for free'] = array(
+      'title' => t('Publish %type for free', array('%type' => $type)),
+      'description' => t('Allows the user to publish content of this type for free'),
+      'restrict access' => FALSE,  
+    );
+  }
+  
+  return $perms;
+}
+
+/*
+ * Check if the user should have access to the page
+ */
+function ms_paypublish_access_test($account) {
+  global $user;
+  return (user_access('access administration pages') OR (user_access('view own pay to publish nodes') && ($account->uid == $user->uid)));
+}
+
+/**
+ * Implements hook_init().
+ */
+function ms_paypublish_init() {
+  // Check if a redirect has been set and if so redirect to that page
+  if (isset($_SESSION['ms_paypublish_redirect'])) {
+    $redirect = $_SESSION['ms_paypublish_redirect'];
+    unset($_SESSION['ms_paypublish_redirect']);
+    drupal_goto($redirect);
+  }
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function ms_paypublish_cron() {
+  // Unpublish nodes that are expired
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE status != :status AND expiration_date != :zero AND expiration_date < :expiration_date", 
+    array(':status' => 0, ':zero' => 0, ':expiration_date' => REQUEST_TIME));
+  foreach ($result as $pp_node) {
+    $plan = ms_paypublish_load_plan($pp_node->pid);
+    switch ($pp_node->status) {
+      case 1:
+      case 6:
+      case 7:
+      case 8:
+        // Unpublish the expired node
+        $node = node_load($pp_node->nid);
+
+        // Mark status as unpublished
+        ms_paypublish_change_node_status($pp_node->id, 0);
+
+        // Load the user account
+        $account = user_load($node->uid);
+
+        $e_vars = array('nid' => $node->nid);
+
+        // Invoke hook_ms_paypublish_expiring to let other modules act on an expiring pay to publish node
+        module_invoke_all('ms_paypublish_expiring', $account, $pp_node, $plan);
+
+        if (variable_get('ms_paypublish_expire_body', '')) {
+          // Email the owner
+          drupal_mail('ms_paypublish', 'expired', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+        }
+
+        ms_core_log('ms_paypublish', 'Unpublished Expired Content: %content', 
+          array('%content' => $node->title));
+        break;
+    }
+  }
+
+  // Check to send the expiring soon emails and then change status to 7 (Expiring Soon)
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE status = :status AND expiration_date != :expiration_date", 
+    array(':status' => 1, ':expiration_date' => 0));
+  foreach ($result as $pp_node) {
+    $temp_time = strtotime("+" . variable_get('ms_paypublish_expiring_days', 3) . " days");
+
+    if (variable_get('ms_paypublish_expiring_mail_days', 1) AND ($pp_node->expiration_date < $temp_time)) {
+      // Mark status as expiring soon
+      ms_paypublish_change_node_status($pp_node->id, 7);
+
+      // Load the user account
+      $account = user_load($pp_node->uid);
+
+      $e_vars = array('nid' => $pp_node->nid);
+
+      if (variable_get('ms_paypublish_expiring_body', '')) {
+        // Email the owner
+        drupal_mail('ms_paypublish', 'expiring', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+      }
+    }
+  }
+
+  // Remove the stickiness from nodes that need it
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE status != :status AND sticky_expiration != :zero AND sticky_expiration < :sticky_expiration", 
+    array(':status' => 0, ':zero' => 0, ':sticky_expiration' => REQUEST_TIME));
+  foreach ($result as $pp_node) {
+    switch ($pp_node->status) {
+      case 1:
+      case 6:
+      case 7:
+      case 8:
+        // Remove the sticky from the node
+        $node = node_load($pp_node->nid);
+        ms_paypublish_change_node_sticky($pp_node->id, 0);
+
+        ms_core_log('ms_paypublish', 'Remove Sticky from Content: %content', 
+          array('%content' => $node->title));
+        break;
+    }
+  }
+
+  // Remove the promote to front page from nodes that need it
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE status != :status AND promote_expiration != :zero AND promote_expiration < :promote_expiration", 
+    array(':status' => 0, ':zero' => 0, ':promote_expiration' => REQUEST_TIME));
+  foreach ($result as $pp_node) {
+    switch ($pp_node->status) {
+      case 1:
+      case 6:
+      case 7:
+      case 8:
+        // Remove the promote from the node
+        $node = node_load($pp_node->nid);
+        ms_paypublish_change_node_promote($pp_node->id, 0);
+
+        ms_core_log('ms_paypublish', 'Remove Promote from Content: %content', 
+          array('%content' => $node->title));
+        break;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function ms_paypublish_menu() {
+  $items = array();
+  $items['admin/structure/ms_paypublish'] = array(
+    'title' => 'Pay to Publish Plans',
+    'page callback' => 'ms_paypublish_list_plans',
+    'access arguments' => array('administer pay to publish plans'),
+    'description' => 'Create and Edit Pay to Publish Plans',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/structure/ms_paypublish/list'] = array(
+    'title' => 'List Plans',
+    'page callback' => 'ms_paypublish_list_plans',
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => '-1'
+  );
+  $items['admin/structure/ms_paypublish/approval'] = array(
+    'title' => 'Approval Queue',
+    'page callback' => 'ms_paypublish_show_approval_queue',
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/structure/ms_paypublish/approval/publish/%'] = array(
+    'title' => 'Publish Content',
+    'page callback' => 'ms_paypublish_approval_queue_publish',
+    'page arguments' => array(5),
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/structure/ms_paypublish/approval/deny/%'] = array(
+    'title' => 'Deny Content',
+    'page callback' => 'ms_paypublish_approval_queue_deny',
+    'page arguments' => array(5),
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/structure/ms_paypublish/add'] = array(
+    'title' => 'Add Plan',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_paypublish_plan_form', 'add'),
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/structure/ms_paypublish/edit/%'] = array(
+    'title' => 'Edit Plan',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_paypublish_plan_form', 'edit', 4),
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/structure/ms_paypublish/clone/%'] = array(
+    'title' => 'Clone Plan',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_paypublish_plan_form', 'clone', 4),
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/structure/ms_paypublish/delete/%'] = array(
+    'title' => 'Delete Plan',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_paypublish_delete_plan_confirm', 4),
+    'access arguments' => array('administer pay to publish plans'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['user/%user/my-content'] = array(
+    'title' => 'My Content',
+    'page callback' => 'ms_paypublish_list_content',
+    'page arguments' => array(1),
+    'access callback' => 'ms_paypublish_access_test',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['ms_paypublish/publish/%'] = array(
+    'title' => 'Promote / Extend',
+    'page callback' => 'ms_paypublish_publish_page',
+    'page arguments' => array(2),
+    'access arguments' => array('renew own pay to publish nodes'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/moneyscripts/ms_paypublish'] = array(
+    'title' => 'Pay to Publish',
+    'description' => 'Set the various Pay to Publish Settings here',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_paypublish_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+  $items['admin/content/ms_paypublish_nodes'] = array(
+    'title' => 'Pay to Publish Nodes',
+    'page callback' => 'ms_paypublish_show_nodes',
+    'access arguments' => array('administer pay to publish nodes'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/content/ms_paypublish_nodes/list'] = array(
+    'title' => 'List Pay to Publish Nodes',
+    'page callback' => 'ms_paypublish_show_nodes',
+    'access arguments' => array('administer pay to publish nodes'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => '-1'
+  );
+  $items['admin/content/ms_paypublish_nodes/add'] = array(
+    'title' => 'Add Pay to Publish Node',
+    'page callback' => 'ms_paypublish_edit_node_page',
+    'access arguments' => array('administer pay to publish nodes'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/content/ms_paypublish_nodes/edit/%'] = array(
+    'title' => 'Edit Pay to Publish Node',
+    'page callback' => 'ms_paypublish_edit_node_page',
+    'page arguments' => array(4),
+    'access arguments' => array('administer pay to publish nodes'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/content/ms_paypublish_nodes/delete/%'] = array(
+    'title' => 'Delete Pay to Publish Node',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ms_paypublish_delete_node_confirm', 4),
+    'access arguments' => array('administer pay to publish nodes'),
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_ms_license().
+ */
+function ms_paypublish_ms_license() {
+  return array(
+    'ms_paypublish' => array(
+      'title' => t('Pay to Publish'),
+      'link' => 'http://www.moneyscripts.net/drupal-pay-to-publish',
+    ),
+  );
+}
+
+// ======================================
+// Administration Page:
+// ======================================
+
+/**
+ * Implements hook_ms_core_overrides().
+ */
+function ms_paypublish_ms_core_overrides() {
+  return array(
+    'ms_paypublish' => array(
+      'title' => t('MS Pay to Publish'),
+      'form' => 'ms_paypublish_admin',
+    ),
+  );
+}
+
+/**
+ * Admin Settings Form
+ */
+function ms_paypublish_admin() {
+  $form['ms_paypublish_info'] = array(
+    '#value' => '<p>Manage your payment plans in the ' . l('Pay to Publish Plans Manager', 'admin/structure/ms_paypublish/list') . '</p>',
+  );
+
+  $form['main'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Main Settings'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['notices'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Notices'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['email'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Email Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['main']['ms_paypublish_show_plans_node_form'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Payment Plans on the Node Creation Form?'),
+    '#default_value' => variable_get('ms_paypublish_show_plans_node_form', FALSE),
+    '#description' => t('This will display the payment plan options on the node creation form so that users can go straight to checkout once they have entered the title and body.'),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_hide_plans_single'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide Plans Fieldset if there is only 1 option?'),
+    '#default_value' => variable_get('ms_paypublish_hide_plans_single', FALSE),
+    '#description' => t('This will hide the plans fieldset when creating a node if there is only one option.'),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_show_save_option'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Option to Save Unpublished?'),
+    '#default_value' => variable_get('ms_paypublish_show_save_option', TRUE),
+    '#description' => t("This will display the option to 'Do not publish yet' on the node creation form, so that registered users can save a node as unpublished without paying to publish it first."),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_go_checkout'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Go Straight to Checkout?'),
+    '#default_value' => variable_get('ms_paypublish_go_checkout', FALSE),
+    '#description' => t('Check this to have the user go straight to the checkout 
+      page once they select a plan. Otherwise, they will be redirected to the shopping cart.'),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_require_approval'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Require Admin Approval Before Content is Published?'),
+    '#default_value' => variable_get('ms_paypublish_require_approval', FALSE),
+    '#description' => t('This will put content that has been paid for in an admin approval queue before it is published.'),
+    '#required' => FALSE,
+    '#ms_override' => TRUE,
+  );
+  $form['main']['ms_paypublish_enforce_free_checkout'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Add product to cart even for free plans?'),
+    '#default_value' => variable_get('ms_paypublish_enforce_free_checkout', FALSE),
+    '#description' => t('This will add a product to the cart when the user selects free plans, instead of just publishing it directly.'),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_product_name'] = array(
+    '#type' => 'select',
+    '#title' => t('Product Name'),
+    '#options' => array(
+      'plan_name' => t('Plan Name'),
+      'node_title' => t('Node Title'),
+       ),
+    '#description' => t("What will be used for the product name when paying to publish nodes?"),
+    '#default_value' => variable_get('ms_paypublish_product_name', 'node_title'),
+    '#required' => TRUE,
+  );
+
+  $form['main']['ms_paypublish_form_weight'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Payment Plans Form Weight'),
+    '#default_value' => variable_get('ms_paypublish_form_weight', 50),
+    '#description' => t('Change this to place the Payment Plans form element wherever you want on the Node Creation page. The higher the number, the lower it will be on the form. You may also specify negative values.'),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_show_plan_price'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Plan Price?'),
+    '#default_value' => variable_get('ms_paypublish_show_plan_price', TRUE),
+    '#description' => t('This will be placed in between the Plan Name and Description on the Node Creation and Purchase Pages'),
+    '#required' => FALSE,
+  );
+  $form['main']['ms_paypublish_show_supported_fields'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Supported Fields?'),
+    '#default_value' => variable_get('ms_paypublish_show_supported_fields', TRUE),
+    '#description' => t('If checked, the fields supported by the plan will be shown
+      in between the Plan Name and Description on the Node Creation and Purchase Pages'),
+    '#required' => FALSE,
+  );
+  $form['notices']['ms_paypublish_publish_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Not Yet Published Text'),
+    '#default_value' => variable_get('ms_paypublish_publish_text', t('This content has not been published yet. To publish, please click here: !link')),
+    '#description' => t('This is the text the user will see after they save the content but before it is published. You may use the !link variable to represent the clickable Publish link. Leave blank for no message.'),
+    '#required' => FALSE,
+  );
+  $form['notices']['ms_paypublish_not_published_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Not Published or Expired Text'),
+    '#default_value' => variable_get('ms_paypublish_not_published_text', t('This content is not published. To publish, please click here: !link')),
+    '#description' => t('This is the text the user will see when they view their node that is currently not publish. It may have expired. You may use the !link variable to represent the clickable Publish link. Leave blank for no message.'),
+    '#required' => FALSE,
+  );
+  $form['notices']['ms_paypublish_published_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Published Text'),
+    '#default_value' => variable_get('ms_paypublish_published_text', t('This content will expire in !days days. To Promote / Extend, please click here: !link')),
+    '#description' => t('This is the text the user will see when they view their node that is currently published. You may use the !link variable to represent the clickable Publish link, and the !days variable to represent how many days left until expiration. Leave blank for no message.'),
+    '#required' => FALSE,
+  );
+  $form['notices']['ms_paypublish_approval_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Approval Queue Text'),
+    '#default_value' => variable_get('ms_paypublish_approval_text', t('This content is Awaiting Admin Approval. It will be published shortly.')),
+    '#description' => t('The text the user will see when they view their node that is in the admin approval queue. Leave blank for no message.'),
+    '#required' => FALSE,
+  );
+  $form['notices']['ms_paypublish_sticky_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Sticky Option Text'),
+    '#default_value' => variable_get('ms_paypublish_sticky_text', t('Make this content sticky for an additional !amount each term.')),
+    '#description' => t('The Sticky Option text. You may use the !amount token to show the additional amount.'),
+    '#required' => FALSE,
+  );
+  $form['notices']['ms_paypublish_promote_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Promote Option Text'),
+    '#default_value' => variable_get('ms_paypublish_promote_text', t('Make this a Featured Event for an additional !amount.')),
+    '#description' => t('The Promote Option text. You may use the !amount token to show the additional amount.'),
+    '#required' => FALSE,
+  );
+
+  $form['email']['ms_paypublish_admin_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Admin Email'),
+    '#description' => t('Enter the admin email you wish to use as the Sender for the emails below. 
+      If left blank, the Site Email will be used.'),
+    '#default_value' => variable_get('ms_paypublish_admin_email', ''),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_payment_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Payment Received Subject'),
+    '#default_value' => variable_get('ms_paypublish_payment_subject', t('Payment Received')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_payment_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Payment Received Body'),
+    '#default_value' => variable_get('ms_paypublish_payment_body', t('Your payment of [ms_core_payment:paymentAmount] has been received and [ms_paypublish_plan:planLength] [ms_paypublish_plan:planUnit] have been added to your content: [node:title] ([node:url:absolute]).
+It will expire on [ms_paypublish_node:expirationDate].
+To purchase additional time, please click here: [ms_paypublish_node:publishUrl]')),
+    '#description' => t("This is the email that is sent to a user when a payment has been received for one of their nodes with an expiration date. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_payment_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_payment_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  $form['email']['ms_paypublish_cancel_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Cancellation Subject'),
+    '#default_value' => variable_get('ms_paypublish_cancel_subject', t('Recurring Payments Cancelled')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_cancel_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Cancellation Body'),
+    '#default_value' => variable_get('ms_paypublish_cancel_body', t("Your recurring payments for [node:title] ([node:url:absolute]) have been cancelled. Your content will expire [ms_paypublish_node:expirationDate]")),
+    '#description' => t("This is the email that is sent when a user cancels their recurring payments for a Pay to Publish node. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_cancel_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_cancel_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  $form['email']['ms_paypublish_expiring_days'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Expiring Soon Threshold'),
+    '#default_value' => variable_get('ms_paypublish_expiring_days', 3),
+    '#description' => t('How many days before content expires should the Expiring Soon email be sent?'),
+    '#required' => FALSE,
+  );
+  $form['email']['ms_paypublish_expiring_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Node Expiring Soon Subject'),
+    '#default_value' => variable_get('ms_paypublish_expiring_subject', t('Content Expiring Soon!')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_expiring_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Node Expiring Soon Body'),
+    '#default_value' => variable_get('ms_paypublish_expiring_body', t('My Content: [node:title] ([node:url:absolute]) is expiring soon.
+To Promote / Extend, click here: [ms_paypublish_node:publishUrl]')),
+    '#description' => t("This is the email that is sent to a user when a node they have published is expiring soon. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_expiring_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_expiring_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  $form['email']['ms_paypublish_expire_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Node Expired Subject'),
+    '#default_value' => variable_get('ms_paypublish_expire_subject', t('Content Expired')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_expire_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Node Expired Body'),
+    '#default_value' => variable_get('ms_paypublish_expire_body', t('My Content: [node:title] ([node:url:absolute]) is expired.
+To republish, click here: [ms_paypublish_node:publishUrl]')),
+    '#description' => t("This is the email that is sent to a user when a node they have published has expired. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_expire_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_expire_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  $form['email']['ms_paypublish_no_expire_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Non-Expiring Node Payment Received Subject'),
+    '#default_value' => variable_get('ms_paypublish_no_expire_subject', t('Payment Received')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_no_expire_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Non-Expiring Node Payment Received Body'),
+    '#default_value' => variable_get('ms_paypublish_no_expire_body', t('Your payment of [ms_core_payment:paymentAmount] has been received and your content has been paid for: [node:title] ([node:url:absolute]).
+It will not expire.')),
+    '#description' => t("This is the email that is sent to a user when their node that has no expiration has been paid for. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_no_expire_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_no_expire_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  $form['email']['ms_paypublish_approval_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Content Approval Subject'),
+    '#default_value' => variable_get('ms_paypublish_approval_subject', t('Content Published')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_approval_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Content Approval Body'),
+    '#default_value' => variable_get('ms_paypublish_approval_body', t('Your content has been approved for publishing: [node:title] ([node:url:absolute]).
+Thank you for your patience.')),
+    '#description' => t("This is the email that is sent to a user when their content has been approved for publishing by the admin. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_approval_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_approval_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  $form['email']['ms_paypublish_denial_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Content Denial Subject'),
+    '#default_value' => variable_get('ms_paypublish_denial_subject', t('Publishing Denied')),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_denial_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Content Denial Body'),
+    '#default_value' => variable_get('ms_paypublish_denial_body', t('Your content has been denied for publishing: [node:title] ([node:url:absolute]).
+Reason: [ms_paypublish_node:denialNotes]')),
+    '#description' => t("This is the email that is sent to a user when their content has been denied for publishing by the admin. Leave blank to disable."),
+    '#required' => FALSE
+  );
+  $form['email']['ms_paypublish_denial_token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['email']['ms_paypublish_denial_token_help']['tokens'] = array(
+    '#theme' => 'token_tree',
+    '#token_types' => array('ms_paypublish_node', 'ms_paypublish_plan', 'ms_core_order', 'ms_core_payment', 'user', 'node'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function ms_paypublish_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'node_type_form') { //Add the plans to the content type settings
+    $form['ms_pay_publish'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Pay to Publish Settings'),
+        '#collapsible' => TRUE,
+        '#group' => 'additional_settings',
+      );
+
+    $form['ms_pay_publish']['ms_paypublish_plan'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Plans'),
+        '#options' => ms_paypublish_get_plans(),
+        '#description' => t('Choose which payment plans will be available for this node-type.'),
+        '#default_value' => variable_get('ms_paypublish_plan_' . $form['#node_type']->type, array()),
+      );
+  }
+  
+  // Show the Payment Options on the Node Creation Page
+  if (isset($form['#node_edit_form']) AND $form['#node_edit_form'] AND !user_access('publish ' . $form['type']['#value'] . ' for free') AND !user_access('administer nodes')) {
+    global $user;
+    $plans = variable_get('ms_paypublish_plan_' . $form['type']['#value'], array());
+    if (!empty($plans)) {
+      if (variable_get('ms_paypublish_show_plans_node_form', TRUE)) {
+        // If this is a new node that is being created, we should show the plans and let them choose one
+        if (!isset($form['#node']->nid)) {
+          $options = array();
+          // If the user is logged in, give the option to save the node first
+          if ($user->uid AND variable_get('ms_paypublish_show_save_option', TRUE)) {
+            $options[0] = t('Do not publish yet');
+          }
+          foreach ($plans as $key => $plan_id) {
+            if ($plan = ms_paypublish_load_plan($plan_id)) {
+              $plan_classes = array('ms_paypublish_plan_item');
+              $plan_info = '';
+              if ($plan->offer_sticky) {
+                $plan_classes[] = 'ms_paypublish_offer_sticky';
+                $plan_info .= "<span class='ms_paypublish_sticky_text'>"
+                  . str_replace('!amount', ms_core_format_money($plan->sticky_amount), variable_get('ms_paypublish_sticky_text', 'Make this content sticky for an additional !amount each term.'))
+                  . "</span>";
+              }
+              if ($plan->offer_promote) {
+                $plan_classes[] = 'ms_paypublish_offer_promote';
+                $plan_info .= "<span class='ms_paypublish_promote_text'>"
+                  . str_replace('!amount', ms_core_format_money($plan->promote_amount), variable_get('ms_paypublish_promote_text', 'Promote this content to the Front Page for an additional !amount each term.'))
+                  . "</span>";
+              }
+              $options[$plan_id] = "<span class='" . implode(' ', $plan_classes) . "'>" . $plan_info . ms_paypublish_get_plan_name($plan, $form['type']['#value']) . "</span>";
+            }
+          }
+          if (!empty($options)) {
+            // Remove the rest of the plans from the options if the ppid argument is set
+            if (!empty($_GET['ppid']) AND $plan_id = $_GET['ppid'] AND $plan = ms_paypublish_load_plan($plan_id)) {
+              $plan_text = $options[$plan_id];
+              $options = array(
+                $plan_id => $plan_text,
+              );
+            }
+            // Hide the plans selection if the setting is set and there is one plan
+            if (variable_get('ms_paypublish_hide_plans_single', FALSE) AND count($options) == 1) {
+              $form['ms_paypublish']['pid'] = array(
+                '#type' => 'value',
+                '#value' => isset($form_state['values']['pid']) ? $form_state['values']['pid'] : key($options),
+              );
+            }
+            else {
+              $form['ms_paypublish'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('Choose Plan'),
+                '#collapsible' => FALSE,
+                '#collapsed' => FALSE,
+                '#weight' => variable_get('ms_paypublish_form_weight', 50),
+              );
+              $form['ms_paypublish']['pid'] = array(
+                '#type' => 'radios',
+                '#title' => t('Publishing Plan'),
+                '#options' => $options,
+                '#attributes' => array('class' => array('ms_paypublish_payment_plans')),
+                '#default_value' => isset($form_state['values']['pid']) ? $form_state['values']['pid'] : key($options),
+                '#description' => t('Select a publishing plan.'),
+                '#required' => TRUE,
+              );
+      
+              $form['ms_paypublish']['make_sticky'] = array(
+                '#type' => 'checkbox',
+                '#title' => "<span class='ms_paypublish_make_sticky_text'>" . t('Make Sticky?') . "</span>",
+                '#default_value' => isset($form_state['values']['make_sticky']) ? $form_state['values']['make_sticky'] : 0,
+              );
+              $form['ms_paypublish']['make_promote'] = array(
+                '#type' => 'checkbox',
+                '#title' => "<span class='ms_paypublish_make_promote_text'>" . t('Promote to Front Page?') . "</span>",
+                '#default_value' => isset($form_state['values']['make_promote']) ? $form_state['values']['make_promote'] : 0,
+              );
+      
+              $form['#attached']['css'] = array(
+                drupal_get_path('module', 'ms_paypublish') . '/css/ms_paypublish_sticky.css',
+              );
+              
+              $form['#attached']['js'] = array(
+                drupal_get_path('module', 'ms_paypublish') . '/js/ms_paypublish_sticky.js',
+              );
+            }
+          }
+        }
+        // Otherwise, the user is editing an existing node. We should show the expiration information and extend options
+        else {
+          $nid = $form['#node']->nid;
+          // Show the current status of the node
+          $form['ms_paypublish'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('Promote / Extend'),
+            '#collapsible' => TRUE,
+            '#collapsed' => TRUE,
+            '#weight' => variable_get('ms_paypublish_form_weight', 50),
+          );
+          $form['ms_paypublish']['status'] = array(
+            '#type' => 'item',
+            '#title' => t('Current Status'),
+            '#markup' => ms_paypublish_get_node_info_table($nid),
+          );
+          
+          $options = array();
+          // If the user is logged in, give the option to save the node first
+          $options[0] = t('Do not extend / promote now');
+          
+          foreach ($plans as $key => $plan_id) {
+            $plan = ms_paypublish_load_plan($plan_id);
+            $plan_classes = array('ms_paypublish_plan_item');
+            $plan_info = '';
+            if ($plan->offer_sticky) {
+              $plan_classes[] = 'ms_paypublish_offer_sticky';
+              $plan_info .= "<span class='ms_paypublish_sticky_text'>"
+                . str_replace('!amount', ms_core_format_money($plan->sticky_amount), variable_get('ms_paypublish_sticky_text', 'Make this content sticky for an additional !amount each term.'))
+                . "</span>";
+            }
+            if ($plan->offer_promote) {
+              $plan_classes[] = 'ms_paypublish_offer_promote';
+              $plan_info .= "<span class='ms_paypublish_promote_text'>"
+                . str_replace('!amount', ms_core_format_money($plan->promote_amount), variable_get('ms_paypublish_promote_text', 'Promote this content to the Front Page for an additional !amount each term.'))
+                . "</span>";
+            }
+            $options[$plan_id] = "<span class='" . implode(' ', $plan_classes) . "'>" . $plan_info . ms_paypublish_get_plan_name($plan, $form['#node']->type) . "</span>";
+          }
+          if (!empty($options)) {
+            $form['ms_paypublish']['pid'] = array(
+              '#type' => 'radios',
+              '#title' => t('Options'),
+              '#options' => $options,
+              '#attributes' => array('class' => array('ms_paypublish_payment_plans')),
+              '#default_value' => isset($form_state['values']['pid']) ? $form_state['values']['pid'] : 0,
+              '#description' => t('Select a pubishing plan.'),
+              '#required' => TRUE,
+            );
+    
+            $form['ms_paypublish']['make_sticky'] = array(
+              '#type' => 'checkbox',
+              '#title' => "<span class='ms_paypublish_make_sticky_text'>" . t('Make Sticky?') . "</span>",
+              '#default_value' => isset($form_state['values']['make_sticky']) ? $form_state['values']['make_sticky'] : 0,
+            );
+            $form['ms_paypublish']['make_promote'] = array(
+              '#type' => 'checkbox',
+              '#title' => "<span class='ms_paypublish_make_promote_text'>" . t('Promote to Front Page?') . "</span>",
+              '#default_value' => isset($form_state['values']['make_promote']) ? $form_state['values']['make_promote'] : 0,
+            );
+    
+            $form['#attached']['css'] = array(
+              drupal_get_path('module', 'ms_paypublish') . '/css/ms_paypublish_sticky.css',
+            );
+            
+            $form['#attached']['js'] = array(
+              drupal_get_path('module', 'ms_paypublish') . '/js/ms_paypublish_sticky.js',
+            );
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view()
+ * 
+ * Displays the Message for the author of a node
+ */
+function ms_paypublish_node_view($node, $view_mode, $langcode) {
+  $plans = variable_get('ms_paypublish_plan_' . $node->type, array());
+  $pp_node = ms_paypublish_load_node_nid($node->nid);
+  
+  if ($pp_node AND !empty($plans)) {
+    if ($view_mode == 'full' AND user_access('renew own pay to publish nodes')) {
+      global $user;
+      if ($node->uid == $user->uid) {
+        switch ($pp_node->status) {
+          case 0: // Not Published
+            drupal_set_message(
+              str_replace(
+                '!link', 
+                l(t('Publish'), 'ms_paypublish/publish/' . $node->nid), 
+                variable_get('ms_paypublish_not_published_text', 'This content is not published. To publish, please click here: !link')
+              )
+            );
+            break;
+
+          case 1: // Published
+            if ($pp_node->expiration_date) {
+              drupal_set_message(
+                str_replace(
+                  array('!days','!link'), 
+                  array(
+                    ms_paypublish_get_expiration_string(ms_paypublish_get_expiration($node->nid)),
+                    l(t('Promote / Extend'), 'ms_paypublish/publish/' . $node->nid)
+                  ), 
+                  variable_get('ms_paypublish_published_text', 'This content will expire in !days days. To Promote / Extend, please click here: !link')
+                )
+              );
+            }
+            break;
+
+          case 2: // Awaiting Admin Approval
+          case 5:
+            drupal_set_message(variable_get('ms_paypublish_approval_text', 'This content is Awaiting Admin Approval. It will be published shortly.'));
+            break;
+
+          case 3: // Not yet published
+            drupal_set_message(str_replace('!link', l(t('Publish'), 'ms_paypublish/publish/' . $node->nid), variable_get('ms_paypublish_publish_text', 'This content has not been published yet. To publish, please click here: !link')));
+            break;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ * 
+ * Unpublish the node if needed
+ */
+function ms_paypublish_node_presave($node) {
+  if ($node->is_new AND !user_access('publish ' . $node->type . ' for free') AND !user_access('administer nodes') AND isset($node->pid)) {
+    // Unpublish the node if it isn't already
+    if ($node->status) {
+      $node->status = NODE_NOT_PUBLISHED;
+    }
+  }
+  
+  // Check if there are any plans set for this node type
+  $plans = variable_get('ms_paypublish_plan_' . $node->type, array());
+  if (!empty($plans)) {
+    // If the node has a plan set
+    if (isset($node->pid) AND $node->pid) {
+      if ($plan = ms_paypublish_load_plan($node->pid)) {
+        $amount = $plan->main_amount;
+        
+        // Get the total with the options
+        if (!empty($node->make_sticky)) {
+          $amount += $plan->sticky_amount;
+        }
+
+        if (!empty($node->make_promote)) {
+          $amount += $plan->promote_amount;
+        }
+        
+        global $user;
+
+        if ($amount > 0 || $user->uid == 0) {
+          
+        }
+        else {
+          if (!ms_core_variable_get('ms_paypublish_require_approval', FALSE, $plan)) {
+            $node->status = NODE_PUBLISHED;
+          }
+
+          if (!empty($node->make_sticky) AND $plan->offer_sticky) {
+            $node->sticky = NODE_STICKY;
+          }
+
+          if (!empty($node->make_promote) AND $plan->offer_promote) {
+            $node->promote = NODE_PROMOTED;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ * 
+ * Saves relevant node data, redirects to ms_checkout if needed
+ */
+function ms_paypublish_node_update($node) {
+  global $user;
+  
+  // Check if there are any plans set for this node type
+  $plans = variable_get('ms_paypublish_plan_' . $node->type, array());
+  if (!empty($plans)) {
+    // If the node has a plan set, go to checkout
+    if (isset($node->pid) AND $node->pid) {
+      ms_paypublish_add_product($node);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ * 
+ * Saves relevant node data, redirects to ms_checkout if needed
+ */
+function ms_paypublish_node_insert($node) {
+  global $user;
+  
+  // Check if there are any plans set for this node type
+  $plans = variable_get('ms_paypublish_plan_' . $node->type, array());
+  if (!empty($plans)) {
+    // If the node has a plan set, go to checkout
+    if (isset($node->pid) AND $node->pid) {
+      ms_paypublish_add_product($node);
+    }
+    else {
+      if (!user_access('publish '. $node->type .' for free') AND !user_access('administer nodes')) {
+        // Save the node record
+        ms_paypublish_insert_node($node->nid, $user->uid, 0);
+      }
+    }
+  }
+}
+
+/**
+ * Adds a product to the cart
+ */
+function ms_paypublish_add_product($node) {
+  global $user;
+  $plan = ms_paypublish_load_plan($node->pid);
+
+  // Save the node record
+  $pp_node = ms_paypublish_insert_node($node->nid, $user->uid, $plan->pid);
+
+  if ($plan->pid) {
+    $amount = $plan->main_amount;
+
+    // Get the total with the options
+    if (!empty($node->make_sticky) AND $plan->offer_sticky) {
+      $amount += $plan->sticky_amount;
+    }
+
+    if (!empty($node->make_promote) AND $plan->offer_promote) {
+      $amount += $plan->promote_amount;
+    }
+
+    // If the plan has a non $0 amount or it is an anonymous user then add a product to the cart and go to checkout
+    if (variable_get('ms_paypublish_enforce_free_checkout', FALSE) OR $amount > 0 OR $user->uid == 0) {
+      $plan->main_amount = $amount;
+
+      // Create a new product and add it to the order
+      $product = ms_core_new_product(ms_paypublish_translate_plan($plan, 'name'), 'ms_paypublish', $plan->pid, $amount, 'cart');
+
+      if ($plan->recurring) {
+        $product->type = 'recurring';
+        // Set the Recurring Schedule Settings
+        $product->recurring_schedule = array(
+          'total_occurrences' => $plan->total_occurrences,
+          'main_amount' => $plan->main_amount,
+          'main_length' => $plan->main_length,
+          'main_unit' => $plan->main_unit,
+          'has_trial' => ($plan->trial_length) ? TRUE : FALSE,
+          'trial_amount' => $plan->trial_amount,
+          'trial_length' => $plan->trial_length,
+          'trial_unit' => $plan->trial_unit,
+        );
+      }
+
+      // Add the product variables
+      if (variable_get('ms_paypublish_product_name', '') == 'plan_name') {
+        $product->name = ms_paypublish_translate_plan($plan, 'name');
+      }
+      else {
+        $product->name = t('Publish "!title" for !length', 
+          array('!title' => $node->title, '!length' => ms_paypublish_get_length_string($plan)));
+      }
+
+      // Store the custom data
+      $product->data = $plan->data;
+      $product->data['make_sticky'] = !empty($node->make_sticky) AND $plan->offer_sticky;
+      $product->data['make_promote'] = !empty($node->make_promote) AND $plan->offer_promote;
+      $product->data['nid'] = $node->nid;
+      $product->data['skip_registration'] = FALSE;
+
+      ms_core_add_cart_product($product);
+      
+      // If option is set, go straight to checkout
+      if (variable_get('ms_paypublish_go_checkout', TRUE)) {
+        $redirect = 'ms/checkout';
+      }
+      else {
+        // Redirect to the page it came from
+        $redirect = (isset($_GET['destination'])) ? $_GET['destination'] : 'ms/cart';
+      }
+      
+      // Set a session variable informing us that we need to redirect on the next page request
+      $_SESSION['ms_paypublish_redirect'] = $redirect;
+    }
+    else {
+      // It is a free plan, just grant it
+      $account = $user;
+      $status = ($plan->main_length) ? 1 : 4;
+      // Publish the node if it is not already published
+      if (ms_core_variable_get('ms_paypublish_require_approval', FALSE, $plan)) {
+        $status = ($plan->main_length) ? 2 : 5;
+        // Send an email to the admin
+        $e_vars = array('nid' => $node->nid);
+        drupal_mail('ms_paypublish', 'approval_queue', variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')), language_default(), $e_vars);
+
+        // Show a message showing the node is in the moderation queue
+        drupal_set_message(t('The content will be published as soon as it is approved by a moderator.'));
+      }
+      else { // Publish the Content
+        // Show a message showing the node has been published, etc
+        drupal_set_message(t('The content !title has been successfully published.', 
+          array('!title' => l($node->title, 'node/'. $node->nid))));
+      }
+      
+      $expiration = ms_paypublish_get_expiration_date($plan->pid);
+      ms_paypublish_change_node_expiration($pp_node->id, $expiration);
+      ms_paypublish_change_node_status($pp_node->id, $status);
+      
+      // Make the node sticky
+      if (!empty($node->make_sticky) AND $plan->offer_sticky) {
+        $sticky_expiration = ms_paypublish_get_expiration_date($plan->pid);
+        ms_paypublish_change_node_sticky($pp_node->id, 1);
+        ms_paypublish_change_node_sticky_expiration($pp_node->id, $sticky_expiration);
+      }
+      // Make the node promoted
+      if (!empty($node->make_promote) AND $plan->offer_promote) {
+        $promote_expiration = ms_paypublish_get_expiration_date($plan->pid);
+        ms_paypublish_change_node_promote($pp_node->id, 1);
+        ms_paypublish_change_node_promote_expiration($pp_node->id, $promote_expiration);
+      }
+      
+      $status = ($plan->main_length) ? 1 : 4;
+      if (ms_core_variable_get('ms_paypublish_require_approval', FALSE, $plan)) {
+        $status = ($plan->main_length) ? 2 : 5;
+      }
+      ms_paypublish_change_node_status($pp_node->id, $status);
+
+      // Reload the node record to get the latest data
+      $pp_node = ms_paypublish_load_node($pp_node->id);
+
+      // Invoke hook_ms_paypublish_purchase to let other modules act on a purchased pay to publish node
+      module_invoke_all('ms_paypublish_purchase', $account, $pp_node, $plan);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ * 
+ * Deletes the node record when the node is deleted
+ */
+function ms_paypublish_node_delete($node) {
+	db_delete('ms_paypublish_nodes')
+        ->condition('nid', $node->nid)
+        ->execute();
+}
+
+// ======================================
+// Functions:
+// ======================================
+
+/*
+ * Get a listing of the plans for a form
+ */
+function ms_paypublish_get_plans() {
+  $result = db_query("SELECT * FROM {ms_paypublish_plans} ORDER BY weight ASC");
+  $plans = array();
+  foreach ($result as $row) {
+  	$plan = ms_paypublish_load_plan($row->pid);
+  	$plans[$plan->pid] = ms_paypublish_get_plan_name($plan);
+  }
+  return $plans;
+}
+
+/**
+ * Get a string for a date
+ */
+function ms_paypublish_get_string_time($length, $temp_unit) {
+  switch ($temp_unit) {
+    case 'D':
+      $unit = t('day');
+      break;
+    case 'W':
+      $unit = t('week');
+      break;
+    case 'M':
+      $unit = t('month');
+      break;
+    case 'Y':
+      $unit = t('year');
+      break;
+    default:
+      $unit = $temp_unit;
+      break;
+  }
+  if ($length > 1) {
+    $unit .= 's';
+  }
+  return "+$length $unit";
+}
+
+/*
+ * Change a node record's status
+ */
+function ms_paypublish_change_node_status($id, $status) {
+  ms_core_log('ms_paypublish', 'Changed the Status of Node Record !id to !status',
+    array('!id' => $id, '!status' => ms_paypublish_get_status($status)));
+  
+  // Set the node's status too
+  $pp_node = ms_paypublish_load_node($id);
+  switch ($status) {
+    case 0:
+    case 2:
+    case 3:
+    case 5:
+    case 8:
+    case 9:
+      db_query("UPDATE {node} SET status=:status WHERE nid=:nid", 
+        array(':status' => NODE_NOT_PUBLISHED, ':nid' => $pp_node->nid));
+      db_query("UPDATE {node_revision} SET status=:status WHERE nid=:nid", 
+        array(':status' => NODE_NOT_PUBLISHED, ':nid' => $pp_node->nid));
+      break;
+    case 1:
+    case 4:
+    case 6:
+    case 7:
+      db_query("UPDATE {node} SET status=:status WHERE nid=:nid", 
+        array(':status' => NODE_PUBLISHED, ':nid' => $pp_node->nid));
+      db_query("UPDATE {node_revision} SET status=:status WHERE nid=:nid", 
+        array(':status' => NODE_PUBLISHED, ':nid' => $pp_node->nid));
+      break;
+  }
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'status' => $status,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's order id
+ */
+function ms_paypublish_change_node_oid($id, $oid) {
+  ms_core_log('ms_paypublish', 'Changed the Order ID of Node Record !id to !oid',
+    array('!id' => $id, '!oid' => $oid));
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'oid' => $oid,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's user id
+ */
+function ms_paypublish_change_node_uid($id, $uid) {
+  ms_core_log('ms_paypublish', 'Changed the User ID of Node Record !id to !uid',
+    array('!id' => $id, '!uid' => $uid));
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'uid' => $uid,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's plan id
+ */
+function ms_paypublish_change_node_pid($id, $pid) {
+  ms_core_log('ms_paypublish', 'Changed the Plan ID of Node Record !id to !pid',
+    array('!id' => $id, '!pid' => $pid));
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'pid' => $pid,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's expiration
+ */
+function ms_paypublish_change_node_expiration($id, $expiration) {
+  ms_core_log('ms_paypublish', 'Changed the Expiration Date of Node Record !id to !expiration',
+    array('!id' => $id, '!expiration' => format_date($expiration, 'short')));
+  
+	return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'expiration_date' => $expiration,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's sticky expiration
+ */
+function ms_paypublish_change_node_sticky_expiration($id, $expiration) {
+  ms_core_log('ms_paypublish', 'Changed the Sticky Expiration Date of Node Record !id to !expiration',
+    array('!id' => $id, '!expiration' => format_date($expiration, 'short')));
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'sticky_expiration' => $expiration,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's promote expiration
+ */
+function ms_paypublish_change_node_promote_expiration($id, $expiration) {
+  ms_core_log('ms_paypublish', 'Changed the Promote Expiration Date of Node Record !id to !expiration',
+    array('!id' => $id, '!expiration' => format_date($expiration, 'short')));
+
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'promote_expiration' => $expiration,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's sticky status
+ */
+function ms_paypublish_change_node_sticky($id, $status) {
+  ms_core_log('ms_paypublish', 'Changed the Sticky Status of Node Record !id to !status',
+    array('!id' => $id, '!status' => $status));
+  
+  // Change the node's sticky too
+  $pp_node = ms_paypublish_load_node($id);
+  db_query("UPDATE {node} SET sticky=:status WHERE nid=:nid", 
+        array(':status' => $status, ':nid' => $pp_node->nid));
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'is_sticky' => $status,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Change a node record's promote status
+ */
+function ms_paypublish_change_node_promote($id, $status) {
+  ms_core_log('ms_paypublish', 'Changed the Promote Status of Node Record !id to !status',
+    array('!id' => $id, '!status' => $status));
+  
+  // Change the node's promote too
+  $pp_node = ms_paypublish_load_node($id);
+  db_query("UPDATE {node} SET promote=:status WHERE nid=:nid", 
+        array(':status' => $status, ':nid' => $pp_node->nid));
+  
+  return db_update('ms_paypublish_nodes')
+	  ->fields(array(
+	    'is_promoted' => $status,
+	  ))
+	  ->condition('id', $id)
+	  ->execute();
+}
+
+/*
+ * Insert a new node record
+ */
+function ms_paypublish_insert_node($nid, $uid, $pid, $oid = 0) {
+  $node = node_load($nid);
+  
+  if (is_null($oid)) {
+    $oid = 0;
+  }
+  
+  // Make sure that there isn't already a record first
+  if ($pp_node = ms_paypublish_load_node_nid($nid)) {
+    return $pp_node;
+  }
+  else {
+    ms_core_log('ms_paypublish', 'Inserting a new node record: %title',
+      array('%title' => $node->title));
+  
+    $id = db_insert('ms_paypublish_nodes')
+  	  ->fields(array(
+  	    'nid' => $node->nid,
+  	    'uid' => $uid,
+  	    'pid' => $pid,
+  	    'oid' => $oid,
+  	    'status' => 3,
+  	    'expiration_date' => 0,
+  	    'start_date' => REQUEST_TIME,
+  	  ))
+  	  ->execute();
+    
+    // Unpublish the node
+    db_query("UPDATE {node} SET status=:status WHERE nid=:nid", array(':status' => NODE_NOT_PUBLISHED, ':nid' => $node->nid));
+    return ms_paypublish_load_node($id);
+  }
+}
+
+/*
+ * Load a node record object
+ */
+function ms_paypublish_load_node($id) {
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE id = :id", array(':id' => $id));
+  foreach ($result as $row) {
+    return $row;
+  }
+  return FALSE;
+}
+
+/*
+ * Load a node record object
+ */
+function ms_paypublish_load_node_nid($nid) {
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE nid = :nid", array(':nid' => $nid));
+  foreach ($result as $row) {
+    return $row;
+  }
+  return FALSE;
+}
+
+/*
+ * Load a node record object by order id
+ */
+function ms_paypublish_load_node_order_id($oid) {
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE oid = :oid", array(':oid' => $oid));
+  foreach ($result as $row) {
+    return $row;
+  }
+  return FALSE;
+}
+
+/*
+ * Get a node record's expiration as a unix timestamp
+ */
+function ms_paypublish_get_expiration($nid) {
+  return db_query("SELECT expiration_date FROM {ms_paypublish_nodes} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
+}
+
+/*
+ * Get a node record's expiration as a string
+ */
+function ms_paypublish_get_expiration_string($exp) {
+  $timeNow = REQUEST_TIME;
+  $diff = ($exp - $timeNow) / 86400;
+  if ($diff > 0) {
+    return round($diff, 1);
+  }
+  return 0;
+}
+
+/**
+ * Implements hook_field_attach_form().
+ */
+function ms_paypublish_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  if ($entity_type == 'node') {
+    $bundle = $entity->type;
+    // Check if the user must pay to publish
+    if (!user_access('publish ' . $bundle . ' for free') AND !user_access('administer nodes')) {
+      // Add the CSS and JS files
+      drupal_add_js(drupal_get_path('module', 'ms_paypublish') . '/js/ms_paypublish_fields.js');
+      drupal_add_css(drupal_get_path('module', 'ms_paypublish') . '/css/ms_paypublish_fields.css');
+      
+      $plans = ms_paypublish_get_plans_by_node_type($bundle);
+      if (!empty($plans)) {
+        $plan_fields = ms_paypublish_get_plan_fields($bundle);
+        
+        foreach ($plan_fields['blocked'] as $field_name => $non_supported_pids) {
+          // Show which plans support this field
+          $plan_names = array();
+          if (!empty($plan_fields['supported'][$field_name])) {
+            foreach ($plan_fields['supported'][$field_name] as $pid) {
+              $plan = $plans[$pid];
+              $plan_names[] = $plan->name;
+            }
+          }
+          $class = array('ms_paypublish_conditional_field', 'ms_paypublish_conditional_field_' . $field_name);
+          foreach ($non_supported_pids as $pid) {
+            $class[] = 'ms_paypublish_field_blur_when_' . $pid;
+          }
+          $classes = implode(' ', $class);
+          $field_title = isset($form_state['field'][$field_name]['und']['instance']['label']) ? $form_state['field'][$field_name]['und']['instance']['label'] : $field_name;
+          $form[$field_name]['#prefix'] = "<div class='$classes'><div class='ms_paypublish_conditional_field_inner'>";
+          $form[$field_name]['#suffix'] = "</div><div class='ms_paypublish_field_supported_plans'>"
+            . t("The %field_name field is only available with the following Publishing Plans: @plans", 
+              array('%field_name' => $field_title, '@plans' => implode(', ', $plan_names)))
+            . "</div></div>";
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function ms_paypublish_field_attach_view_alter(&$output, $context) {
+  if ($context['entity_type'] == 'node' AND !empty($context['entity']->nid)) {
+    if ($pp_node = ms_paypublish_load_node_nid($context['entity']->nid)) {
+      if ($plan = ms_paypublish_load_plan($pp_node->pid)) {
+        $allowed_fields = array_filter($plan->allowed_fields);
+        if (!empty($allowed_fields)) {
+          $plan_fields = ms_paypublish_get_plan_fields($context['entity']->type);
+          // Hide the fields that aren't supported by the active plan
+          foreach ($plan_fields['blocked'] as $field_name => $blocked_pids) {
+            if (isset($output[$field_name]) AND in_array($pp_node->pid, $blocked_pids)) {
+              $output[$field_name]['#access'] = FALSE;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Returns the full plans that are attached to a certain node type
+ */
+function ms_paypublish_get_plans_by_node_type($type) {
+  $pids = variable_get('ms_paypublish_plan_' . $type, array());
+  $plans = array();
+  foreach ($pids as $pid) {
+    if ($plan = ms_paypublish_load_plan($pid)) {
+      $plans[$pid] = $plan;
+    }
+  }
+  
+  return $plans;
+}
+
+/**
+ * Returns the blocked and supported fields for different plans
+ */
+function ms_paypublish_get_plan_fields($type) {
+  $plans = ms_paypublish_get_plans_by_node_type($type);
+  $fields = field_info_fields();
+  
+  $plan_fields = array();
+  $plan_fields['blocked'] = array();
+  $plan_fields['supported'] = array();
+  foreach ($fields as $field) {
+    if (isset($field['bundles']['node']) AND in_array($type, $field['bundles']['node'])) {
+      foreach ($plans as $plan) {
+        $allowed_fields = array_filter($plan->allowed_fields);
+        if (empty($allowed_fields) || (isset($allowed_fields[$field['field_name']]) AND $allowed_fields[$field['field_name']])) {
+          // This field is supported
+          if (!isset($plan_fields['supported'][$field['field_name']])) {
+            $plan_fields['supported'][$field['field_name']] = array();
+          }
+          $plan_fields['supported'][$field['field_name']][] = $plan->pid;
+        }
+        else {
+          if (!isset($plan_fields['blocked'][$field['field_name']])) {
+            $plan_fields['blocked'][$field['field_name']] = array();
+          }
+          // This field is not supported by this plan, let's mark it as a conditional field
+          $plan_fields['blocked'][$field['field_name']][] = $plan->pid;
+        }
+      }
+    }
+  }
+  
+  return $plan_fields;
+}
+
+/**
+ * Load a saved plan from the database
+ */
+function ms_paypublish_load_plan($pid) {
+  $pid = (int) $pid;
+  $result = db_query("SELECT * FROM {ms_paypublish_plans} WHERE pid = :pid", array(':pid' => $pid));
+  foreach ($result as $plan) {
+    // Unserialize the data
+    $plan->data = unserialize($plan->data);
+    $plan->has_trial = ($plan->trial_length) ? TRUE : FALSE;
+    $plan->allowed_fields = isset($plan->data['allowed_fields']) ? $plan->data['allowed_fields'] : array();
+    
+    return $plan;
+  }
+  return FALSE;
+}
+
+/**
+ * Give a plan name based on info
+ */
+function ms_paypublish_get_plan_name($plan, $type = NULL) {
+  $display = array();
+  if ($plan->name) {
+    $display[] = "<span class='ms_paypublish_plan_name'>" . ms_paypublish_translate_plan($plan, 'name') . "</span>";
+  }
+  
+  if (variable_get('ms_paypublish_show_plan_price', TRUE)) {
+    $display[] = "<span class='ms_paypublish_plan_price'>"
+    . ms_core_get_recurring_string($plan, $plan->recurring, t('to publish for'), t('to publish with no expiration'))
+    . "</span>";
+  }
+  // TODO - Show the trial period here in the plan name if applicable
+  
+  // Show the supported fields
+  if ($type AND variable_get('ms_paypublish_show_supported_fields', FALSE)) {
+    $plan_fields = ms_paypublish_get_plan_fields($type);
+    foreach ($plan_fields['supported'] as $field_name => $pids) {
+      if (in_array($plan->pid, $pids) AND isset($plan_fields['blocked'][$field_name])) {
+        $field_info = field_info_instance('node', $field_name, $type);
+        $field_names[] = $field_info['label'];
+      }
+    }
+    if (!empty($field_names)) {
+      $display[] = "<span class='ms_paypublish_supported_fields'>"
+      . t("Extra Fields: @fields", array('@fields' => implode(', ', $field_names)))
+      . "</span>";
+    }
+  }
+  
+  return implode(' - ', $display);
+}
+
+/**
+ * Return the status of a node
+ */
+function ms_paypublish_get_status($id) {
+  switch ($id) {
+    case 0:
+      return t('Inactive');
+    case 1:
+      return t('Published');
+    case 2:
+      return t('Awaiting Admin Approval');
+    case 3:
+      return t('Not Yet Published');
+    case 4:
+      return t('Published - Non Expiring'); // For Non-Expiring Nodes
+    case 5:
+      return t('Awaiting Admin Approval - Non Expiring'); // For Non-Expiring Nodes
+    case 6:
+      return t('Cancelled'); // For Recurring Payments
+    case 7:
+      return t('Expiring Soon');
+    case 8:
+      return t('End of Term');
+    case 9:
+      return t('Denied');
+  }
+}
+
+/**
+ * Return the statuses
+ */
+function ms_paypublish_get_statuses() {
+  return array(
+    '0' => t('Inactive'),
+    '1' => t('Published'),
+    '2' => t('Awaiting Admin Approval'),
+    '3' => t('Not Yet Published'),
+    '4' => t('Published - Non Expiring'), // For Non-Expiring Nodes
+    '5' => t('Awaiting Admin Approval - Non Expiring'), // For Non-Expiring Nodes
+    '6' => t('Cancelled'), // For Recurring Payments
+    '7' => t('Expiring Soon'),
+    '8' => t('End of Term'),
+    '9' => t('Denied'),
+  );
+}
+
+/**
+ * Calculate the Expiration Date from the Node Plan
+ */
+function ms_paypublish_get_expiration_date($pid, $start = 0) {
+  $plan = ms_paypublish_load_plan($pid);
+  $date = 0;
+  $time = REQUEST_TIME;
+  $now = ($start > $time) ? $start : $time;
+
+  if ($plan->recurring) {
+    if ($plan->total_occurrences) {
+      // Add time based on number of payments multiplied by period length and unit
+      $regular_time = strtotime(ms_core_get_string_time($plan->main_length, $plan->main_unit), 0);
+      $date += $regular_time * $plan->total_occurrences;
+
+      // Add Time for Trial Period 1
+      if ($plan->trial_length) {
+        $date += strtotime(ms_core_get_string_time($plan->trial_length, $plan->trial_unit), 0);
+      }
+
+      return $now + $date;
+    }
+    else {
+      // If no expiration, return 0
+      return 0;
+    }
+  }
+  else {
+    if ($plan->main_length) {
+      // Add time based on number of payments multiplied by period length and unit
+      $regular_time = strtotime(ms_core_get_string_time($plan->main_length, $plan->main_unit), 0);
+      $date += $regular_time;
+
+      return $now + $date;
+    }
+    else {
+      // If no expiration, return 0
+      return 0;
+    }
+  }
+}
+
+/**
+ * Update the Payment Number
+ */
+function ms_paypublish_increment_payment($oid, $num = 1) {
+  db_query("UPDATE {ms_paypublish_nodes} 
+    SET current_payments = current_payments + :num 
+    WHERE oid = :oid", array(':num' => $num, ':oid' => $oid));
+  
+  //Complete the Payment?
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE oid = :oid", array(':oid' => $oid));
+  foreach ($result as $pp_node) {
+    if ($pp_node->max_payments AND ($pp_node->current_payments == $pp_node->max_payments)) {
+      db_update('ms_paypublish_nodes')
+    ->fields(array(
+        'status' => 8,
+      ))
+    ->condition('oid', $oid)
+    ->execute();
+    }
+  }
+}
+
+// ======================================
+// Pages:
+// ======================================
+
+/**
+ * Shows a page with plan options to publish a node
+ *
+ * @param $nid
+ *   The node id to show the plans for
+ */
+function ms_paypublish_publish_page($nid) {
+  $build = array();
+  $build['content'] = array(
+      'ms_paypublish_plans_list' => drupal_get_form('ms_paypublish_publish_node_form', $nid),
+  );
+  
+  return $build;
+}
+
+/**
+ * The form that shows the pay to publish options
+ *
+ * @param $form_state
+ * @param $nid
+ *   The node id to show the plans for
+ */
+function ms_paypublish_publish_node_form($form, &$form_state, $nid) {
+  $node = node_load($nid);
+  
+  // Show the current status of the node
+  $form['status'] = array(
+    '#type' => 'item',
+    '#markup' => ms_paypublish_get_node_info_table($node->nid),
+  );
+  
+  $form['ms_paypublish'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Promote / Extend Options'),
+    '#description' => t('Please select the plan to use to promote and/or extend this content.'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+  $plans = variable_get('ms_paypublish_plan_' . $node->type, array());
+  if (!empty($plans)) {
+    $options = array();
+    foreach ($plans as $key => $plan_id) {
+      $plan = ms_paypublish_load_plan($plan_id);
+      if ($plan->show_add) {
+        $plan_classes = array('ms_paypublish_plan_item');
+        $plan_info = '';
+        if ($plan->offer_sticky) {
+          $plan_classes[] = 'ms_paypublish_offer_sticky';
+          $plan_info .= "<span class='ms_paypublish_sticky_text'>"
+            . str_replace('!amount', ms_core_format_money($plan->sticky_amount), variable_get('ms_paypublish_sticky_text', 'Make this content sticky for an additional !amount each term.'))
+            . "</span>";
+        }
+        if ($plan->offer_promote) {
+          $plan_classes[] = 'ms_paypublish_offer_promote';
+          $plan_info .= "<span class='ms_paypublish_promote_text'>"
+            . str_replace('!amount', ms_core_format_money($plan->promote_amount), variable_get('ms_paypublish_promote_text', 'Promote this content to the Front Page for an additional !amount each term.'))
+            . "</span>";
+        }
+        $options[$plan_id] = "<span class='" . implode(' ', $plan_classes) . "'>" . $plan_info . ms_paypublish_get_plan_name($plan, $node->type) . "</span>";
+      }
+    }
+
+    $form['ms_paypublish']['pid'] = array(
+      '#type' => 'radios',
+      '#title' => t('Plans'),
+      '#options' => $options,
+      '#attributes' => array('class' => array('ms_paypublish_payment_plans')),
+      '#required' => TRUE,
+    );
+
+    $form['ms_paypublish']['make_sticky'] = array(
+      '#type' => 'checkbox',
+      '#title' => "<span class='ms_paypublish_make_sticky_text'>" . t('Make Sticky?') . "</span>",
+    );
+    $form['ms_paypublish']['make_promote'] = array(
+      '#type' => 'checkbox',
+      '#title' => "<span class='ms_paypublish_make_promote_text'>" . t('Promote to Front Page?') . "</span>",
+    );
+
+    $form['#attached']['css'] = array(
+      drupal_get_path('module', 'ms_paypublish') . '/css/ms_paypublish_sticky.css',
+    );
+    
+    $form['#attached']['js'] = array(
+      drupal_get_path('module', 'ms_paypublish') . '/js/ms_paypublish_sticky.js',
+    );
+
+    $form['ms_paypublish']['nid'] = array(
+      '#type' => 'value',
+      '#value' => $nid,
+    );
+    
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Continue'),
+    );
+  }
+  else {
+    $form['notice'] = array(
+      '#type' => 'item',
+      '#markup' => t('There are no available publishing plans.'),
+    );
+  }
+  
+  return $form;
+}
+
+/**
+ * The submit function for the node submit form. Adds the product to the cart.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function ms_paypublish_publish_node_form_submit($form, &$form_state) {
+  $v = $form_state['values'];
+  $node = node_load($v['nid']);
+  $pp_node = ms_paypublish_load_node_nid($node->nid);
+  $plan = ms_paypublish_load_plan($v['pid']);
+  global $user;
+  
+  if ($plan->pid) {
+    $amount = $plan->main_amount;
+    if (!empty($v['make_sticky']) AND $plan->offer_sticky) {
+      $amount += $plan->sticky_amount;
+    }
+    
+    if (!empty($v['make_promote']) AND $plan->offer_promote) {
+      $amount += $plan->promote_amount;
+    }
+    
+    // If the plan has a non $0 amount or it is an anonymous user then add a product to the cart and go to checkout
+    if ($amount > 0 || $user->uid == 0) {
+      // Create a new product and add it to the order
+      $product = ms_core_new_product(ms_paypublish_translate_plan($plan, 'name'), 'ms_paypublish', $plan->pid);
+      
+      if ($plan->recurring) {
+        $product->type = 'recurring';
+        // Set the Recurring Schedule Settings
+        $product->recurring_schedule = array(
+          'total_occurrences' => $plan->total_occurrences,
+          'main_amount' => $plan->main_amount,
+          'main_length' => $plan->main_length,
+          'main_unit' => $plan->main_unit,
+          'has_trial' => ($plan->trial_length) ? TRUE : FALSE,
+          'trial_amount' => $plan->trial_amount,
+          'trial_length' => $plan->trial_length,
+          'trial_unit' => $plan->trial_unit,
+          );
+      }
+      
+      // Add the product variables
+      if (variable_get('ms_paypublish_product_name', '') == 'plan_name') {
+        $product->name = ms_paypublish_translate_plan($plan, 'name');
+      }
+      else {
+        $product->name = t('Publish "!title" for !length', 
+          array('!title' => $node->title, '!length' => ms_paypublish_get_length_string($plan)));
+      }
+      
+      $product->amount = $amount;
+      
+      // Store the custom data
+      $product->data = $plan->data;
+      $product->data['make_sticky'] = !empty($v['make_sticky']) AND $plan->offer_sticky;
+      $product->data['make_promote'] = !empty($v['make_promote']) AND $plan->offer_promote;
+      $product->data['nid'] = $node->nid;
+      $product->data['skip_registration'] = FALSE;
+      
+      ms_core_add_cart_product($product);
+      
+      // If option is set, go straight to checkout
+      if (variable_get('ms_paypublish_go_checkout', TRUE)) {
+        $redirect = 'ms/checkout';
+      }
+      else {
+        // Redirect to the page it came from
+        $redirect = (isset($_GET['destination'])) ? $_GET['destination'] : 'ms/cart';
+      }
+      
+      drupal_goto($redirect);
+    }
+    else {
+      // It is a free plan, just grant it
+      $account = $user;
+      $status = ($plan->main_length) ? 1 : 4;
+      
+      //Insert into Node Record database
+      $expiration = ms_paypublish_get_expiration_date($plan->pid);
+      $expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->expiration_date);
+      ms_paypublish_change_node_expiration($pp_node->id, $expiration);
+      ms_paypublish_change_node_status($pp_node->id, $status);
+      
+      // Make the node sticky
+      if (isset($node->make_sticky) AND $node->make_sticky AND $plan->offer_sticky) {
+        $node->sticky = 1;
+        $sticky_expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->sticky_expiration);
+        ms_paypublish_change_node_sticky($pp_node->id, 1);
+        ms_paypublish_change_node_sticky_expiration($pp_node->id, $sticky_expiration);
+      }
+      // Make the node promoted
+      if (isset($node->make_promote) AND $node->make_promote AND $plan->offer_promote) {
+        $node->promote = 1;
+        $promote_expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->promote_expiration);
+        ms_paypublish_change_node_promote($pp_node->id, 1);
+        ms_paypublish_change_node_promote_expiration($pp_node->id, $promote_expiration);
+      }
+    
+      // Reload the node record to get the latest data
+      $pp_node = ms_paypublish_load_node($pp_node->id);
+    
+      // Invoke hook_ms_paypublish_purchase to let other modules act on a purchased pay to publish node
+      module_invoke_all('ms_paypublish_purchase', $account, $pp_node, $plan);
+    
+      // Send an email to the user
+      if (($status == 1 OR $status == 2) AND variable_get('ms_paypublish_payment_body', '')) {
+        $e_vars = array('nid' => $pp_node->nid);
+    
+        if (variable_get('ms_paypublish_payment_body', '')) {
+          drupal_mail('ms_paypublish', 'payment', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+        }
+      }
+    
+      // Send an email to the user
+      if (($status == 4 OR $status == 5) AND variable_get('ms_paypublish_no_expire_body', '')) {
+        $e_vars = array('nid' => $pp_node->nid);
+        drupal_mail('ms_paypublish', 'payment_no_expire', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+      }
+      drupal_goto('node/'. $node->nid);
+    }
+  }
+}
+
+/**
+ * Format the Length String
+ */
+function ms_paypublish_get_length_string($plan) {
+  $string = '';
+  
+  if ($plan->has_trial) {
+    $string .= ms_core_format_unit($plan->trial_unit, $plan->trial_length, TRUE);
+    $string .= ', '. t('then') .' ';
+  }
+  
+  if ($plan->recurring) {
+    $string .= ' ' . ms_core_format_unit($plan->main_unit, $plan->main_length, TRUE) .' '. t('(recurring)');
+    $s_length = ($plan->total_occurrences > 1) ? ' ' . t('for') . ' ' . ms_core_format_unit($plan->main_unit, $plan->total_occurrences) : '';
+  }
+  else {
+    $s_length = (isset($plan->main_length) AND $plan->main_length) ? ' ' . ms_core_format_unit($plan->main_unit, $plan->main_length) : ' ' . t('with no expiration');
+  }
+
+  $string .= $s_length;
+
+  return $string;
+}
+
+/**
+ * Generates an info table for a pay to publish node
+ */
+function ms_paypublish_get_node_info_table($nid) {
+  global $user;
+  $headers = array();
+  
+  $rows = array();
+  $attr = array('id' => 'ms-paypublish-node-info-table');
+  $node = node_load($nid);
+  $pp_node = ms_paypublish_load_node_nid($nid);
+  $rows = array(
+    array('data' => array(t("Title"), l($node->title, 'node/' . $node->nid)), 'class' => array('ms_paypublish_title')),
+    array('data' => array(t("Created"), format_date($pp_node->start_date, 'short')), 'class' => array('ms_paypublish_start_date')),
+    array('data' => array(t("Status"), ms_paypublish_get_status($pp_node->status)), 'class' => array('ms_paypublish_status')),
+    array('data' => array(t("Expiration"), ($pp_node->expiration_date ? format_date($pp_node->expiration_date, 'short') : 'None')), 'class' => array('ms_paypublish_expiration')),
+  );
+  
+  // Show the sticky and promote settings if applicable
+  if ($pp_node->is_promoted) {
+    $rows[] = array('data' => array(t("Promoted Expiration"), ($pp_node->promote_expiration ? format_date($pp_node->promote_expiration, 'short') : 'None')), 'class' => array('ms_paypublish_promote'));
+  }
+  if ($pp_node->is_sticky) {
+    $rows[] = array('data' => array(t("Sticky Expiration"), ($pp_node->sticky_expiration ? format_date($pp_node->sticky_expiration, 'short') : 'None')), 'class' => array('ms_paypublish_sticky'));
+  }
+  
+  $build = array();
+  $build['content'] = array(
+    'ms_paypublish_node_info_table' => array(
+      '#markup' => theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => $attr)),
+    ),
+  );
+  
+  return drupal_render($build);
+}
+
+/**
+ * List all of the pay to publish nodes
+ */
+function ms_paypublish_show_nodes() {
+  global $user;
+  $headers = array(
+    array('data' => t('Start Date'), 'class' => array('ms_paypublish_start_date_header'), 'field' => 'pn.start_date', 'sort' => 'desc'),
+    array('data' => t('User'), 'class' => array('ms_paypublish_user_header'), 'field' => 'u.name'),
+    array('data' => t('Title'), 'class' => array('ms_paypublish_title_header'), 'field' => 'n.title'),
+    array('data' => t('Status'), 'class' => array('ms_paypublish_status_header'), 'field' => 'pn.status'),
+    array('data' => t('Expiration'), 'class' => array('ms_paypublish_expiration_header'), 'field' => 'pn.expiration_date'),
+    array('data' => t('Actions'), 'class' => array('ms_paypublish_actions_header')),
+  );
+
+  $query = db_select('ms_paypublish_nodes', 'pn');
+  $query->leftjoin('ms_paypublish_plans', 'p', 'pn.pid = p.pid');
+  $query->leftjoin('node', 'n', 'pn.nid = n.nid');
+  $query->leftjoin('users', 'u', 'pn.uid = u.uid');
+  $query->fields('pn', array('expiration_date', 'start_date', 'id', 'pid', 'uid', 'status', 'nid'));
+  $query->fields('u', array('name'));
+  $query->fields('n', array('title'));
+  $query->addField('p', 'name', 'plan_name');
+  $query = $query->extend('TableSort')->orderByHeader($headers);
+  $query = $query->extend('PagerDefault')->limit(20);
+  
+  $name = '';
+  if (isset($_GET['name'])) {
+    $name = $_GET['name'];
+    $query->condition('u.name', '%'. $name .'%', 'LIKE');
+  }
+  $title = '';
+  if (isset($_GET['title'])) {
+    $title = $_GET['title'];
+    $query->condition('n.title', '%'. $title .'%', 'LIKE');
+  }
+  
+  $result = $query->execute();
+  
+  $rows = array();
+  $attr = array('id' => 'ms-paypublish-nodes-table');
+  foreach ($result as $pp_node) {
+    $actions = l('Edit', 'admin/content/ms_paypublish_nodes/edit/' . $pp_node->id)
+      . ' | ' . l('Delete', 'admin/content/ms_paypublish_nodes/delete/' . $pp_node->id, array('attributes' => array('class' => array('txn_del'))));
+    $rows[] = array(
+      array('data' => format_date($pp_node->start_date, 'short'), 'class' => array('ms_paypublish_start_date')),
+      array('data' => l($pp_node->name, 'user/' . $pp_node->uid), 'class' => array('ms_paypublish_user')),
+      array('data' => l($pp_node->title, 'node/' . $pp_node->nid), 'class' => array('ms_paypublish_title')),
+      array('data' => ms_paypublish_get_status($pp_node->status), 'class' => array('ms_paypublish_status')),
+      array('data' => ($pp_node->expiration_date ? format_date($pp_node->expiration_date, 'short') : 'None'), 'class' => array('ms_paypublish_expiration')),
+      array('data' => $actions, 'class' => array('ms_paypublish_actions'))
+    );
+  }
+  
+  $build = array();
+  $filters_form = drupal_get_form('ms_core_get_filter_form', array(
+    'name' => $name,
+    'title' => array(
+      '#title' => t('Title'),
+      '#default_value' => $title,
+    ),
+  ));
+  $build['content'] = array(
+    'ms_paypublish_nodes_filter_form' => array(
+      '#markup' => drupal_render($filters_form),
+    ),
+    'ms_paypublish_nodes_table' => array(
+      '#markup' => theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => $attr)),
+    ),
+  );
+  // Add the pager
+  $build['pager'] = array(
+    '#theme' => 'pager',
+    '#weight' => 5,
+  );
+  
+  return $build;
+}
+
+/**
+ * Show the Edit Pay to Publish Node Form
+ */
+function ms_paypublish_edit_node_page($id = NULL) {
+  $build = array();
+  $build['content'] = array(
+    'ms_paypublish_edit_node_form' => drupal_get_form('ms_paypublish_edit_node_form', $id),
+  );
+  
+  return $build;
+}
+
+function ms_paypublish_edit_node_form($form, &$form_state, $id = NULL) {
+  drupal_add_js(drupal_get_path('module', 'ms_paypublish') . '/js/ms_paypublish_edit_form.js');
+  $is_edit = FALSE;
+  $form['paypublish'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Pay to Publish Node'),
+    '#weight' => -50,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  if ($id != NULL) {
+    if ($pp_node = ms_paypublish_load_node($id)) {
+      $is_edit = TRUE;
+      $form['paypublish']['id'] = array(
+        '#type' => 'value',
+        '#value' => $pp_node->id,
+      );
+    }
+  }
+  $form['paypublish']['nid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Node'),
+    '#description' => t("The Node this record is for"),
+    '#autocomplete_path' => 'ms_core/autocomplete/node',
+    '#required' => TRUE,
+    '#default_value' => ($is_edit) ? ms_core_create_autocomplete_key($pp_node->nid) : '',
+  );
+  $form['paypublish']['current_payments'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Payments'),
+    '#size' => 8,
+    '#maxlength' => 10,
+    '#description' => t("How many payments have been made?"),
+    '#required' => FALSE,
+    '#default_value' => $is_edit ? $pp_node->current_payments : '',
+  );
+  $form['paypublish']['max_payments'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Max Payments'),
+    '#size' => 8,
+    '#maxlength' => 10,
+    '#description' => t("How many payments are expected?"),
+    '#required' => FALSE,
+    '#default_value' => $is_edit ? $pp_node->max_payments : '',
+  );
+  $form['paypublish']['start_date'] = array(
+    '#type' => 'date',
+    '#title' => t('Start Date'),
+    '#description' => t("When was this Pay Publish Node Record created?"),
+    '#required' => TRUE,
+    '#default_value' => $is_edit ? array(
+      'year' => date('Y', $pp_node->start_date),
+      'month' => date('n', $pp_node->start_date),
+      'day' => date('j', $pp_node->start_date),
+      ) : array(
+      'year' => date('Y'),
+      'month' => date('n'),
+      'day' => date('j'),
+    ),
+  );
+  $form['paypublish']['should_expire'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Expiration?'),
+    '#description' => t("Check this to set an expiration date for the pay to publish node. Leaving this unchecked will cause the node to never expire."),
+    '#required' => FALSE,
+    '#default_value' => ($is_edit AND $pp_node->expiration_date) ? TRUE : FALSE,
+  );
+  $form['paypublish']['expiration_date'] = array(
+    '#type' => 'date',
+    '#title' => t('Expiration Date'),
+    '#description' => t("When does this Node Expire?"),
+    '#default_value' => array(
+      'year' => (($is_edit AND $pp_node->expiration_date) ? date('Y', $pp_node->expiration_date) : date('Y', REQUEST_TIME)),
+      'month' => (($is_edit AND $pp_node->expiration_date) ? date('n', $pp_node->expiration_date) : date('n', REQUEST_TIME)),
+      'day' => (($is_edit AND $pp_node->expiration_date) ? date('j', $pp_node->expiration_date) : date('j', REQUEST_TIME)),
+      ),
+  );
+  $form['paypublish']['status'] = array(
+    '#type' => 'select',
+    '#title' => t('Status'),
+    '#options' => ms_paypublish_get_statuses(),
+    '#description' => t("What is the Status of the Node Record?"),
+    '#required' => FALSE,
+    '#default_value' => $is_edit ? $pp_node->status : 1,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  $form_state['redirect'] = 'admin/content/ms_paypublish_nodes';
+  return $form;
+}
+
+/**
+ * Validate Function for the Edit Pay to Publish Node Form
+ */
+function ms_paypublish_edit_node_form_validate($form, &$form_state) {
+  $v = $form_state['values'];
+  $nid = ms_core_extract_nid_from_autocomplete_key($v['nid']);
+  // Check that a node record doesn't already exist
+  if (isset($v['id']) AND $pp_node = ms_paypublish_load_node($v['id'])) {
+    if ($pp_node->nid != $nid AND $existing = ms_paypublish_load_node_nid($nid)) {
+      form_set_error('nid', t('Error: A Pay to Publish Node Record already exists for that node.'));
+    }
+  }
+  else if ($existing = ms_paypublish_load_node_nid($nid)) {
+    form_set_error('nid', t('Error: A Pay to Publish Node Record already exists for that node.'));
+  }
+  else if (!$node = node_load($nid)) {
+    form_set_error('nid', t('Error: Please enter a valid node id.'));
+  }
+}
+
+/**
+ * Submit Function for the Edit Pay to Publish Node Form
+ */
+function ms_paypublish_edit_node_form_submit($form, &$form_state) {
+  $v = $form_state['values'];
+  if (isset($v['id']) AND $pp_node = ms_paypublish_load_node($v['id'])) {
+    // We are editing an existing record
+    $node = node_load(ms_core_extract_nid_from_autocomplete_key($v['nid']));
+    $pp_node->nid = $node->nid;
+    $pp_node->uid = $node->uid;
+    $pp_node->current_payments = $v['current_payments'];
+    $pp_node->max_payments = $v['max_payments'];
+    $pp_node->status = $v['status'];
+    $pp_node->start_date = strtotime($v['start_date']['year'] . '-' . $v['start_date']['month'] . '-' . $v['start_date']['day']);
+    if (!$v['should_expire']) {
+      $pp_node->expiration_date = 0;
+    }
+    else {
+      $pp_node->expiration_date = strtotime($v['expiration_date']['year'] . '-' . $v['expiration_date']['month'] . '-' . $v['expiration_date']['day']);
+    }
+    drupal_write_record('ms_paypublish_nodes', $pp_node, 'id');
+  }
+  else {
+    $pp_node = new stdClass();
+    $node = node_load(ms_core_extract_nid_from_autocomplete_key($v['nid']));
+    $pp_node->nid = $node->nid;
+    $pp_node->uid = $node->uid;
+    $pp_node->current_payments = $v['current_payments'];
+    $pp_node->max_payments = $v['max_payments'];
+    $pp_node->status = $v['status'];
+    $pp_node->start_date = strtotime($v['start_date']['year'] . '-' . $v['start_date']['month'] . '-' . $v['start_date']['day']);
+    if (!$v['should_expire']) {
+      $pp_node->expiration_date = 0;
+    }
+    else {
+      $pp_node->expiration_date = strtotime($v['expiration_date']['year'] . '-' . $v['expiration_date']['month'] . '-' . $v['expiration_date']['day']);
+    }
+    drupal_write_record('ms_paypublish_nodes', $pp_node);
+  }
+  
+  drupal_set_message(t("Pay to Publish Node Record '%title' Saved.", array('%title' => $node->title)));
+  $form_state['redirect'] = 'admin/content/ms_paypublish_nodes';
+  
+  // Unpublish/Publish the Node if needed
+  switch ($pp_node->status) {
+    case 1:
+    case 4:
+    case 6:
+    case 7:
+      if ($node->status == 0) {
+        // Publish the node
+        $node->status = NODE_PUBLISHED;
+        node_save($node);
+        drupal_set_message(t("'%title' has been Published.", array('%title' => $node->title)));
+      }
+      break;
+
+    case 0:
+    case 2:
+    case 3:
+    case 5:
+    case 8:
+      if ($node->status == NODE_PUBLISHED) {
+        // Unpublish the node
+        $node->status = NODE_NOT_PUBLISHED;
+        node_save($node);
+        drupal_set_message(t("'%title' has been Unpublished.", array('%title' => $node->title)));
+      }
+      break;
+  }
+}
+
+/**
+ * Delete a Pay to Publish Node
+ */
+function ms_paypublish_delete_node_confirm($form, &$form_state, $id) {
+  $pp_node = ms_paypublish_load_node($id);
+  if ($pp_node->id) {
+    $form['#ms_id'] = $pp_node->id;
+    return confirm_form($form, t('Are you sure you want to delete this Pay to Publish Node Record?'), 'admin/content/ms_paypublish_nodes', t('This action cannot be undone.'), t('Delete'));
+  }
+  else {
+    drupal_not_found();
+  }
+}
+
+/**
+ * Delete a Node
+ */
+function ms_paypublish_delete_node_confirm_submit($form, &$form_state) {
+  $pp_node = ms_paypublish_load_node($form['#ms_id']);
+  $account = user_load($pp_node->uid);
+  $node = node_load($pp_node->nid);
+
+  // Delete the node
+  db_delete('ms_paypublish_nodes')
+  ->condition('id', $pp_node->id)
+  ->execute();
+
+  drupal_set_message(t('Pay to Publish Node Record %title for user %name Deleted', array('%name' => $account->name, '%title' => $node->title)));
+  $form_state['redirect'] = 'admin/content/ms_paypublish_nodes';
+}
+
+/**
+ * Implementation of hook_delete().
+ * Deletes a node record when a node is deleted
+ *
+ * @param $node
+ */
+function ms_paypublish_delete(&$node) {
+  $account = user_load($node->uid);
+  // Delete the node
+  db_delete('ms_paypublish_nodes')
+  ->condition('nid', $node->nid)
+  ->execute();
+  drupal_set_message(t('Pay to Publish Node Record %title for user %name Deleted', array('%name' => $account->name, '%title' => $node->title)));
+}
+
+/**
+ * List the content in the user account area
+ */
+function ms_paypublish_list_content($account) {
+  $output = t("<!--Here is your Content") . ":<br />-->";
+  $headers = array(t('Title'), t('Status'), t('Next Payment'), t('Expires'), t('Actions'));
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE uid = :uid", array(':uid' => $account->uid));
+  $rows = array();
+  $attr = array();
+  foreach ($result as $pp_node) {
+    $order = ms_core_order_load($pp_node->oid);
+    $plan = ms_paypublish_load_plan($pp_node->pid);
+    $node = node_load($pp_node->nid);
+    $actions = array();
+
+    $actions[] = l(t('Edit'), 'node/' . $node->nid . '/edit');
+
+    switch ($pp_node->status) {
+      case 0: // Inactive
+        $actions[] = l(t('Publish'), 'ms_paypublish/publish/' . $pp_node->nid);
+        break;
+
+      case 1: // Published with Expiration
+        if ($plan AND $plan->recurring) {
+          if ($cancel_url = ms_core_get_cancel_url($order)) {
+            $actions[] = l(t('Cancel'), $cancel_url, array('query' => drupal_get_destination()));
+          }
+        }
+        elseif ($pp_node->expiration_date) {
+          // Don't show the Promote / Extend link if the user doesn't have permission
+          if (user_access('renew own pay to publish nodes')) {
+            $actions[] = l(t('Promote / Extend'), 'ms_paypublish/publish/' . $pp_node->nid);
+          }
+        }
+        break;
+
+      case 2: // Awaiting Admin Approval
+        break;
+
+      case 3: // Not Yet Published
+        // Don't show the Promote / Extend link if the user doesn't have permission
+        if (user_access('renew own pay to publish nodes')) {
+          $actions[] = l(t('Publish'), 'ms_paypublish/publish/' . $pp_node->nid);
+        }
+        break;
+
+      case 4: // Published Without Expiration
+        break;
+
+      case 5: // Awaiting Admin Approval without Expiration
+        break;
+
+      case 6: // Cancelled (for recurring plans)
+        // In future, add a way to renew recurring payments
+        break;
+
+      case 7: // Expiring Soon
+        if ($plan AND $plan->recurring) {
+          // Do nothing for now
+        }
+        else {
+          // Don't show the Promote / Extend link if the user doesn't have permission
+          if (user_access('renew own pay to publish nodes')) {
+            $actions[] = l(t('Promote / Extend'), 'ms_paypublish/publish/' . $pp_node->nid);
+          }
+        }
+        break;
+
+      case 8: // End of Term
+        // Don't show the Promote / Extend link if the user doesn't have permission
+        if (user_access('renew own pay to publish nodes')) {
+          $actions[] = l(t('Promote / Extend'), 'ms_paypublish/publish/' . $pp_node->nid);
+        }
+        break;
+
+      case 9: // Denied
+        // Maybe add an option to revise the content
+        break;
+    }
+    
+    $status = ($plan) ? ms_paypublish_translate_plan($plan, 'name') . ' - ' . ms_paypublish_get_status($pp_node->status) : ms_paypublish_get_status($pp_node->status);
+
+    $rows[] = array(
+      l($node->title, 'node/' . $node->nid),
+      $status,
+      ms_core_get_next_payment_string($order),
+      ms_paypublish_get_expires_string($pp_node),
+      implode($actions, ' | ')
+    );
+  }
+  $output .= theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => $attr));
+  return $output;
+}
+
+function ms_paypublish_get_expires_string($pp_node) {
+  $expires = ms_paypublish_get_expiration_string($pp_node->expiration_date);
+  if ($expires) {
+    return t('Expires in !days days', array('!days' => $expires));
+  }
+  else {
+    switch ($pp_node->status) {
+      case 1:
+        if ($pp_node->expiration_date) {
+          return t('Expired');
+        }
+        else {
+          return t('N/A');
+        }
+        break;
+
+      case 3:
+      case 4:
+      case 5:
+        return t('N/A');
+        break;
+
+      case 6:
+        return t('Expired');
+        break;
+    }
+  }
+}
+
+/**
+ * List the plans in the admin area
+ */
+function ms_paypublish_list_plans() {
+  $build = array();
+  $build['content'] = array(
+      'ms_paypublish_list_plans_title' => array(
+          '#markup' => t("Here are your plans"),
+      ),
+      'ms_paypublish_list_plans_form' => drupal_get_form('ms_paypublish_list_plans_form'),
+  );
+  
+  return $build;
+}
+
+/**
+ * List the plans in the admin area
+ */
+function ms_paypublish_list_plans_form($form, &$form_state) {
+  $result = db_query("SELECT * FROM {ms_paypublish_plans} ORDER BY weight ASC");
+
+  foreach ($result as $row) {
+    $plan = ms_paypublish_load_plan($row->pid);
+    $actions = array(
+      l(t('Edit'), 'admin/structure/ms_paypublish/edit/' . $plan->pid),
+      l(t('Clone'), 'admin/structure/ms_paypublish/clone/' . $plan->pid),
+      l(t('Delete'), 'admin/structure/ms_paypublish/delete/' . $plan->pid),
+    );
+    $row = array(
+      array('data' => ms_paypublish_get_plan_name($plan), 'class' => array('ms_paypublish_plan_name')),
+      array('data' => implode(' | ', $actions), 'class' => array('ms_paypublish_plan_actions')),
+    );
+
+    $form['rows'][$plan->pid]['data'] = array(
+                                 '#type' => 'value',
+                                 '#value' => $row
+                               );
+
+    $form['rows'][$plan->pid]['weight-' . $plan->pid] = array(
+      '#type' => 'textfield',
+      '#size' => 5,
+      '#default_value' => $plan->weight,
+      '#attributes' => array('class' => array('weight')),
+    );
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save changes'),
+  );
+
+  return $form;
+}
+
+//Save the Weight
+function ms_paypublish_list_plans_form_submit($form, &$form_state) {
+  foreach ($form_state['values'] as $key => $data) {
+    if (substr($key, 0, 6) == 'weight') {
+      $pid = str_replace('weight-', '', $key);
+      db_update('ms_paypublish_plans')
+			  ->fields(array(
+			        'weight' => $data,
+			      ))
+			  ->condition('pid', $pid)
+			  ->execute();
+    }
+  }
+}
+
+/**
+ * Form to List the Plans
+ */
+function theme_ms_paypublish_list_plans_form($variables) {
+  $output = '';
+  $form = $variables['form'];
+  $headers = array(
+    array('data' => t('Plan'), 'class' => array('ms_paypublish_plans_name_header')),
+    array('data' => t('Actions'), 'class' => array('ms_paypublish_plans_edit_header')),
+    array('data' => t('Order'), 'class' => array('ms_paypublish_plans_order_header')),
+  );
+  $rows = array();
+  $attr = array('id' => 'ms-paypublish-plans-table');
+  
+  if (isset($form['rows']) AND is_array($form['rows'])) {
+    foreach ($form['rows'] as $pid => $row) {
+      if (intval($pid)) {
+        $this_row = array();
+        $this_row = $row['data']['#value'];
+        
+        $this_row[] = drupal_render($form['rows'][$pid]['weight-' . $pid]);
+        
+        $rows[] = array('data' => $this_row, 'class' => array('draggable'));
+      }
+    }
+    
+    $output .= theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => $attr));
+    $output .= drupal_render_children($form);
+    drupal_add_tabledrag('ms-paypublish-plans-table', 'order', 'sibling', 'weight');
+  }
+  else {
+    $output .= "No Plans - Use the 'Add Plan' Link to add plans";
+  }
+
+  return $output;
+}
+
+/**
+ * Delete a Plan Form
+ */
+function ms_paypublish_delete_plan_confirm($form, &$form_state, $pid) {
+  $plan = ms_paypublish_load_plan($pid);
+  if ($plan->pid) {
+    $form['#ms_pid'] = $plan->pid;
+    return confirm_form($form, t('Are you sure you want to delete this Plan: %plan?', array('%plan' => ms_paypublish_translate_plan($plan, 'name'))), 'admin/structure/ms_paypublish/list', t('This action cannot be undone.'), t('Delete'));
+  }
+  else {
+    drupal_not_found();
+  }
+}
+
+/**
+ * Delete a Plan Submit
+ */
+function ms_paypublish_delete_plan_confirm_submit($form, &$form_state) {
+  $plan = ms_paypublish_load_plan($form['#ms_pid']);
+
+  // Delete the plan
+  $result = db_delete('ms_paypublish_plans')
+  ->condition('pid', $plan->pid)
+  ->execute();
+
+  drupal_set_message(t('Plan %plan has been deleted', array('%plan' => ms_paypublish_translate_plan($plan, 'name'))));
+  $form_state['redirect'] = 'admin/structure/ms_paypublish/list';
+}
+
+/**
+ * Publish Node
+ */
+function ms_paypublish_approval_queue_publish($nid) {
+  //Get Node and Author
+  $node = node_load($nid);
+  $account = user_load($node->uid);
+  $pp_node = ms_paypublish_load_node_nid($node->nid);
+
+  // Get the correct status for non-expiring nodes
+  $status = ($pp_node->status == 5) ? 4 : 1;
+
+  // Update the expiration date
+  ms_paypublish_change_node_status($pp_node->id, $status);
+  ms_paypublish_change_node_expiration($pp_node->id, ms_paypublish_get_expiration_date($pp_node->pid));
+  if (!empty($node->make_promote)) {
+    ms_paypublish_change_node_promote_expiration($pp_node->id, ms_paypublish_get_expiration_date($pp_node->pid));
+  }
+  if (!empty($node->make_sticky)) {
+    ms_paypublish_change_node_sticky_expiration($pp_node->id, ms_paypublish_get_expiration_date($pp_node->pid));
+  }
+
+  // Set the message
+  drupal_set_message(t('The node %title has been published.', array('%title' => $node->title)));
+
+  $e_vars = array('nid' => $node->nid);
+
+  // Send an email to the user
+  if (variable_get('ms_paypublish_approval_body', '')) {
+    drupal_mail('ms_paypublish', 'approval', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+  }
+
+  // Redirect to the Approval Queue Page
+  drupal_goto('admin/structure/ms_paypublish/approval');
+}
+
+/**
+ * Deny Node
+ */
+function ms_paypublish_approval_queue_deny($nid) {
+  $build = array();
+  $build['content'] = array(
+      'ms_paypublish_deny_content_form' => drupal_get_form('ms_paypublish_deny_content_form', $nid),
+  );
+  
+  return $build;
+}
+
+/**
+ * The form for denial of a node
+ */
+function ms_paypublish_deny_content_form($form, &$form_state, $nid) {
+  $node = node_load($nid);
+  $account = user_load($node->uid);
+  $pp_node = ms_paypublish_load_node_nid($node->nid);
+  $order = ms_core_order_load($pp_node->oid);
+
+  $form['main'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Deny Node'),
+    '#weight' => -49,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['main']['info'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Info'),
+    '#weight' => -49,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#description' => t("Remember to refund the payment if applicable."),
+  );
+
+  $form['main']['info']['user'] = array(
+    '#type' => 'item',
+    '#title' => t('User'),
+    '#markup' => l($account->name, 'user/' . $account->uid),
+  );
+  $form['main']['info']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Title'),
+    '#markup' => l($node->title, 'node/' . $node->nid),
+  );
+  if ($order) {
+    $form['main']['info']['order'] = array(
+      '#type' => 'item',
+      '#title' => t('Order'),
+      '#markup' => l($order->title, 'admin/moneyscripts/orders/view/' . $order->order_key),
+    );
+  }
+
+  $form['main']['nid'] = array(
+    '#type' => 'value',
+    '#value' => $nid,
+  );
+
+  $form['main']['notes'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Notes'),
+    '#size' => 32,
+    '#maxlength' => 64,
+    '#description' => t("Enter an optional message explainging why the content was denied."),
+    '#default_value' => '',
+    '#required' => FALSE,
+  );
+  $form['main']['delete_node'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Delete Node?'),
+    '#return_value' => 1,
+    '#default_value' => FALSE,
+    '#description' => t("Check this to delete the node after sending the denial message."),
+  );
+  $form['main']['send_email'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send Email?'),
+    '#return_value' => 1,
+    '#default_value' => TRUE,
+    '#description' => t("Check this to send the denial email to the user."),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  
+  return $form;
+}
+
+/**
+ * Submit Function for the Deny Content Form
+ */
+function ms_paypublish_deny_content_form_submit($form, &$form_state) {
+  $form_values = (object) $form_state['values'];
+
+  $node = node_load($form_values->nid);
+  $account = user_load($node->uid);
+  $pp_node = ms_paypublish_load_node_nid($node->nid);
+
+  // Set the status to denied
+  $status = 9;
+
+  // Update the Status
+  ms_paypublish_change_node_status($pp_node->id, $status);
+
+  // Set the message
+  drupal_set_message(t('The node %title has been denied.', array('%title' => $node->title)));
+
+  // Delete the node if needed
+  if ($form_values->delete_node) {
+    node_delete($node->nid);
+    drupal_set_message(t("Deleted %title", array('%title' => $node->title)));
+  }
+
+  $e_vars = array(
+    'nid' => $node->nid,
+    'notes' => $form_values->notes,
+  );
+
+  // Send an email to the user
+  if (variable_get('ms_paypublish_denied_body', '') AND $form_values->send_email) {
+    drupal_mail('ms_paypublish', 'denial', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+  }
+  
+  // Redirect
+  $form_state['redirect'] = 'admin/structure/ms_paypublish/approval';
+}
+
+/**
+ * Show the Approval Queue
+ */
+function ms_paypublish_show_approval_queue() {
+  $output = t("Nodes Awaiting Approval") . ":<br />";
+  $headers = array(t('Title'), t('Plan'), t('Expires'), t('Edit'), t('Publish'));
+  $result = db_query("SELECT * FROM {ms_paypublish_nodes} WHERE status = :status2 OR status = :status5", array(':status2' => 2, ':status5' => 5));
+  $rows = array();
+  $attr = array();
+  foreach ($result as $nodeItem) {
+    $node = node_load($nodeItem->nid);
+    $plan = ms_paypublish_load_plan($nodeItem->pid);
+    $expires = ms_paypublish_get_expiration_string($nodeItem->expiration_date);
+    if ($expires) {
+      $expireString = t('Expires in !days days', array('!days' => $expires));
+    }
+    else {
+      $expireString = ($nodeItem->status == 3 OR $nodeItem->status == 5 OR $nodeItem->status == 4) ? 'N/A' : 'Expired';
+    }
+    $actions = array(
+      l(t('Publish'), 'admin/structure/ms_paypublish/approval/publish/' . $node->nid),
+      l(t('Deny'), 'admin/structure/ms_paypublish/approval/deny/' . $node->nid),
+    );
+    $rows[] = array(
+      l($node->title, 'node/' . $node->nid),
+      ms_paypublish_translate_plan($plan, 'name'),
+      $expireString,
+      l(t('Edit'), 'node/' . $node->nid . '/edit'),
+      implode(' | ', $actions),
+
+    );
+  }
+  $output .= theme('table', array('header' => $headers, 'rows' => $rows, 'attributes' => $attr));
+  return $output;
+}
+
+// ======================================
+// THEME
+// ======================================
+/**
+ * Main Theme Function
+ */
+function ms_paypublish_theme() {
+  return array(
+    'ms_paypublish_list_plans_form' => array(
+      'render element' => 'form',
+    ),
+  );
+}
+
+// ======================================
+// MS Hooks
+// ======================================
+
+/**
+ * Implements hook_ms_products().
+ */
+function ms_paypublish_ms_products() {
+  $products = array();
+  $plans = ms_paypublish_get_plans();
+
+  foreach ($plans as $pid => $name) {
+    $plan = ms_paypublish_load_plan($pid);
+    
+    // Create a new product and add it to the order
+    $product = ms_core_new_product(ms_paypublish_translate_plan($plan, 'name'), 'ms_paypublish', $plan->pid, $plan->main_amount);
+    
+    // Add the product variables
+    $product->module_title = t('Pay to Publish');
+    $product->type = ($plan->recurring) ? 'recurring' : 'cart';
+    $product->data = $plan->data;
+    $product->owner = $plan->uid;
+    $product->edit_path = 'admin/structure/ms_paypublish/edit/' . $plan->pid;
+    $product->purchase_path = '';
+    
+    $products[] = $product;
+  }
+  
+  return $products;
+}
+
+/**
+ * Implementation of hook_ms_order_payment
+ */
+function ms_paypublish_ms_order_payment($type, $product, $order, $payment) {
+  switch ($product->module) {
+    case 'ms_paypublish':
+      ms_core_log('ms_paypublish', 'Acting on a payment for a Pay to Publish product. Here are the details: Payment: !payment Product: !product Order: !order',
+              array(
+                '!payment' => ms_core_print_r($payment),
+                '!product' => ms_core_print_r($product),
+                '!order' => ms_core_print_r($order),
+                ));
+
+      // Get Account
+      $account = user_load($order->uid);
+
+      // Get Node
+      $node = node_load($product->data['nid']);
+
+      // Get Plan
+      $plan = ms_paypublish_load_plan($product->id);
+
+      // Make sure that the user is marked as the node author if there is no author
+      if (!$node->uid) {
+        ms_core_log('ms_paypublish', 'Setting the author of %title to %name',
+          array('%title' => $node->title, '%name' => $account->name));
+        $node->uid = $account->uid;
+        node_save($node);
+      }
+
+      // Handle Refunds
+      if ($type == 'refund' OR $type == 'reversal') {
+        ms_core_log('ms_paypublish', 'Refund Notice received for MS Pay to Publish',
+          array('%username' => $account->name));
+
+        // Unpublish the content, deactivate the node record
+      }
+      else {
+        switch ($type) {
+          case "cart":
+            $status = ($plan->main_length) ? 1 : 4;
+            // Publish the node if it is not already published
+            if (ms_core_variable_get('ms_paypublish_require_approval', FALSE, $plan)) {
+              $status = ($plan->main_length) ? 2 : 5;
+              // Send an email to the admin
+              $e_vars = array('nid' => $node->nid);
+              drupal_mail('ms_paypublish', 'approval_queue', variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')), language_default(), $e_vars);
+
+              // Show a message showing the node is in the moderation queue
+              drupal_set_message(t('The content will be published as soon as it is approved by a moderator.'));
+            }
+            else { // Publish the Content
+              // Show a message showing the node has been published, etc
+              drupal_set_message(t('The content !title has been successfully published.', 
+                array('!title' => l($node->title, 'node/'. $node->nid))));
+            }
+
+            // Check if the user has published the node before
+            if ($pp_node = ms_paypublish_load_node_nid($product->data['nid'])) {
+              // If Active, increase the Expiration Date by the correct amount
+              $expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->expiration_date);
+              
+              // Update the Node Record
+              ms_paypublish_change_node_expiration($pp_node->id, $expiration);
+              ms_paypublish_change_node_status($pp_node->id, $status);
+              ms_paypublish_change_node_oid($pp_node->id, $order->oid);
+              ms_paypublish_change_node_uid($pp_node->id, $account->uid);
+              ms_paypublish_change_node_pid($pp_node->id, $plan->pid);
+
+              // Make the node sticky
+              if ($product->data['make_sticky'] AND $plan->offer_sticky) {
+                $sticky_expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->sticky_expiration);
+                ms_paypublish_change_node_sticky($pp_node->id, 1);
+                ms_paypublish_change_node_sticky_expiration($pp_node->id, $sticky_expiration);
+              }
+              // Make the node promoted
+              if ($product->data['make_promote'] AND $plan->offer_promote) {
+                $promote_expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->promote_expiration);
+                ms_paypublish_change_node_promote($pp_node->id, 1);
+                ms_paypublish_change_node_promote_expiration($pp_node->id, $promote_expiration);
+              }
+            }
+            else {
+              //Insert into Node Record database
+              $expiration = ms_paypublish_get_expiration_date($plan->pid);
+              $pp_node = ms_paypublish_insert_node($node->nid, $account->uid, $plan->pid, $order->oid);
+
+              ms_paypublish_change_node_promote_expiration();
+              // Make the node sticky
+              if ($product->data['make_sticky'] AND $plan->offer_sticky) {
+                $node->sticky = NODE_STICKY;
+                $sticky_expiration = ms_paypublish_get_expiration_date($plan->pid);
+                ms_paypublish_change_node_sticky($pp_node->id, 1);
+                ms_paypublish_change_node_sticky_expiration($pp_node->id, $sticky_expiration);
+              }
+              // Make the node promoted
+              if ($product->data['make_promote'] AND $plan->offer_promote) {
+                $node->promote = NODE_PROMOTED;
+                $promote_expiration = ms_paypublish_get_expiration_date($plan->pid);
+                ms_paypublish_change_node_promote($pp_node->id, 1);
+                ms_paypublish_change_node_promote_expiration($pp_node->id, $promote_expiration);
+              }
+            }
+
+            // Reload the node record to get the latest data
+            $pp_node = ms_paypublish_load_node($pp_node->id);
+
+            // Invoke hook_ms_paypublish_purchase to let other modules act on a purchased pay to publish node
+            module_invoke_all('ms_paypublish_purchase', $account, $pp_node, $plan);
+
+            // Send an email to the user
+            if (($status == 1 OR $status == 2) AND variable_get('ms_paypublish_payment_body', '')) {
+              $e_vars = array('nid' => $pp_node->nid);
+
+              if (variable_get('ms_paypublish_payment_body', '')) {
+                drupal_mail('ms_paypublish', 'payment', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+              }
+            }
+
+            // Send an email to the user
+            if (($status == 4 OR $status == 5) AND variable_get('ms_paypublish_no_expire_body', '')) {
+              $e_vars = array('nid' => $pp_node->nid);
+              drupal_mail('ms_paypublish', 'payment_no_expire', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+            }
+            break;
+
+          case "rec_signup":
+            $status = ($plan->main_length) ? 1 : 4;
+            // Publish the node if it is not already published
+            if (ms_core_variable_get('ms_paypublish_require_approval', FALSE, $plan)) {
+              $status = ($plan->main_length) ? 2 : 5;
+              // Send an email to the admin
+              $e_vars = array('nid' => $node->nid);
+              drupal_mail('ms_paypublish', 'approval_queue', variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')), language_default(), $e_vars);
+            }
+
+            // Check if the user has published the node before
+            if ($pp_node = ms_paypublish_load_node_nid($product->data['nid'])) {
+              // If Active, increase the Expiration Date by the correct amount
+              $expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->expiration_date);
+              $sticky_expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->sticky_expiration);
+              $promote_expiration = ms_paypublish_get_expiration_date($plan->pid, $pp_node->promote_expiration);
+
+              // Update the Node Record
+              ms_paypublish_change_node_expiration($pp_node->id, $expiration);
+              ms_paypublish_change_node_status($pp_node->id, $status);
+              ms_paypublish_change_node_oid($pp_node->id, $order->oid);
+              ms_paypublish_change_node_pid($pp_node->id, $plan->pid);
+
+              // Make the node sticky
+              if ($product->data['make_sticky'] AND $plan->offer_sticky) {
+                ms_paypublish_change_node_sticky($pp_node->id, 1);
+                ms_paypublish_change_node_sticky_expiration($pp_node->id, $expiration);
+              }
+              // Make the node promoted
+              if ($product->data['make_promote'] AND $plan->offer_promote) {
+                ms_paypublish_change_node_promote($pp_node->id, 1);
+                ms_paypublish_change_node_promote_expiration($pp_node->id, $expiration);
+              }
+            }
+            else {
+              //Insert into Node Record database
+              $expiration = ms_paypublish_get_expiration_date($plan->pid);
+              $pp_node = ms_paypublish_insert_node($node->nid, $account->uid, $plan->pid, $order->oid);
+
+              // Make the node sticky
+              if ($product->data['make_sticky'] AND $plan->offer_sticky) {
+                $sticky_expiration = ms_paypublish_get_expiration_date($plan->pid);
+                ms_paypublish_change_node_sticky($pp_node->id, 1);
+                ms_paypublish_change_node_sticky_expiration($pp_node->id, $sticky_expiration);
+              }
+              // Make the node promoted
+              if ($product->data['make_promote'] AND $plan->offer_promote) {
+                $promote_expiration = ms_paypublish_get_expiration_date($plan->pid);
+                ms_paypublish_change_node_promote($pp_node->id, 1);
+                ms_paypublish_change_node_promote_expiration($pp_node->id, $promote_expiration);
+              }
+            }
+
+            // Reload the node record to get the latest data
+            $pp_node = ms_paypublish_load_node($pp_node->id);
+
+            // Invoke hook_ms_paypublish_purchase to let other modules act on a purchased pay to publish node
+            module_invoke_all('ms_paypublish_purchase', $account, $pp_node, $plan);
+
+            // Send email
+            $e_vars = array('nid' => $pp_node->nid);
+            drupal_mail('ms_paypublish', 'payment_no_expire', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+            break;
+
+          case "rec_payment":
+            // Increment Payments
+            ms_paypublish_increment_payment($order->oid);
+            if (variable_get('ms_paypublish_no_expire_body', '')) {
+              // Send an email
+              $e_vars = array('nid' => $pp_node->nid);
+              drupal_mail('ms_paypublish', 'payment_no_expire', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+            }
+
+            // Invoke hook_ms_paypublish_payment to let other modules act on a payment for a pay to publish node
+            module_invoke_all('ms_paypublish_payment', $account, $pp_node, $plan);
+            break;
+
+          case "rec_modify":
+            // Don't allow modification for now...
+
+            break;
+
+          case "rec_cancel":
+          case "rec_failed":
+            // Mark the node schedule as cancelled
+            $pp_node = ms_paypublish_load_node_order_id($order->oid);
+            $node = node_load($pp_node->nid);
+            $plan = ms_paypublish_load_plan($pp_node->pid);
+
+            // Mark status as cancelled
+            ms_paypublish_change_node_status($pp_node->id, 6);
+
+            // Calculate the Expiration Date
+            $date = 0;
+            $now = REQUEST_TIME;
+
+            // Calculate time based on number of payments multiplied by period length and unit
+            $regular_time = strtotime(ms_core_get_string_time($plan->main_length, $plan->main_unit), 0);
+
+            if ($pp_node->current_payments) {
+              $regulat_time = $regular_time * $pp_node->current_payments;
+            }
+
+            // Calculate Time for Trial Period 1
+            if ($plan->recurring AND $plan->trial_unit) {
+              $trial1 = strtotime(ms_core_get_string_time($plan->trial_length, $plan->trial_unit), 0);
+            }
+            else {
+              $trial1 = 0;
+            }
+
+            if (($pp_node->start_date + $trial1) > $now) {
+              $expiration = $pp_node->start_date + $trial1;
+            }
+            elseif (($pp_node->start_date + $trial1 + $regular_time) > $now) {
+              $expiration = $pp_node->start_date + $trial1 + $regular_time;
+            }
+            else {
+              $errtime = $pp_node->start_date + $trial1 + $regular_time;
+              $expiration = $now;
+            }
+
+            // Set the Expiration Date
+            ms_paypublish_change_node_expiration($pp_node->id, $expiration);
+            if ($pp_node->is_sticky) {
+              ms_paypublish_change_node_sticky_expiration($pp_node->id, $expiration);
+            }
+            if ($pp_node->is_promoted) {
+              ms_paypublish_change_node_promote_expiration($pp_node->id, $expiration);
+            }
+
+            // Invoke hook_ms_paypublish_cancel to let other modules act on a cancelled pay to publish node
+            module_invoke_all('ms_paypublish_cancel', $account, $pp_node, $plan);
+
+            //Set Message and send email
+            drupal_set_message(t('Your schedules payments for %title have been cancelled.', array('%title' => $node->title)));
+
+            if (variable_get('ms_paypublish_cancel_body', '')) {
+              $e_vars = array('nid' => $pp_node->nid);
+              drupal_mail('ms_paypublish', 'cancel', $account->mail, user_preferred_language($account), $e_vars, variable_get('ms_paypublish_admin_email', variable_get('site_mail', '')));
+            }
+            break;
+        }
+      }
+      break;
+  }
+}
+
+// ======================================
+// MAIL
+// ======================================
+
+/**
+ * Handle Mail functions
+ */
+function ms_paypublish_mail($key, &$message, $seed_vars) {
+  // Load the vars
+  $pp_node = ms_paypublish_load_node_nid($seed_vars['nid']);
+  $pp_node->notes = (isset($seed_vars['notes'])) ? $seed_vars['notes'] : '';
+  $plan = ms_paypublish_load_plan($pp_node->pid);
+  $node = node_load($pp_node->nid);
+  $account = user_load($pp_node->uid);
+  $order = ms_core_order_load($pp_node->oid);
+  $payment = ms_core_get_last_payment($order);
+
+  if (!$order) {
+    $order = new stdClass();
+    $order->first_name = $account->name;
+  }
+
+  // Get the email templates
+  switch ($key) {
+    case 'approval_queue':
+      $subject = t('New Post Awaiting Approval');
+      $body = t('A new post has been placed in the Admin Approval Queue. To view and approve it, click here: !link',
+        array('!link' => url('admin/structure/ms_paypublish/approval', array('absolute' => TRUE))));
+      break;
+
+    case 'expired':
+      $subject = variable_get('ms_paypublish_expire_subject', t('Content Expired'));
+      $body = variable_get('ms_paypublish_expire_body', t('My Content: [node:title] ([node:url:absolute]) is expired.
+  To republish, click here: [ms_paypublish_node:publishUrl]'));
+      break;
+
+    case 'payment':
+      $subject = variable_get('ms_paypublish_payment_subject', t('Payment Received'));
+      $body = variable_get('ms_paypublish_payment_body', t('Your payment of [ms_core_payment:paymentAmount] has been received and [ms_paypublish_plan:planLength] [ms_paypublish_plan:planUnit] have been added to your content: [node:title] ([node:url:absolute]).
+  It will expire on [ms_paypublish_node:expirationDate].
+  To purchase additional time, please click here: [ms_paypublish_node:publishUrl]'));
+      break;
+
+    case 'cancel':
+      $subject = variable_get('ms_paypublish_cancel_subject', t('Recurring Payments Cancelled'));
+      $body = variable_get('ms_paypublish_cancel_body', t("Your recurring payments for [node:title] ([node:url:absolute]) have been cancelled. Your content will expire [ms_paypublish_node:expirationDate]"));
+      break;
+
+    case 'expiring':
+      $subject = variable_get('ms_paypublish_expiring_subject', t('Content Expiring Soon!'));
+      $body = variable_get('ms_paypublish_expiring_body', t('My Content: [node:title] ([node:url:absolute]) is expiring soon.
+  To Promote / Extend, click here: [ms_paypublish_node:publishUrl]'));
+      break;
+
+    case 'approval':
+      $subject = variable_get('ms_paypublish_approval_subject', t('Content Published'));
+      $body = variable_get('ms_paypublish_approval_body', t('Your content has been approved for publishing: [node:title] ([node:url:absolute]).
+Thank you for your patience.'));
+      break;
+
+    case 'denial':
+      $subject = variable_get('ms_paypublish_denial_subject', t('Publishing Denied'));
+      $body = variable_get('ms_paypublish_denial_body', t('Your content has been denied for publishing: [node:title] ([node:url:absolute]).
+Reason: [ms_paypublish_node:denialNotes]'));
+      break;
+
+    case 'payment_no_expire':
+      $subject = variable_get('ms_paypublish_no_expire_subject', t('Payment Received'));
+      $body = variable_get('ms_paypublish_no_expire_body', t('Your payment of [ms_core_payment:paymentAmount] has been received and your content has been paid for: [node:title] ([node:url:absolute]).
+It will not expire.'));
+      break;
+  }
+  
+  // Replace the Tokens
+  $message['subject'] = token_replace($subject, array(
+    'ms_paypublish_node' => $pp_node,
+    'ms_paypublish_plan' => $plan,
+    'ms_core_order' => $order,
+    'ms_core_payment' => $payment,
+    'user' => $account,
+    'node' => $node,
+  ));
+  $message['body'][] = token_replace($body, array(
+    'ms_paypublish_node' => $pp_node,
+    'ms_paypublish_plan' => $plan,
+    'ms_core_order' => $order,
+    'ms_core_payment' => $payment,
+    'user' => $account,
+    'node' => $node,
+  ));
+  
+  ms_core_log('ms_paypublish', 'Sending an Email to a User. Message: !message',
+    array('!message' => ms_core_print_r($message)));
+}
+
+// ======================================
+// TOKEN
+// ======================================
+
+/**
+ * Implementation of hook_token_info()
+ */
+function ms_paypublish_token_info() {
+  $types = array(
+    'ms_paypublish_node' => array(
+      'name' => t('Pay to Publish Node'),
+      'description' => t('Pay to Publish Node Variables'),
+      'needs-data' => 'ms_paypublish_node',
+    ),
+    'ms_paypublish_plan' => array(
+      'name' => t('Pay to Publish Plan'),
+      'description' => t('Pay to Publish Plan Variables'),
+      'needs-data' => 'ms_paypublish_plan',
+    )
+  );
+    
+  $tokens = array(
+    'ms_paypublish_node' => array(
+      'publishUrl' => array(
+        'name' => t('Publish URL'),
+        'description' => t("The publish URL for the pay to publish node"),
+      ),
+      'nodeStatus' => array(
+        'name' => t('Node Status'),
+        'description' => t("The status of the pay to publish node"),
+      ),
+      'expirationDate' => array(
+        'name' => t('Expiration Date'),
+        'description' => t("The expiration date of the pay to publish node"),
+      ),
+      'denialNotes' => array(
+        'name' => t('Denial Notes'),
+        'description' => t("The reason the content was denied in the Approval Queue."),
+      ),
+    ),
+    'ms_paypublish_plan' => array(
+      'planName' => array(
+        'name' => t('Plan Name'),
+        'description' => t("The name of the Pay to Publish Plan"),
+      ),
+      'planAmount' => array(
+        'name' => t('Plan Amount'),
+        'description' => t("The cost of the Pay to Publish Plan"),
+      ),
+      'planUnit' => array(
+        'name' => t('Plan Unit'),
+        'description' => t("The unit used for publishing, example: days, months, years"),
+      ),
+      'planLength' => array(
+        'name' => t('Plan Length'),
+        'description' => t("The number of units to pubish for."),
+      ),
+    ),
+  );
+  
+  return array('types' => $types, 'tokens' => $tokens);
+}
+
+/**
+ * Implementation of hook_tokens()
+ */
+function ms_paypublish_tokens($type, $tokens, $data = array(), $options = array()) {
+  $replacements = array();
+  
+  if ($type == 'ms_paypublish_node' && !empty($data['ms_paypublish_node'])) {
+    $object = $data['ms_paypublish_node'];
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'nodeStatus':
+          $replacements[$original] = ms_paypublish_get_status($object->status);
+          break;
+        case 'expirationDate':
+          $replacements[$original] = format_date($object->expiration_date, 'short');
+          break;
+        case 'publishUrl':
+          $replacements[$original] = url('ms_paypublish/publish/' . $object->nid, array('absolute' => TRUE));
+          break;
+        case 'denialNotes':
+          $replacements[$original] = $object->notes;
+          break;
+      }
+    }
+  }
+  
+  if ($type == 'ms_paypublish_plan' && !empty($data['ms_paypublish_plan'])) {
+    $object = $data['ms_paypublish_plan'];
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'planName':
+          $replacements[$original] = $object->name;
+          break;
+        case 'planAmount':
+          $replacements[$original] = ms_core_get_recurring_string($object, $object->recurring);
+          break;
+        case 'planUnit':
+          $replacements[$original] = ms_paypublish_get_unit_string($object->main_unit, ($object->main_length > 1));
+          break;
+        case 'planLength':
+          $replacements[$original] = $object->main_length;
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Helper function to get nice strings
+ */
+function ms_paypublish_get_unit_string($unit, $plural = FALSE) {
+  switch ($unit) {
+    case 'D':
+      ($plural) ? $return = t('days') : $return = t('day');
+      break;
+    case 'W':
+      ($plural) ? $return = t('weeks') : $return = t('weeks');
+      break;
+    case 'M':
+      ($plural) ? $return = t('months') : $return = t('months');
+      break;
+    case 'Y':
+      ($plural) ? $return = t('years') : $return = t('years');
+      break;
+    default:
+      $return = $unit;
+  }
+
+  return $return;
+}
+
+// ======================================
+// Forms:
+// ======================================
+
+/**
+ * Show a form to edit the Pay to Publish plans
+ */
+function ms_paypublish_plan_form($form, &$form_state, $action, $pid = NULL) {
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'ms_paypublish') . '/js/ms_paypublish_form.js',
+  );
+  
+  global $user;
+  $account = $user;
+  
+  $is_edit = FALSE;
+  $form['plan'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Payment Plan Settings'),
+    '#weight' => -49,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+  if ($action == 'edit') {
+    $is_edit = TRUE;
+    $plan = ms_paypublish_load_plan($pid);
+    $account = user_load($plan->uid);
+    // Store the Plan ID
+    $form['plan']['pid'] = array(
+      '#type' => 'value',
+      '#value' => $plan->pid,
+    );
+  }
+
+  if ($action == 'clone') {
+    $is_edit = TRUE;
+    $plan = ms_paypublish_load_plan($pid);
+    $account = user_load($plan->uid);
+    // Unset some values
+    $plan->name = '';
+  }
+
+  $form['plan']['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Plan Name'),
+    '#size' => 32,
+    '#maxlength' => 64,
+    '#description' => t("The Name of this Publishing Plan"),
+    '#default_value' => ($is_edit) ? $plan->name : '',
+    '#required' => FALSE,
+  );
+  $form['plan']['username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Plan Owner'),
+    '#size' => 32,
+    '#maxlength' => 64,
+    '#description' => t("The owner of this plan. Used for tracking purposes."),
+    '#autocomplete_path' => 'admin/structure/ms_core/autocomplete',
+    '#required' => TRUE,
+    '#default_value' => ($is_edit) ? $account->name : $user->name,
+  );
+  $form['plan']['main_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Price'),
+    '#size' => 8,
+    '#maxlength' => 10,
+    '#description' => t("The Price for the Plan. Ex: '15.99', '27.95' etc. 0 for free"),
+    '#required' => TRUE,
+    '#default_value' => ($is_edit) ? $plan->main_amount : '',
+  );
+
+  $form['plan']['show_add'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Offer on Publish and Promote / Extend pages?'),
+    '#return_value' => 1,
+    '#default_value' => ($is_edit) ? $plan->show_add : TRUE,
+    '#description' => t("This will allow users to publish or Promote / Extend to existing content using this plan after the content has been created."),
+  );
+
+  // -----------------------------
+  // Sticky Settings
+  // -----------------------------
+  $form['plan']['sticky_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sticky Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => ($is_edit AND $plan->offer_sticky) ? FALSE : TRUE,
+  );
+  $form['plan']['sticky_settings']['offer_sticky'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Offer Sticky Upgrade?'),
+    '#return_value' => 1,
+    '#default_value' => ($is_edit) ? $plan->offer_sticky : 0,
+    '#description' => t("This will allow the user to pay extra to make the node sticky."),
+  );
+  $form['plan']['sticky_settings']['sticky_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Price to make sticky'),
+    '#size' => 8,
+    '#maxlength' => 10,
+    '#description' => t("The additional amount the user must pay to make the node sticky. Ex: '15.99', '27.95' etc. 0 for free"),
+    '#default_value' => ($is_edit) ? $plan->sticky_amount : '',
+  );
+
+  // -----------------------------
+  // Promote Settings
+  // -----------------------------
+  $form['plan']['promote_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Promote Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => ($is_edit AND $plan->offer_promote) ? FALSE : TRUE,
+  );
+  $form['plan']['promote_settings']['offer_promote'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Offer Promote Upgrade?'),
+    '#return_value' => 1,
+    '#default_value' => ($is_edit) ? $plan->offer_promote : 0,
+    '#description' => t("This will allow the user to pay extra to make the node promoted to front page."),
+  );
+  $form['plan']['promote_settings']['promote_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Price to promote'),
+    '#size' => 8,
+    '#maxlength' => 10,
+    '#description' => t("The additional amount the user must pay to make the node promoted to front page. Ex: '15.99', '27.95' etc. 0 for free"),
+    '#default_value' => ($is_edit) ? $plan->promote_amount : '',
+  );
+
+  // -----------------------------
+  // Period Settings
+  // -----------------------------
+  $form['period_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Period Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['period_settings']['recurring'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Recurring Subscription?'),
+    '#return_value' => 1,
+    '#default_value' => ($is_edit) ? $plan->recurring : 0,
+    '#description' => t("Make the Plan a Subscription with more than 1 Payment?"),
+  );
+
+  // -----------------------------
+  // Expiration Settings
+  // -----------------------------
+  $form['period_settings']['expiration_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Expiration Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#attributes' => array('id' => 'ms_expiration'),
+  );
+  $el_options = range(0, 90);
+  $el_options[0] = 'Never Expire';
+  $form['period_settings']['expiration_settings']['expire_length'] = array(
+    '#type' => 'select',
+    '#title' => t('Publishing Length'),
+    '#options' => $el_options,
+    '#default_value' => ($is_edit) ? $plan->main_length : 0,
+    '#description' => t("How many units (below) before expiration.
+      If set to never expire, the user will pay 1 time for a lifetime publishing."),
+    '#required' => FALSE,
+  );
+  $form['period_settings']['expiration_settings']['expire_unit'] = array(
+    '#type' => 'select',
+    '#title' => t('Unit'),
+    '#options' => array(
+      'D' => t('Days'),
+      'W' => t('Weeks'),
+      'M' => t('Months'),
+      'Y' => t('Years'),
+       ),
+    '#description' => t("What unit to use for the publishing length"),
+    '#default_value' => ($is_edit) ? $plan->main_unit : 'M',
+    '#required' => FALSE,
+  );
+
+  // -----------------------------
+  // Recurring Settings
+  // -----------------------------
+  $form['period_settings']['recurring_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Recurring Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#attributes' => array('id' => 'ms_recurring'),
+  );
+  $tc_options = range(0, 90);
+  $tc_options[0] = 'Recur Until Canceled';
+  unset($tc_options[1]);
+  $form['period_settings']['recurring_settings']['total_occurrences'] = array(
+    '#type' => 'select',
+    '#title' => t('Number of Periods Until Expiration'),
+    '#description' => t("How many times to bill the user when using Recurring Subscriptions."),
+    '#required' => FALSE,
+    '#options' => $tc_options,
+    '#default_value' => ($is_edit) ? $plan->total_occurrences : 0,
+  );
+  $ml_options = range(0, 90);
+  unset($ml_options[0]);
+  $form['period_settings']['recurring_settings']['main_length'] = array(
+    '#type' => 'select',
+    '#title' => t('Period Length'),
+    '#options' => $ml_options,
+    '#description' => t("How many units (below) for each period."),
+    '#default_value' => ($is_edit) ? $plan->main_length : 0,
+    '#required' => FALSE,
+  );
+  $form['period_settings']['recurring_settings']['main_unit'] = array(
+    '#type' => 'select',
+    '#title' => t('Period Unit'),
+    '#options' => array(
+      'D' => t('Days'),
+      'W' => t('Weeks'),
+      'M' => t('Months'),
+      'Y' => t('Years'),
+       ),
+    '#description' => t("What unit to use for the periods"),
+    '#default_value' => ($is_edit) ? $plan->main_unit : 'M',
+    '#required' => FALSE,
+  );
+
+  // -----------------------------
+  // Trial Period Settings
+  // -----------------------------
+  $form['period_settings']['recurring_settings']['trial'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Trial Period Settings (Optional)'),
+    '#collapsible' => TRUE,
+    '#weight' => 50,
+    '#collapsed' => ($is_edit AND $plan->trial_length) ? FALSE : TRUE,
+    '#attributes' => array('id' => 'ms_trial'),
+  );
+  $tl_options = range(0, 90);
+  $tl_options[0] = 'No Trial Period';
+  $form['period_settings']['recurring_settings']['trial']['trial_length'] = array(
+    '#type' => 'select',
+    '#title' => t('Trial Period Length'),
+    '#options' => $tl_options,
+    '#description' => t("The number of units for the Trial Period.
+      If No Trial Period is set, the Trial Period will not be used."),
+    '#required' => FALSE,
+    '#default_value' => ($is_edit) ? $plan->trial_length : 0,
+  );
+  $form['period_settings']['recurring_settings']['trial']['trial_unit'] = array(
+    '#type' => 'select',
+    '#title' => t('Trial Period Unit'),
+    '#options' => array(
+      'D' => t('Days'),
+      'W' => t('Weeks'),
+      'M' => t('Months'),
+      'Y' => t('Years'),
+       ),
+    '#description' => t("The unit for the Trial Period."),
+    '#default_value' => ($is_edit) ? $plan->trial_unit : 'D',
+    '#required' => FALSE,
+  );
+  $form['period_settings']['recurring_settings']['trial']['trial_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Trial Amount'),
+    '#size' => 8,
+    '#maxlength' => 10,
+    '#description' => t("The Amount Charged for the Trial Period. Ex: '5.99', '7.95' etc. Put 0 for a free trial."),
+    '#required' => FALSE,
+    '#default_value' => ($is_edit) ? $plan->trial_amount : '',
+  );
+  
+  // -----------------------------
+  // Fields Settings
+  // -----------------------------
+  $fields = field_info_fields();
+  $bundles = field_info_bundles('node');
+  $field_options = array();
+  foreach ($fields as $field) {
+    if (isset($field['bundles']['node']) AND !empty($field['bundles']['node'])) {
+      $supported_bundles = array();
+      foreach ($field['bundles']['node'] as $bundle_name) {
+        if (!empty($bundles[$bundle_name])) {
+          $supported_bundles[$bundle_name] = $bundles[$bundle_name]['label'];
+        }
+      }
+      // Let's include this field in the list
+      $field_options[$field['field_name']] = t("@field_name : Used in @bundles", 
+        array('@field_name' => $field['field_name'], '@bundles' => implode(', ', $supported_bundles)));
+    }
+  }
+  $form['fields'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Fields Settings'),
+    '#description' => t("To see a video explaining how to use this feature, click <a href='@url'>here</a>.",
+      array('@url' => url('https://www.moneyscripts.net/tutorials/pay-publish/pay-publish-fields-integration'))),
+    '#collapsible' => TRUE,
+    '#collapsed' => ($is_edit AND $plan->allowed_fields) ? FALSE : TRUE,
+  );
+  $form['fields']['allowed_fields'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Allowed Fields'),
+    '#options' => $field_options,
+    '#default_value' => ($is_edit) ? $plan->allowed_fields : array(),
+    '#description' => t("Select which fields are allowed when using this plan. 
+      If no fields are checked, all fields will be allowed."),
+  );
+  
+  // Add the override settings
+  ms_core_get_override_settings_form_elements($form, ($is_edit) ? $plan : NULL);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  
+  return $form;
+}
+
+function ms_paypublish_plan_form_validate($form, &$form_state) {
+  $v = $form_state['values'];
+  //Validate Regular Fee
+  if (isset($v['main_amount'])) {
+  	if (!is_numeric($v['main_amount'])) {
+	    form_set_error('main_amount', t('You must use only numbers for the amount.'));
+	  }
+	  elseif ($v['main_amount'] && $v['main_amount'] < 0) {
+	    form_set_error('main_amount', t('Amount must be positive.'));
+	  }
+  }
+  //Validate Subscription Period Length
+  if (isset($v['expires_days'])) {
+  	if (!is_numeric($v['expires_days'])) {
+	    form_set_error('expires_days', t('You must use only numbers for the expiry.'));
+	  }
+	  elseif (is_numeric($v['expires_days']) && $v['expires_days'] < 0) {
+	    form_set_error('expires_days', t('Expiry cannot be negative.'));
+	  }
+  }
+}
+
+/**
+ * Submit Function for the Plan Form
+ */
+function ms_paypublish_plan_form_submit($form, &$form_state) {
+  $form_values = (object) $form_state['values'];
+
+  if (isset($form_values->pid)) {
+    $plan = ms_paypublish_load_plan($form_values->pid);
+  }
+  else {
+    $plan = new stdClass();
+  }
+  
+  $account = user_load_by_name($form_values->username);
+
+  // Set the values
+  $plan->name = $form_values->name;
+  $plan->uid = ($account) ? $account->uid : 0;
+  $plan->main_amount = ($form_values->main_amount) ? $form_values->main_amount : 0;
+  $plan->main_length = ($form_values->recurring) ? $form_values->main_length : $form_values->expire_length;
+  $plan->main_unit = ($form_values->recurring) ? $form_values->main_unit : $form_values->expire_unit;
+
+  $plan->trial_amount = ($form_values->trial_amount) ? $form_values->trial_amount : 0;
+  $plan->trial_length = $form_values->trial_length;
+  $plan->trial_unit = $form_values->trial_unit;
+
+  $plan->show_add = ($form_values->show_add) ? $form_values->show_add : 0;
+  $plan->offer_sticky = ($form_values->offer_sticky) ? $form_values->offer_sticky : 0;
+  $plan->sticky_amount = ($form_values->sticky_amount) ? $form_values->sticky_amount : 0;
+  $plan->offer_promote = ($form_values->offer_promote) ? $form_values->offer_promote : 0;
+  $plan->promote_amount = ($form_values->promote_amount) ? $form_values->promote_amount : 0;
+
+  $plan->total_occurrences = ($form_values->recurring) ? $form_values->total_occurrences : 1;
+  $plan->recurring = $form_values->recurring;
+  $plan->data['override_settings'] = ms_core_get_overridden_settings($form_values->override_settings);
+  $plan->data['allowed_fields'] = $form_values->allowed_fields;
+
+  if (isset($plan->pid)) {
+    if (drupal_write_record('ms_paypublish_plans', $plan, array('pid'))) {
+      drupal_set_message(t('Plan Saved: %sname.', array('%sname' => ms_paypublish_translate_plan($plan, 'name'))));
+    }
+    else {
+      drupal_set_message(t('Failed'));
+    }
+  }
+  else {
+    if (drupal_write_record('ms_paypublish_plans', $plan)) {
+      drupal_set_message(t('Plan Saved: %sname.', array('%sname' => ms_paypublish_translate_plan($plan, 'name'))));
+    }
+    else {
+      drupal_set_message(t('Failed'));
+    }
+  }
+  // Redirect
+  $form_state['redirect'] = 'admin/structure/ms_paypublish';
+}
+
+/**
+ * Implementation of hook_ms_product_load
+ */
+function ms_paypublish_ms_product_load($module, $id) {
+  if ($module == 'ms_paypublish') {
+    $plan = ms_paypublish_load_plan($id);
+
+    if ($plan->pid) {
+      $product = ms_core_new_product(ms_paypublish_translate_plan($plan, 'name'), 'ms_paypublish', $plan->pid, 'cart');
+      if ($plan->recurring) {
+        $product->type = 'recurring';
+
+        // Set the Recurring Schedule Settings
+        $product->recurring_schedule = array(
+          'total_occurrences' => $plan->total_occurrences,
+          'main_amount' => $plan->main_amount,
+          'main_length' => $plan->main_length,
+          'main_unit' => $plan->main_unit,
+          'has_trial' => ($plan->trial_length) ? TRUE : FALSE,
+          'trial_amount' => $plan->trial_amount,
+          'trial_length' => $plan->trial_length,
+          'trial_unit' => $plan->trial_unit,
+          );
+      }
+
+      // Store the Data Overrides
+      $product->data = $plan->data;
+
+      // Add the product variables
+      $product->amount = $plan->main_amount;
+
+      return $product;
+    }
+  }
+}
+
+// ======================================
+// RULES
+// ======================================
+
+/**
+ * Implementation of hook_ms_paypublish_purchase().
+ */
+function ms_paypublish_ms_paypublish_purchase($account, $pp_node, $plan) {
+  if (module_exists('rules')) {
+    $node = node_load($pp_node->nid);
+    rules_invoke_event('ms_paypublish_event_paypublish_purchase', $account, $node, $pp_node, $plan);
+  }
+}
+
+/**
+ * Implementation of hook_ms_paypublish_expiring().
+ */
+function ms_paypublish_ms_paypublish_expiring($account, $pp_node, $plan) {
+  if (module_exists('rules')) {
+    $node = node_load($pp_node->nid);
+    rules_invoke_event('ms_paypublish_event_paypublish_expiring', $account, $node, $pp_node, $plan);
+  }
+}
+
+/**
+ * Implementation of hook_ms_paypublish_cancel().
+ */
+function ms_paypublish_ms_paypublish_cancel($account, $pp_node, $plan) {
+  if (module_exists('rules')) {
+    $node = node_load($pp_node->nid);
+    rules_invoke_event('ms_paypublish_event_paypublish_cancel', $account, $node, $pp_node, $plan);
+  }
+}
+
+/**
+ * Implementation of hook_ms_paypublish_payment().
+ */
+function ms_paypublish_ms_paypublish_payment($account, $pp_node, $plan) {
+  if (module_exists('rules')) {
+    $node = node_load($pp_node->nid);
+    rules_invoke_event('ms_paypublish_event_paypublish_payment', $account, $node, $pp_node, $plan);
+  }
+}
+
+// ======================================
+// i18n Integration
+// ======================================
+
+/**
+ * Implementation of hook_locale().
+ */
+function ms_paypublish_locale($op = 'groups', $group = NULL) {
+  switch ($op) {
+    case 'groups': // This is the standard hook_locale() as defined by Drupal core, to define 'text groups'
+      return array('ms_paypublish_plan' => t('Pay to Publish Plans'));
+
+    case 'info': // This is i18n extension, optional, to define some more properties
+      // Optional refresh callback to update this module's strings at once
+      $info['ms_paypublish_plan']['refresh callback'] = 'ms_paypublish_i18n_locale_refresh';
+      // This tells 'i18nstrings' that this module's strings have no input format applied
+      $info['ms_paypublish_plan']['format'] = FALSE;
+      return $info;
+  }
+}
+
+/**
+ * Refreshes the i18n strings
+ */
+function ms_paypublish_i18n_locale_refresh() {
+  // Update the strings for each plan
+  foreach (ms_paypublish_get_plans() as $pid => $name) {
+    $plan = ms_paypublish_load_plan($pid);
+    i18nstrings_update('ms_paypublish_plan:plan:' . $plan->pid . ':' . 'name', $plan->name);
+  }
+
+  return TRUE;
+}
+
+/**
+ * Helper function for translating plan variables
+ *
+ * @param $plan
+ *   The $plan object
+ * @param $name
+ *   The name of the plan member
+ * @return
+ *   The translated string
+ */
+function ms_paypublish_translate_plan($plan, $name) {
+  return ms_core_translate('plan:' . $plan->pid . ':' . $name, $plan->$name, 'ms_paypublish_plan');
+}
+
+// ======================================
+// Entity Functions
+// ======================================
+
+/**
+ * Implements hook_entity_info().
+ */
+function ms_paypublish_entity_info() {
+  return array(
+    'ms_paypublish_plan' => array(
+      'label' => t('MS Pay to Publish Plan'),
+      'base table' => 'ms_paypublish_plans',
+      'entity class' => 'Entity',
+      'controller class' => 'EntityAPIController',
+      'entity keys' => array(
+        'id' => 'pid',
+      ),
+      'fieldable' => FALSE,
+      'module' => 'ms_paypublish',
+    ),
+    'ms_paypublish_node' => array(
+      'label' => t('MS Pay to Publish Node'),
+      'base table' => 'ms_paypublish_nodes',
+      'entity class' => 'Entity',
+      'controller class' => 'EntityAPIController',
+      'entity keys' => array(
+        'id' => 'id',
+      ),
+      'fieldable' => FALSE,
+      'module' => 'ms_paypublish',
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function ms_paypublish_entity_property_info_alter(&$info) {
+  $ms_paypublish_plan = &$info['ms_paypublish_plan']['properties'];
+  $ms_paypublish_plan['uid']['label'] = t("User"); 
+  $ms_paypublish_plan['uid']['description'] = t("The user associated with the Pay to Publish Plan."); 
+  $ms_paypublish_plan['uid']['type'] = 'user'; 
+  
+  $ms_paypublish_node = &$info['ms_paypublish_node']['properties'];
+  $ms_paypublish_node['oid']['label'] = t("Order"); 
+  $ms_paypublish_node['oid']['description'] = t("The order associated with the Pay to Publish node."); 
+  $ms_paypublish_node['oid']['type'] = 'ms_order'; 
+
+  $ms_paypublish_node['nid']['label'] = t("Node");
+  $ms_paypublish_node['nid']['description'] = t("The node associated with the Pay to Publish node.");
+  $ms_paypublish_node['nid']['type'] = 'node';
+
+  $ms_paypublish_node['uid']['label'] = t("User"); 
+  $ms_paypublish_node['uid']['description'] = t("The user associated with the Pay to Publish node."); 
+  $ms_paypublish_node['uid']['type'] = 'user'; 
+
+  $ms_paypublish_node['pid']['label'] = t("Plan"); 
+  $ms_paypublish_node['pid']['description'] = t("The Pay to Publish Plan associated with the Pay to Publish node."); 
+  $ms_paypublish_node['pid']['type'] = 'ms_paypublish_plan'; 
+
+  $ms_paypublish_node['sticky_expiration']['label'] = t("Sticky Expiration"); 
+  $ms_paypublish_node['sticky_expiration']['description'] = t("When the Sticky attribute expires."); 
+  $ms_paypublish_node['sticky_expiration']['type'] = 'date'; 
+
+  $ms_paypublish_node['promote_expiration']['label'] = t("Promote Expiration"); 
+  $ms_paypublish_node['promote_expiration']['description'] = t("When the Promote attribute expires."); 
+  $ms_paypublish_node['promote_expiration']['type'] = 'date'; 
+
+  $ms_paypublish_node['expiration_date']['label'] = t("Expiration Date"); 
+  $ms_paypublish_node['expiration_date']['description'] = t("When the Pay to Publish node expires."); 
+  $ms_paypublish_node['expiration_date']['type'] = 'date'; 
+
+  $ms_paypublish_node['start_date']['label'] = t("Start Date"); 
+  $ms_paypublish_node['start_date']['description'] = t("When the Pay to Publish node was created."); 
+  $ms_paypublish_node['start_date']['type'] = 'date'; 
+
+}
