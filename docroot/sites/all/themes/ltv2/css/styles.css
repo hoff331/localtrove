@@ -185,17 +185,9 @@ td{
 }
 
 /* INPUTS */
-input{
+input[type=“text”],
+textarea{
 	width:100%;
-}
-
-input[type=“checkbox”],
-input[type=“radio”]{
-	width:auto;
-}
-
-input[type="checkbox"], input[type="radio”]{
-	width:auto;
 }
 
 /* MISC */
