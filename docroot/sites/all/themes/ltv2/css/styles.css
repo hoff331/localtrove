@@ -194,6 +194,10 @@ input[type=“radio”]{
 	width:auto;
 }
 
+input[type="checkbox"], input[type="radio”]{
+	width:auto;
+}
+
 /* MISC */
 iframe{
 	display:none;
