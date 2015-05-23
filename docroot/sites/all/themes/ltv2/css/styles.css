@@ -325,7 +325,7 @@ a.BTN2:hover{
 /*------- NAVIGATION -------*/
 #navigation{
 	font-size:12px;
-	border-bottom:1px solid #CCC;
+	border-bottom:1px solid #7EAA39;
 	position:relative;
 }
 
@@ -339,7 +339,6 @@ a.BTN2:hover{
 #navigationLeft ul li{
 	line-height:1em;
 	list-style:none;
-	border-bottom:1px solid #7EAA39;
 }
 
 #navigationLeft ul li a,
