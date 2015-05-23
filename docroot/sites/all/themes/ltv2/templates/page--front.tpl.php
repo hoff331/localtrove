@@ -17,7 +17,6 @@
         </div>
         <div id="navigationRight">
 			<?php print render($page['navigationRight']); ?>
-			</div>
         </div>
         <div class="clearfix"></div>
     </nav>

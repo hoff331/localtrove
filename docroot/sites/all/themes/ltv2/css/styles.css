@@ -267,7 +267,7 @@ a.BTN2:hover{
 #vendorRegistration{
 	padding:9px 36px 36px;
 	color:#FFFFFF;
-	background:#821426 url(/sites/all/themes/ltv2/images/vendorRegBorder.gif) repeat-x bottom;
+	background:#FF931E;
 	display:none;
 	box-shadow:0px 0px 20px 0px black inset;
 }
@@ -309,7 +309,7 @@ a.BTN2:hover{
 	text-decoration:none;
 	height:54px;
 	width:90px;
-	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
+	background:#FF931E;
 	background-position:-900px -575px;
 	padding:20px 0 0;
 	margin:0;
