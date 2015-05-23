@@ -13,16 +13,10 @@
 <div id="navigationWrapper">
 	<nav id="navigation">
         <div id="navigationLeft">
-        	<?php print render($page['navigation']); ?>
+        	<?php print render($page['navigationLeft']); ?>
         </div>
         <div id="navigationRight">
-			<?php if ($logged_in): ?>
-			<div id="user"></div>
-			<?php else: ?>
-			<div id="user"></div>
-			<?php endif; ?>
-            <div id="userMenu">
-				<?php print render($page['user']); ?>
+			<?php print render($page['navigationRight']); ?>
 			</div>
         </div>
         <div class="clearfix"></div>
