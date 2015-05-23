@@ -1351,18 +1351,14 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#navigationLeft ul li a,
 	#navigationLeft ul li a:visited{
-		color:#FFFFFF;
+		color:#CCCCCC;
 		display:inline-block;
-		height:31px;
-		padding:18px;
 		text-decoration:none;
 	}
 	
 	#navigationLeft ul li a:hover,
 	#navigationLeft ul li a.active,
 	#navigationLeft ul li a.active-trail{
-		border-radius:4px;
-		background-color:#7EAA39;
 		text-decoration:none;
 	}
 	
@@ -1402,7 +1398,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#headerRight ul li a:visited{
 		color:#8CC63F;
 		display:inline-block;
-		padding:18px 12px;
+		padding:18px;
 		height:31px;
 		text-decoration:none;
 	}
