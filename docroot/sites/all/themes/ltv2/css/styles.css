@@ -324,7 +324,8 @@ a.BTN2:hover{
 
 /*------- NAVIGATION -------*/
 #navigation{
-	box-shadow:0px 1px 1px 0px #CCC;
+	font-size:12px;
+	border-bottom:1px solid #CCC;
 	position:relative;
 }
 
