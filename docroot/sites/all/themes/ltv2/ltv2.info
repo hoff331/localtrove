@@ -12,8 +12,8 @@ stylesheets[all][]        = css/styles.css
 ;stylesheets[print][]     = css/print.css
 
 
-stylesheets-conditional[IE 8][all][]  = css/ie8styles.css
-stylesheets-conditional[lte IE 7][all][]  = css/ie7styles.css
+;stylesheets-conditional[IE 8][all][]  = css/ie8styles.css
+;stylesheets-conditional[lte IE 7][all][]  = css/ie7styles.css
 
 
 scripts[] = js/script.js
@@ -25,6 +25,7 @@ regions[navigation]      = Navigation
 regions[eventsNav]       = Events Nav
 regions[user]            = User
 regions[search]          = Search
+regions[filter]          = filter
 regions[banner]          = Banner
 regions[sidedish1]       = Sidedish 1
 regions[sidedish2]       = Sidedish 2

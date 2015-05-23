@@ -455,22 +455,13 @@ a.BTN2:hover{
 
 
 /*------ BANNER ------*/
-#banner{
-	background:url(/sites/default/files/banner.jpg) no-repeat center;
-}
-
 #filter{
-	padding:5%;
-	background-color:rgba(0,0,0,.6);
+	background-color:#8CC63F;
 	color:#ffffff;
 }
 
-#intbanner{
-	background-color:#828282;
-}
-
 #intfilter{
-	padding:5%;
+	background-color:#8CC63F;
 	color:#ffffff;
 }
 
@@ -526,6 +517,16 @@ input#edit-submit-find-events{
 #filter .form-item,
 #intfilter .form-item{
 	margin:0;
+}
+
+
+/*------ BANNER ------*/
+#banner{
+	background:url(/sites/default/files/banner.jpg) no-repeat center;
+}
+
+#intbanner{
+	background-color:#828282;
 }
 
 /*------ SIDEDISH ------*/

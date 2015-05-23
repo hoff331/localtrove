@@ -44,8 +44,14 @@
 </div>
 
 
-<section id="banner">
+<section id="filterWrapper">
 	<div id="filter">
+		<?php print render($page['filter']); ?>
+	</div>
+</section>
+
+<section id="bannerWrapper">
+	<div id="banner">
 		<?php print render($page['banner']); ?>
 	</div>
 </section>
