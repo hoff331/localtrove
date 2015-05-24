@@ -448,6 +448,7 @@ input#edit-submit-find-events{
 	border:none;
 	background:#FF931E;
 	color:#FFFFFF;
+	padding:0;
 }
 
 #filter .views-exposed-widgets,
