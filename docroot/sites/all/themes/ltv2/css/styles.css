@@ -441,7 +441,7 @@ a.BTN2:hover{
 	width:100%;
 	font-size:14px;
 	margin:0;
-	padding:0 0 0 36px;
+	padding:0 0 0 32px;
 	-webkit-appearance:none;
 	-moz-appearance:none;
 	appearance:none;
@@ -450,7 +450,6 @@ a.BTN2:hover{
 #filter select,
 #intFilter select{
 	height:46px;
-	line-height:46px;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
@@ -508,19 +507,19 @@ div.form-item-type::before{
 	width:27px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png);
 	position: absolute;
-	top:9px;
-	left:7px;
+	top:14px;
+	left:9px;
 	z-index: 2;
 }
 /*filter icons*/
 div.form-item-type::before{
-	background-position:-72px -620px;
+	background-position:-72px -612px;
 }
 div.form-item-field-location-taxonomize-terms-tid::before{
-	background-position:-117px -620px;
+	background-position:-90px -612px;
 }
 div.form-item-field-date-value-value-date::before{
-	background-position:-144px -620px;
+	background-position:-108px -612px;
 }
 
 
