@@ -456,6 +456,7 @@ input#edit-submit-find-events{
 	border:none;
 	background:#FF931E;
 	color:#FFFFFF;
+	height:46px;
 	padding:0;
 }
 
