@@ -488,8 +488,8 @@ input#edit-submit-find-events{
 	margin:0;
 }
 
-#edit-field-location-taxonomize-terms-tid::before{
-	content:"i";
+div.form-item-field-date-value-value-date::before{
+	content:"text";
 }
 
 
