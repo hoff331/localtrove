@@ -442,12 +442,14 @@ a.BTN2:hover{
 	font-size:14px;
 	margin:0;
 	padding:0;
+	text-indent:27px;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
 	border:none;
 	background:#FF931E;
 	color:#FFFFFF;
+	text-indent:0;
 }
 
 #filter .views-exposed-widgets,
