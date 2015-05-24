@@ -488,6 +488,10 @@ input#edit-submit-find-events{
 	margin:0;
 }
 
+#edit-field-location-taxonomize-terms-tid::before{
+	content:"i";
+}
+
 
 /*------ BANNER ------*/
 #banner,
