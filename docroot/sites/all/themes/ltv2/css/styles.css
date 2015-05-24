@@ -9,7 +9,7 @@ orange: #FF931E
 blue:   #3FA9F5
 green:  #8CC63F
 pink:   #FF7BAC
-darkgray:  #333
+darkgray:  #333333
 lightgray: #E6E6E6
 
 */
@@ -340,7 +340,7 @@ a.BTN2:hover{
 
 #navigationLeft ul li a,
 #navigationLeft ul li a:visited{
-	color:#CCCCCC;
+	color:#333333;
 	display:block;
 	margin:0 9px 0 0;
 	text-decoration:none;
