@@ -4,7 +4,7 @@
 	</aside>
 	<div id="vendorRegistrationFlag">
 		<ul class="menu">
-			<li><a href="#">Vendor<br/>Registration</a></li>
+			<li><a href="#">Vendor Registration</a></li>
 		</ul>
 	</div>
 </div>
@@ -13,17 +13,10 @@
 <div id="navigationWrapper">
 	<nav id="navigation">
         <div id="navigationLeft">
-        	<?php print render($page['navigation']); ?>
+        	<?php print render($page['navigationLeft']); ?>
         </div>
         <div id="navigationRight">
-			<?php if ($logged_in): ?>
-			<div id="user"></div>
-			<?php else: ?>
-			<div id="user"></div>
-			<?php endif; ?>
-            <div id="userMenu">
-				<?php print render($page['user']); ?>
-			</div>
+			<?php print render($page['navigationRight']); ?>
         </div>
         <div class="clearfix"></div>
     </nav>
@@ -35,7 +28,7 @@
     	<div id="headerLeft">
         	<a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>"/></a>
         </div>
-        <div id="headerRight">
+        <div id="headerRight"><!--floats right -->
            	<?php print render($page['headerRight']); ?>
         </div>
         <div class="clearfix"></div>
@@ -43,8 +36,14 @@
 </div>
 
 
-<section id="intbanner">
-	<div id="intfilter">
+<section id="filterWrapper">
+	<div id="intFilter">
+		<?php print render($page['filter']); ?>
+	</div>
+</section>
+
+<section id="bannerWrapper">
+	<div id="intBanner">
 		<?php print render($page['banner']); ?>
 	</div>
 </section>

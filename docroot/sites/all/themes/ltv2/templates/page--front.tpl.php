@@ -4,7 +4,7 @@
 	</aside>
 	<div id="vendorRegistrationFlag">
 		<ul class="menu">
-			<li><a href="#">Vendor<br/>Registration</a></li>
+			<li><a href="#">Vendor Registration</a></li>
 		</ul>
 	</div>
 </div>
@@ -21,7 +21,6 @@
         <div class="clearfix"></div>
     </nav>
 </div><!--end navigationWrapper-->
-
 
 
 <div id="headerWrapper">
