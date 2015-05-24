@@ -442,7 +442,12 @@ a.BTN2:hover{
 	font-size:14px;
 	margin:0;
 	padding:0;
-	text-indent:27px;
+	text-indent:36px;
+}
+
+#filter select,
+#intFilter select{
+	height:42px;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
@@ -500,8 +505,8 @@ div.form-item-type::before{
 	width:27px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png);
 	position: absolute;
-	top: 9px;
-	left: 9px;
+	top:6px;
+	left:7px;
 	z-index: 2;
 }
 /*filter icons*/
