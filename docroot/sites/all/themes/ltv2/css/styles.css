@@ -322,7 +322,7 @@ a.BTN2:hover{
 /*------- NAVIGATION -------*/
 #navigation{
 	font-size:12px;
-	border-bottom:1px solid #CCC;
+	border-bottom:1px solid #E6E6E6;
 	position:relative;
 }
 
@@ -340,7 +340,7 @@ a.BTN2:hover{
 
 #navigationLeft ul li a,
 #navigationLeft ul li a:visited{
-	color:#FFFFFF;
+	color:#CCCCCC;
 	display:block;
 	margin:0 9px 0 0;
 	text-decoration:none;
@@ -1310,7 +1310,6 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#navigationLeft ul li a,
 	#navigationLeft ul li a:visited{
-		color:#CCCCCC;
 		display:inline-block;
 		text-decoration:none;
 	}
@@ -1322,7 +1321,6 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	#navigationLeft ul li a:active{
-		color:#FF931E;
 	}
 	
 	/*------- HEADER -------*/
