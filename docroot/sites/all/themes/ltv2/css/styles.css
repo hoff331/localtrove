@@ -322,7 +322,6 @@ a.BTN2:hover{
 /*------- NAVIGATION -------*/
 #navigation{
 	font-size:12px;
-	border-bottom:1px solid #E6E6E6;
 	position:relative;
 }
 
@@ -336,13 +335,15 @@ a.BTN2:hover{
 #navigationLeft ul li{
 	line-height:1em;
 	list-style:none;
+	border-bottom:1px solid #E6E6E6;
 }
 
 #navigationLeft ul li a,
 #navigationLeft ul li a:visited{
 	color:#333333;
 	display:block;
-	margin:0 9px 0 0;
+	margin:0;
+	padding:12px;
 	text-decoration:none;
 }
 
