@@ -503,7 +503,7 @@ div.form-item-type::before{
 }
 
 div.form-item-field-date-value-value-date::before{
-	
+	content:url(/sites/default/files/banner.jpg);
 }
 div.form-item-field-location-taxonomize-terms-tid::before,
 div.form-item-type::before{
