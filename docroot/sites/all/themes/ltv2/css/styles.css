@@ -441,14 +441,13 @@ a.BTN2:hover{
 	width:100%;
 	font-size:14px;
 	margin:0;
+	padding:0;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
-	display: block;
 	border:none;
 	background:#FF931E;
 	color:#FFFFFF;
-	padding:0;
 }
 
 #filter .views-exposed-widgets,
