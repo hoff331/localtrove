@@ -1399,7 +1399,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#filter input,
 	#intFilter select,
 	#intFilter input{
-		width:auto;
+		width:180px;
 	}
 	
 	input#edit-submit-find-events{
