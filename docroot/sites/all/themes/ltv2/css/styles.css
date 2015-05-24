@@ -1382,17 +1382,13 @@ fieldset.filter-wrapper.form-wrapper{
 		padding:10% 36px;
 	}
 	
-	#filter{
-		display:block;
-		margin:0 auto;
-		padding:0;
-	}
-	
-	#intbanner{
-		padding:0 36px;
-	}
-	
+	/*------ FILTER ------*/
+	#filter,
 	#intFilter{
+		text-align:center;
+	}
+	
+	#filter{
 		display:block;
 		margin:0 auto;
 		padding:0;
@@ -1458,22 +1454,9 @@ fieldset.filter-wrapper.form-wrapper{
 		height:31px;
 	}
 	
-	/*------ BANNER ------*/
-	#filter,
-	#intFilter{
-	}
-	
+	/*------ FILTER ------*/
 	#filter .views-exposed-widget,
 	#intFilter .views-exposed-widget{
 		margin:18px;
-	}
-	
-	#filter label,
-	#intFilter label{
-		display:inline-block;
-		line-height:40px;
-		color:#8cc63f;
-		vertical-align:middle;
-		margin-right:9px;
 	}
 }
