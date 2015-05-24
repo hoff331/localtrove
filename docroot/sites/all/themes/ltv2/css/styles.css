@@ -1305,12 +1305,16 @@ fieldset.filter-wrapper.form-wrapper{
 	#navigationLeft ul li{
 		display:inline-block;
 		line-height:1em;
-		border:none;
+		border-left:1px solid #E6E6E6;
+		border-bottom:none;
+	}
+	
+	#navigationLeft ul li.last{
+		border-right:1px solid #E6E6E6;
 	}
 	
 	#navigationLeft ul li a,
 	#navigationLeft ul li a:visited{
-		display:inline-block;
 	}
 	
 	#navigationLeft ul li a:hover,
