@@ -1404,6 +1404,10 @@ fieldset.filter-wrapper.form-wrapper{
 		width:auto;
 	}
 	
+	input#edit-submit-find-events{
+		width:100px;
+	}
+	
 	#filter .views-exposed-widget,
 	#intFilter .views-exposed-widget{
 		display:inline-block;
