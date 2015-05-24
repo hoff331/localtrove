@@ -307,13 +307,10 @@ a.BTN2:hover{
 	font-size:12px;
 	color:#FFFFFF;
 	text-decoration:none;
-	height:54px;
-	width:90px;
 	background:#FF931E;
 	background-position:-900px -575px;
-	padding:20px 0 0;
+	padding:18px;
 	margin:0;
-	border-radius:0;
 }
 
 #vendorRegistrationFlag ul.menu li a:hover{
@@ -370,44 +367,6 @@ a.BTN2:hover{
 	top:8px;
 }
 
-/* USER */
-#user{
-	display:block;
-	height:36px;
-	width:36px;
-	background:url(/sites/all/themes/ltv2/images/FINALsprite.png) no-repeat;
-	background-position:-648px -576px;
-	cursor:pointer;
-}
-
-#user.active{
-	background-position:-648px -612px;
-}
-
-#userMenu{
-	display:none;
-	z-index:2;
-	background:#FFFFFF;
-	border:3px solid #7EAA39;
-	position:absolute;
-	right:0;
-	padding:9px 18px;
-}
-
-#userMenu ul{
-	margin:0;
-	padding:0;
-}
-
-#userMenu li{
-	list-style:none;
-	text-align:right;
-}
-
-#userMenu a{
-	text-decoration:none;
-}
-
 
 /*------- HEADER -------*/
 #header{
@@ -449,6 +408,10 @@ a.BTN2:hover{
 
 #headerRight ul li a:active{
 	color:#FF931E;
+}
+
+#headerRight ul ul{
+	display:none;
 }
 
 
