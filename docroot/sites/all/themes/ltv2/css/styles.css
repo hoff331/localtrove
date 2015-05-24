@@ -433,8 +433,8 @@ a.BTN2:hover{
 #filter select,
 #intFilter input,
 #intFilter select{
-	background: #fcfcfc;
-	border: 2px solid #eaeaea;
+	background: #FFFFFF;
+	border: 2px solid #EAEAEA;
 	color: #999999;
 	height:40px;
 	line-height:40px;
@@ -470,7 +470,7 @@ input#edit-submit-find-events{
 
 #filter label,
 #intFilter label{
-	color:#8cc63f;
+	color:#FFFFFF;
 }
 
 #filter .views-widget,
