@@ -470,6 +470,7 @@ input#edit-submit-find-events{
 
 #filter label,
 #intFilter label{
+	display:none;
 	color:#FFFFFF;
 }
 
