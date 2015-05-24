@@ -504,13 +504,17 @@ div.form-item-type::before{
 	left: 9px;
 	z-index: 2;
 }
-
-div.form-item-field-date-value-value-date::before{
-	background-position:-648px -576px;
-}
-div.form-item-field-location-taxonomize-terms-tid::before,
+/*filter icons*/
 div.form-item-type::before{
+	background-position:-72px -620px;
 }
+div.form-item-field-location-taxonomize-terms-tid::before{
+	background-position:-117px -620px;
+}
+div.form-item-field-date-value-value-date::before{
+	background-position:-144px -620px;
+}
+
 
 
 /*------ BANNER ------*/
