@@ -447,7 +447,8 @@ a.BTN2:hover{
 
 #filter select,
 #intFilter select{
-	height:42px;
+	height:46px;
+	line-height:46px;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
@@ -505,7 +506,7 @@ div.form-item-type::before{
 	width:27px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png);
 	position: absolute;
-	top:6px;
+	top:9px;
 	left:7px;
 	z-index: 2;
 }
