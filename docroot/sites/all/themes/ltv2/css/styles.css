@@ -1311,13 +1311,11 @@ fieldset.filter-wrapper.form-wrapper{
 	#navigationLeft ul li a,
 	#navigationLeft ul li a:visited{
 		display:inline-block;
-		text-decoration:none;
 	}
 	
 	#navigationLeft ul li a:hover,
 	#navigationLeft ul li a.active,
 	#navigationLeft ul li a.active-trail{
-		text-decoration:none;
 	}
 	
 	#navigationLeft ul li a:active{
@@ -1329,14 +1327,11 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	#headerLeft{
-		width:33.33%;
 		padding-top:18px;
-		float:left;
-		text-align:left;
+		text-align:center;
 	}
 	
 	#headerRight{
-		float:right;
 		background-color:#ffffff;
 		padding:45px 0 0;
 	}
@@ -1431,6 +1426,20 @@ fieldset.filter-wrapper.form-wrapper{
 }
 
 @media all and (min-width: 1024px) {
+	/*------ HEADER ------*/
+	#headerLeft{
+		width:33.33%;
+		padding-top:18px;
+		float:left;
+		text-align:left;
+	}
+	
+	#headerRight{
+		float:right;
+		background-color:#ffffff;
+		padding:45px 0 0;
+	}
+	
 	/*------ BANNER ------*/
 	#filter,
 	#intFilter{
