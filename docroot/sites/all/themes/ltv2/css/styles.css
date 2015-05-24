@@ -418,15 +418,11 @@ a.BTN2:hover{
 
 
 /*------ FILTER ------*/
-#filter{
+#filter,
+intFilter{
 	background-color:#8CC63F;
 	color:#ffffff;
 	padding:9px;
-}
-
-#intFilter{
-	background-color:#8CC63F;
-	color:#ffffff;
 }
 
 #filter input,
