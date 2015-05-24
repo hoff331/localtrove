@@ -421,6 +421,7 @@ a.BTN2:hover{
 #filter{
 	background-color:#8CC63F;
 	color:#ffffff;
+	padding:9px;
 }
 
 #intFilter{
@@ -443,6 +444,7 @@ a.BTN2:hover{
 }
 /*apply button fix*/
 input#edit-submit-find-events{
+	display: block;
 	border:none;
 	background:#FF931E;
 	color:#FFFFFF;
