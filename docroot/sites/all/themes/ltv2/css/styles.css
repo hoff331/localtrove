@@ -1293,14 +1293,13 @@ fieldset.filter-wrapper.form-wrapper{
 	/*------- NAVIGATION -------*/
 	#navigation{
 		padding:9px 36px;
+		border-bottom:1px solid #E6E6E6;
 	}
 	
 	#navigationLeft{
-		float:left;
 	}
 	
 	#navigationLeft ul.menu{
-		margin:0;
 	}
 	
 	#navigationLeft ul li{
