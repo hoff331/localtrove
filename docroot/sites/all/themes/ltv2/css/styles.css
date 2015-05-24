@@ -492,19 +492,21 @@ input#edit-submit-find-events{
 div.form-item-field-date-value-value-date::before,
 div.form-item-field-location-taxonomize-terms-tid::before,
 div.form-item-type::before{
-	content:"text";
-}
-
-div.form-item-field-date-value-value-date::before,
-div.form-item-field-location-taxonomize-terms-tid::before,
-div.form-item-type::before{
-	font-family: fontawesome;
-	color: #666;
+	content:url(sites/all/themes/images/FINALsprite.png);
 	position: absolute;
 	top: 9px;
-	left: 10px;
-	display: inline-block;
+	left: 9px;
+	display: block;
+	height:27px;
+	width:27px;
 	z-index: 2;	
+}
+
+div.form-item-field-date-value-value-date::before{
+	
+}
+div.form-item-field-location-taxonomize-terms-tid::before,
+div.form-item-type::before{
 }
 
 
