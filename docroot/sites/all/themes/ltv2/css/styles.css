@@ -461,6 +461,7 @@ input#edit-submit-find-events{
     float: none;
     margin: 0;
     padding: 0 0 18px;
+	position:relative;
 }
 
 #filter .views-submit-button,
