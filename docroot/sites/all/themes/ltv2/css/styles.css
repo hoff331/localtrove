@@ -482,6 +482,21 @@ input#edit-submit-find-events{
 	margin:0;
 }
 
+input.form-text{
+  background-color: #fcfcfc;
+  border: 2px solid #eaeaea;
+  color: #999999;
+  font-size: 14px;
+  padding: 0 14px;
+  width: 100%;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+}
+
 
 /*------ BANNER ------*/
 #banner,
