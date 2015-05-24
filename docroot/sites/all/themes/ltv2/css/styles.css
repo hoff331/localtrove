@@ -1394,6 +1394,7 @@ fieldset.filter-wrapper.form-wrapper{
 		padding:0;
 	}
 	
+	
 	#filter select,
 	#filter input,
 	#intFilter select,
@@ -1408,7 +1409,7 @@ fieldset.filter-wrapper.form-wrapper{
 	#filter .views-exposed-widget,
 	#intFilter .views-exposed-widget{
 		display:inline-block;
-		margin:13px;
+		margin:18px 5px;
 		padding:0;
 	}
 		
