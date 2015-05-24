@@ -492,15 +492,15 @@ input#edit-submit-find-events{
 div.form-item-field-date-value-value-date::before,
 div.form-item-field-location-taxonomize-terms-tid::before,
 div.form-item-type::before{
-	content:url(/sites/all/themes/images/FINALsprite.png);
-	position: absolute;
-	top: 9px;
-	left: 9px;
+	content:"";
 	display: block;
 	height:27px;
 	width:27px;
+	background:url(/sites/all/themes/images/FINALsprite.png);
+	position: absolute;
+	top: 9px;
+	left: 9px;
 	z-index: 2;
-	overflow:hidden;
 }
 
 div.form-item-field-date-value-value-date::before{
