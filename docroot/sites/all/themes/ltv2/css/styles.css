@@ -432,18 +432,19 @@ a.BTN2:hover{
 #filter select,
 #intFilter input,
 #intFilter select{
-	background-color: #fcfcfc;
+	background: #fcfcfc;
 	border: 2px solid #eaeaea;
 	color: #999999;
 	line-height:40px;
 	width:100%;
-	font-size:18px;
+	font-size:14px;
 	margin:0;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
 	border:none;
 	background:#FF931E;
+	color:#FFFFFF;
 }
 
 #filter .views-exposed-widgets,
@@ -487,7 +488,6 @@ input#edit-submit-find-events{
   background-color: #fcfcfc;
   border: 2px solid #eaeaea;
   color: #999999;
-  font-size: 14px;
   padding: 0 14px;
   width: 100%;
   -webkit-box-shadow: none;
@@ -503,7 +503,6 @@ input#edit-submit-find-events{
   width: 100%;
   height: 34px;
   padding: 6px 12px;
-  font-size: 14px;
   line-height: 1.42857143;
   color: #555;
   background-color: #fff;
