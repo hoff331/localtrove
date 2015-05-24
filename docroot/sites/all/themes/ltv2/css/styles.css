@@ -269,7 +269,7 @@ a.BTN2:hover{
 	color:#FFFFFF;
 	background:#FF931E;
 	display:none;
-	box-shadow:0px 0px 20px 0px black inset;
+	box-shadow:0px 6px 18px -6px black inset;
 }
 
 #vendorRegistration h2{
@@ -415,21 +415,21 @@ a.BTN2:hover{
 }
 
 
-/*------ BANNER ------*/
+/*------ FILTER ------*/
 #filter{
 	background-color:#8CC63F;
 	color:#ffffff;
 }
 
-#intfilter{
+#intFilter{
 	background-color:#8CC63F;
 	color:#ffffff;
 }
 
 #filter input,
 #filter select,
-#intfilter input,
-#intfilter select{
+#intFilter input,
+#intFilter select{
 	background:none;
 	border:1px solid;
 	height:40px;
@@ -444,12 +444,12 @@ input#edit-submit-find-events{
 }
 
 #filter .views-exposed-widgets,
-#intfilter .views-exposed-widgets{
+#intFilter .views-exposed-widgets{
 	margin:0;
 }
 
 #filter .views-exposed-widget,
-#intfilter .views-exposed-widget{
+#intFilter .views-exposed-widget{
 	display: block;
     float: none;
     margin: 0;
@@ -457,37 +457,34 @@ input#edit-submit-find-events{
 }
 
 #filter .views-submit-button,
-#intfilter .views-submit-button{
+#intFilter .views-submit-button{
 	padding:0 !important; /*no padding on button*/
 }
 
 #filter label,
-#intfilter label{
+#intFilter label{
 	color:#8cc63f;
 }
 
 #filter .views-widget,
-#intfilter .views-widget{
+#intFilter .views-widget{
 }
 
 #filter .description,
-#intfilter .description{
+#intFilter .description{
 	display:none;
 }
 
 #filter .form-item,
-#intfilter .form-item{
+#intFilter .form-item{
 	margin:0;
 }
 
 
 /*------ BANNER ------*/
-#banner{
+#banner,
+#intBanner{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
-}
-
-#intbanner{
-	background-color:#828282;
 }
 
 /*------ SIDEDISH ------*/
@@ -1393,7 +1390,7 @@ fieldset.filter-wrapper.form-wrapper{
 		padding:0 36px;
 	}
 	
-	#intfilter{
+	#intFilter{
 		display:block;
 		margin:0 auto;
 		padding:0;
@@ -1401,20 +1398,20 @@ fieldset.filter-wrapper.form-wrapper{
 	
 	#filter select,
 	#filter input,
-	#intfilter select,
-	#intfilter input{
+	#intFilter select,
+	#intFilter input{
 		width:auto;
 	}
 	
 	#filter .views-exposed-widget,
-	#intfilter .views-exposed-widget{
+	#intFilter .views-exposed-widget{
 		display:inline-block;
 		margin:13px;
 		padding:0;
 	}
 		
 	#filter .views-widget,
-	#intfilter .views-widget{
+	#intFilter .views-widget{
 		display:inline-block;
 		vertical-align:middle;
 	}
@@ -1438,16 +1435,16 @@ fieldset.filter-wrapper.form-wrapper{
 @media all and (min-width: 1024px) {
 	/*------ BANNER ------*/
 	#filter,
-	#intfilter{
+	#intFilter{
 	}
 	
 	#filter .views-exposed-widget,
-	#intfilter .views-exposed-widget{
+	#intFilter .views-exposed-widget{
 		margin:18px;
 	}
 	
 	#filter label,
-	#intfilter label{
+	#intFilter label{
 		display:inline-block;
 		line-height:40px;
 		color:#8cc63f;
