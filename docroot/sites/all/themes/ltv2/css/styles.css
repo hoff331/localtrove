@@ -503,8 +503,8 @@ div.form-item-field-location-taxonomize-terms-tid::before,
 div.form-item-type::before{
 	content:"";
 	display: block;
-	height:27px;
-	width:27px;
+	height:18px;
+	width:18px;
 	background:url(/sites/all/themes/ltv2/images/FINALsprite.png);
 	position: absolute;
 	top:14px;
