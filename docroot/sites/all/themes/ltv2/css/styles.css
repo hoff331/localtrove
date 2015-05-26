@@ -1047,13 +1047,11 @@ ul.menu li{
 	margin:18px 0;
 }
 
-div.views-exposed-form{
+.views-exposed-form,
+.views-exposed-widget,
+.form-submit{
 	margin:0;
 	padding:0;
-}
-
-.views-exposed-form .views-exposed-widget .form-submit{
-	
 }
 
 ul li.expanded,
