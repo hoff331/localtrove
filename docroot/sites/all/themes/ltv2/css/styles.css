@@ -239,6 +239,7 @@ input[type="submit"].checkout-continue{
 
 input[type="submit"].checkout-cancel{
 	width:auto;
+	padding:0;
 	margin:0 0 0 18px;
 }
 
