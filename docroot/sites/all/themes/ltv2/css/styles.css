@@ -188,7 +188,6 @@ td{
 input[type="text"],
 input[type="password"],
 input[type="email"],
-input[type="number"],
 textarea,
 select{
 	background: #FFFFFF;
@@ -199,7 +198,7 @@ select{
 	width:100%;
 	font-size:14px;
 	margin:0;
-	padding:0;
+	padding:0 9px;
 	-webkit-appearance:none;
 	-moz-appearance:none;
 	appearance:none;
@@ -209,6 +208,12 @@ input[type="submit"]{
 	background:#FF931E;
 	border:none;
 	color:#FFFFFF;
+	font-size:14px;
+	height:46px;
+	line-height:46px;
+	-webkit-appearance:none;
+	-moz-appearance:none;
+	appearance:none;
 }
 
 
