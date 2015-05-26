@@ -220,12 +220,11 @@ input[type="submit"]{
 input[type="submit"].delete-line-item{
 	height:30px;
 	line-height:30px;
-	width:60px;
+	width:auto;
 	background:#828282;
 }
 
-input#edit-submit,
-input[type="submit"].checkout-cancel{
+input#edit-submit{
 	margin:0 18px 0 0;
 	background:#828282;
 	width:100px;
@@ -236,6 +235,10 @@ input#edit-checkout{
 
 input[type="submit"].checkout-continue{
 	margin:0 18px 0 0;
+}
+
+input[type="submit"].checkout-cancel{
+	width:auto;
 }
 
 textarea{
