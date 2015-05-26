@@ -472,6 +472,7 @@ a.BTN2:hover{
 #filter input[type="submit"],
 #intFilter input[type="submit"]{
 	padding:0;
+	margin:0;
 }
 
 #filter .views-exposed-widgets,
@@ -1045,13 +1046,6 @@ ul.menu li{
 
 #intContent div.view-filters{
 	margin:18px 0;
-}
-
-.views-exposed-form,
-.views-exposed-widget,
-.form-submit{
-	margin:0;
-	padding:0;
 }
 
 ul li.expanded,
