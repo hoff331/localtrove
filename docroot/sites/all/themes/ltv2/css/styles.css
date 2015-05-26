@@ -224,7 +224,8 @@ input[type="submit"].delete-line-item{
 	background:#828282;
 }
 
-input#edit-submit{
+input#edit-submit,
+input[type="submit"].checkout-cancel{
 	margin:0 18px 0 0;
 	background:#828282;
 	width:100px;
