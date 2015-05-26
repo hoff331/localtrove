@@ -217,6 +217,11 @@ input[type="submit"]{
 	appearance:none;
 }
 
+select{
+	height:46px;
+	line-height:46px;
+}
+
 
 /* MISC */
 iframe{
@@ -457,32 +462,7 @@ a.BTN2:hover{
 #filter select,
 #intFilter input,
 #intFilter select{
-	background: #FFFFFF;
-	border: 2px solid #EAEAEA;
-	color: #999999;
-	height:40px;
-	line-height:40px;
-	width:100%;
-	font-size:14px;
-	margin:0;
 	padding:0 0 0 32px;
-	-webkit-appearance:none;
-	-moz-appearance:none;
-	appearance:none;
-}
-
-#filter select,
-#intFilter select{
-	height:46px;
-	line-height:46px;
-}
-/*apply button fix*/
-input#edit-submit-find-events{
-	border:none;
-	background:#FF931E;
-	color:#FFFFFF;
-	height:46px;
-	padding:0;
 }
 
 #filter .views-exposed-widgets,
@@ -1228,6 +1208,11 @@ li.comment_forbidden.last{
 }
 
 @media all and (min-width: 829px) {
+	/*------ INPUTS -------*/
+	input[type="submit"]{
+		width:100px;
+	}
+	
 	/*------- NAVIGATION -------*/
 	#navigation{
 		padding:0 36px;
@@ -1320,10 +1305,6 @@ li.comment_forbidden.last{
 	#intFilter select,
 	#intFilter input{
 		width:180px;
-	}
-	
-	input#edit-submit-find-events{
-		width:100px;
 	}
 	
 	#filter .views-exposed-widget,
