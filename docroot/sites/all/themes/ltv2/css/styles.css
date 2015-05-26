@@ -202,19 +202,9 @@ select{
 	appearance:none;
 }
 
-select{
+input[type="submit"]{
 	background:#FF931E;
 	border:none;
-	color:#999999;
-	height:40px;
-	line-height:40px;
-	width:100%;
-	font-size:14px;
-	margin:0;
-	padding:0;
-	-webkit-appearance:none;
-	-moz-appearance:none;
-	appearance:none;
 }
 
 
