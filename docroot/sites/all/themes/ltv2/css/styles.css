@@ -446,6 +446,7 @@ a.BTN2:hover{
 #filter select,
 #intFilter select{
 	height:46px;
+	line-height:46px;
 }
 /*apply button fix*/
 input#edit-submit-find-events{
@@ -1409,23 +1410,12 @@ fieldset.filter-wrapper.form-wrapper{
 	}
 	
 	
-	/*------ BANNER ------*/
-	#banner{
-		height:300px;
-	}
-	
 	/*------ FILTER ------*/
 	#filter,
 	#intFilter{
 		text-align:center;
-	}
-	
-	#filter{
-		display:block;
-		margin:0 auto;
 		padding:0;
 	}
-	
 	
 	#filter select,
 	#filter input,
@@ -1449,6 +1439,12 @@ fieldset.filter-wrapper.form-wrapper{
 	#intFilter .views-widget{
 		display:inline-block;
 		vertical-align:middle;
+	}
+	
+	
+	/*------ BANNER ------*/
+	#banner{
+		height:300px;
 	}
 	
 	
@@ -1485,10 +1481,5 @@ fieldset.filter-wrapper.form-wrapper{
 	#headerRight ul li a,
 	#headerRight ul li a:visited{
 		height:31px;
-	}
-	
-	/*------ FILTER ------*/
-	#filter .views-exposed-widget,
-	#intFilter .views-exposed-widget{
 	}
 }
