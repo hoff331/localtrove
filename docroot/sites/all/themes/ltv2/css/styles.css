@@ -465,6 +465,11 @@ a.BTN2:hover{
 	padding:0 0 0 32px;
 }
 
+#filter input[type="submit"],
+#intFilter input[type="submit"]{
+	padding:0;
+}
+
 #filter .views-exposed-widgets,
 #intFilter .views-exposed-widgets{
 	margin:0;
@@ -477,11 +482,6 @@ a.BTN2:hover{
     margin: 0;
     padding: 0 0 18px;
 	position:relative;
-}
-
-#filter .views-submit-button,
-#intFilter .views-submit-button{
-	padding:0 !important; /*no padding on button*/
 }
 
 #filter label,
@@ -527,7 +527,6 @@ div.form-item-field-location-taxonomize-terms-tid::before{
 div.form-item-field-date-value-value-date::before{
 	background-position:-108px -612px;
 }
-
 
 
 /*------ BANNER ------*/
@@ -718,12 +717,6 @@ a.feature.browse:hover{
 #intContentRight p{
 	line-height:1.2em;
 	margin-bottom:1em;
-}
-
-#intContentRight input[type="text"],
-#intContentRight input[type="email"],
-#intContentRight input[type="password"]{
-        width: 100%;
 }
 
 .submitted{
@@ -1053,6 +1046,10 @@ ul.menu li{
 div.views-exposed-form{
 }
 
+.views-exposed-form .views-exposed-widget .form-submit{
+	
+}
+
 ul li.expanded,
 ul li.collapsed,
 ul li.leaf {
@@ -1210,7 +1207,7 @@ li.comment_forbidden.last{
 @media all and (min-width: 829px) {
 	/*------ INPUTS -------*/
 	input[type="submit"]{
-		width:100px;
+		width:180px;
 	}
 	
 	/*------- NAVIGATION -------*/
