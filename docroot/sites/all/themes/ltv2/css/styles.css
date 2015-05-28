@@ -1091,6 +1091,14 @@ div.vertical-tabs {
   margin: -1px 0 -1px -8em
 }
 
+/* Buesiness location */
+#edit-field-business-location-und ul{
+	list-style:none;
+}
+
+.no-term-reference-tree-button{
+	display:none;
+}
 
 /****** DRUPAL PROFILES ******/
 .profile h3{
