@@ -1092,8 +1092,9 @@ div.vertical-tabs {
 }
 
 /* Buesiness location */
-#edit-field-business-location-und ul{
+#edit-field-business-location-und ul li{
 	list-style:none;
+	margin-left:0;
 }
 
 .no-term-reference-tree-button{
