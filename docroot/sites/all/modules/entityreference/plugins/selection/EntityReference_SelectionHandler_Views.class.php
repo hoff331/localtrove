@@ -105,22 +105,9 @@ class EntityReference_SelectionHandler_Views implements EntityReference_Selectio
   public function getReferencableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
     $display_name = $this->field['settings']['handler_settings']['view']['display_name'];
     $args = $this->field['settings']['handler_settings']['view']['args'];
-    $result = array();
-    if ($this->initializeView($match, $match_operator, $limit)) {
-      // Get the results.
-      $result = $this->view->execute_display($display_name, $args);
-    }
-
-    $return = array();
-    if ($result) {
-      $target_type = $this->field['settings']['target_type'];
-      $entities = entity_load($target_type, array_keys($result));
-      foreach($entities as $entity) {
-        list($id,, $bundle) = entity_extract_ids($target_type, $entity);
-        $return[$bundle][$id] = $result[$id];
-      }
-    }
-    return $return;
+    $is_valid_view = $this->initializeView($match, $match_operator, $limit);
+    // Get views results.
+    return $is_valid_view ? $this->view->execute_display($display_name, $args) : array();
   }
 
   /**
@@ -136,9 +123,14 @@ class EntityReference_SelectionHandler_Views implements EntityReference_Selectio
     $args = $this->field['settings']['handler_settings']['view']['args'];
     $result = array();
     if ($this->initializeView(NULL, 'CONTAINS', 0, $ids)) {
-      // Get the results.
+      // Get views results.
       $entities = $this->view->execute_display($display_name, $args);
-      $result = array_keys($entities);
+      // Find the referencable entities IDs.
+      array_walk_recursive($entities, function ($value, $key) use (&$result) {
+        if (is_numeric($key)) {
+          $result[] = $key;
+        }
+      });
     }
     return $result;
   }
