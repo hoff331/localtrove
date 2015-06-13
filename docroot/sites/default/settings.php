@@ -620,3 +620,8 @@ if (!$cli && (isset($_ENV['AH_NON_PRODUCTION']) && $_ENV['AH_NON_PRODUCTION'])) 
  $conf['cache_backends'][] = './sites/all/modules/memcache/memcache.inc';
  $conf['cache_default_class'] = 'MemCacheDrupal';
  $conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
+
+
+// Acquia Connector
+$conf['acquia_identifier'] = 'BGTY-38937';
+$conf['acquia_key'] = 'f174127cbc858cb7b408a143465267d5';
