@@ -785,6 +785,33 @@ li.vertical-tab-button{
 	margin:18px 18px 0 0;
 }
 
+.field-name-field-vendor-facebook,
+.field-name-field-vendor-twitter,
+.field-name-field-vendor-pinterest,
+.field-name-field-vendor-etsy{
+  float: left;
+  display: block;
+  width: 32px;
+  height: 32px;
+  text-indent: -9999px;
+}
+
+.field-name-field-vendor-facebook{
+  background-image: url("/sites/default/files/default_images/facebook.png");
+}
+
+.field-name-field-vendor-twitter{
+  background-image: url("/sites/default/files/default_images/twitter.png");
+}
+
+.field-name-field-vendor-pinterest{
+  background-image: url("/sites/default/files/default_images/pinterest.png");
+}
+
+.field-name-field-vendor-etsy{
+  background-image: url("/sites/default/files/default_images/etsy.png");
+}
+
 
 /****** SUB NAV ******/
 #subNav{
