@@ -794,6 +794,7 @@ li.vertical-tab-button{
   height: 32px;
   text-indent: -9999px;
   margin-right:16px;
+  background-repeat:no-repeat;
 }
 
 .field-name-field-vendor-facebook{
