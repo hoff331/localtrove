@@ -785,12 +785,11 @@ li.vertical-tab-button{
 	margin:18px 18px 0 0;
 }
 
-.field-name-field-vendor-facebook,
-.field-name-field-vendor-twitter,
-.field-name-field-vendor-pinterest,
-.field-name-field-vendor-etsy{
-  float: left;
-  display: block;
+.field.field-name-field-vendor-facebook,
+.field.field-name-field-vendor-twitter,
+.field.field-name-field-vendor-pinterest,
+.field.field-name-field-vendor-etsy{
+  display: inline-block;
   width: 32px;
   height: 32px;
   text-indent: -9999px;
