@@ -35,6 +35,7 @@ regions[subNav]          = Sub Navigation
 regions[feature]         = Feature
 regions[addEvent]        = Add Event Badge
 regions[nearbyMap]       = Nearby Map
+regions[vendorHeader]    = Vendor Header
 regions[content]         = Content
 regions[footerLeft]      = Footer Left
 regions[footerCenter]    = Footer Center
