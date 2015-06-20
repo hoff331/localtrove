@@ -16,7 +16,7 @@
             <div>Promoted Node Teaser</div>
             <!--Vendors-->
             <?php if (isset($content['field_vendor_coupon'])): ?>
-                <a id="couponIcon" href="<?php print render($content['field_vendor_coupon']); ?>">coupon</a>
+                <div id="couponIcon"><?php print render($content['field_vendor_coupon']); ?></div>
             <?php endif; ?>
             <?php if (isset($content['field_vendor_products'])): ?>
                 <h6>Type of Products:</h6><?php print render($content['field_vendor_products']); ?>
