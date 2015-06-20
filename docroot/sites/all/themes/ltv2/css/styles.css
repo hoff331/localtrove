@@ -732,6 +732,12 @@ a.feature.browse:hover{
 	background:url(/sites/all/themes/ltv2/images/contentBG.png) repeat;
 }
 
+#vendorHeader{
+	min-height:300px;
+	position:relative
+	box-shadow:0px -100px 250px rgba(0, 0, 0, 0.7) inset;
+}
+
 #intContentLeft{
 }
 
