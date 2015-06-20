@@ -51,7 +51,7 @@
 
 <div id="contentWrapper">
 	<div id="intContent">
-		<div id=“vendorHeader”>
+		<div id="vendorHeader">
 			<?php print render($page['vendorHeader']); ?>
 		</div>
     	<!--if subNav, feature and nearbyMap print intContentLeft with class notFull-->
