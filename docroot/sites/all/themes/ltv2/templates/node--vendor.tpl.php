@@ -16,7 +16,7 @@
             <div>Promoted Node Teaser</div>
             <!--Vendors-->
             <?php if (isset($content['field_vendor_coupon'])): ?>
-                <div id="couponIcon"></div>
+                <div id="couponIcon"><?php print render($content['field_vendor_coupon']); ?></div>
             <?php endif; ?>
             <?php if (isset($content['field_vendor_products'])): ?>
                 <h6>Type of Products:</h6><?php print render($content['field_vendor_products']); ?>
@@ -32,10 +32,7 @@
         <div class="clearfix"></div>
     </div>
 	<?php else: ?>
-	<div class="listing contextual-links-region
-		<?php if (isset($content['field_vendor_coupon'])): ?>
-            <?php echo(" couponListing"); ?>
-        <?php endif; ?>">
+	<div class="listing contextual-links-region">
         <div class="listingLeft">
             <?php if (isset($content['field_vendor_logo'])): ?>
                 <?php print render($content['field_vendor_logo']); ?>
@@ -47,9 +44,6 @@
             <?php print render($title_suffix); ?>
             
             <!--Vendors-->
-            <?php if (isset($content['field_vendor_coupon'])): ?>
-                <div id="couponIcon"></div>
-            <?php endif; ?>
             <?php if (isset($content['field_vendor_products'])): ?>
                 <h6>Type of Products:</h6><?php print render($content['field_vendor_products']); ?>
             <?php endif; ?>
@@ -70,7 +64,6 @@
 	<?php if($promote): ?>
 		<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 	
-		<?php print $user_picture; ?>
 		<?php print render($title_prefix); ?>
 			<h3<?php print $title_attributes; ?>><a href="<?php print $node_url; ?>"><?php print $title; ?></a></h3>
 		<?php print render($title_suffix); ?>
@@ -80,15 +73,8 @@
 				<?php print $submitted; ?>
 			</div>
 		<?php endif; ?>
-	
-		<div class="content"<?php print $content_attributes; ?>>
-			<?php
-				// We hide the comments and links now so that we can render them later.
-				hide($content['comments']);
-				hide($content['links']);
-				print render($content);
-			?>
-		</div>
+		
+		
 	
 		<?php print render($content['links']); ?>
 		<!--added because private comments removes default comment header-->
