@@ -1,5 +1,5 @@
 <?php if ($teaser): ?>
-    <?php if ($promoted): ?>
+    <?php if ($promote): ?>
 	<div class="listing contextual-links-region
 		<?php if (isset($content['field_vendor_coupon'])): ?>
             <?php echo(" couponListing"); ?>
@@ -67,7 +67,7 @@
 	
 <?php else: ?>
     
-	<?php if($promoted): ?>
+	<?php if($promote): ?>
 		<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 	
 		<?php print $user_picture; ?>
