@@ -122,6 +122,7 @@
 				hide($content['field_vendor_pinterest']);
 				hide($content['field_vendor_etsy']);
 				hide($content['field_vendor_website']);
+				hide($content['field_vendor_contact_number']);
 				print render($content);
 			?>
 		</div>
