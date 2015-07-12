@@ -609,6 +609,7 @@ a.feature.browse:hover{
 	position:relative;
 	box-shadow:0px -100px 250px rgba(0, 0, 0, 0.3) inset;
 	text-align:center;
+	line-height:0;
 }
 
 
