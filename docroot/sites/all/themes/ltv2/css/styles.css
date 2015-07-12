@@ -15,7 +15,7 @@ lightgray: #E6E6E6
 */
 
 
-/*------- HTML ELEMENTS -------*/
+/****** HTML ELEMENTS ******/
 body{
 	font-family:Helvetica, sans-serif;
 	color:#4D4D4D;
@@ -259,7 +259,7 @@ iframe{
 	display:none;
 }
 
-/*------ REUSABLE CLASSES ------*/
+/****** REUSABLE CLASSES ******/
 .definition{
 	font-style:italic;
 	color:#FF7BAC;
@@ -383,7 +383,7 @@ a.BTN2:hover{
 }
 
 
-/*------- NAVIGATION -------*/
+/****** NAVIGATION ******/
 #navigation{
 	font-size:12px;
 	position:relative;
@@ -433,7 +433,7 @@ a.BTN2:hover{
 }
 
 
-/*------- HEADER -------*/
+/****** HEADER ******/
 #header{
 }
 
@@ -446,7 +446,7 @@ a.BTN2:hover{
 	background-color:#8CC63F;
 }
 
-/*------- MAIN NAV -------*/
+/****** MAIN NAV ******/
 #headerRight ul.menu{
 	margin:0;
 }
@@ -481,7 +481,7 @@ a.BTN2:hover{
 }
 
 
-/*------ FILTER ------*/
+/****** FILTER ******/
 #filter,
 #intFilter{
 	background-color:#8CC63F;
@@ -561,13 +561,13 @@ div.form-item-field-date-value-value-date::before{
 }
 
 
-/*------ BANNER ------*/
+/****** BANNER ******/
 #banner,
 #intBanner{
 	background:url(/sites/default/files/banner.jpg) no-repeat center;
 }
 
-/*------ SIDEDISH ------*/
+/****** SIDEDISH ******/
 .sidedish{
 	text-align:center;
 }
@@ -1045,7 +1045,7 @@ li.vertical-tab-button{
 }
 
 
-/*------- COPY -------*/
+/****** COPY ******/
 #copy{
 	margin:0 auto;
 	padding:9px 36px;
@@ -1231,23 +1231,7 @@ li.comment_forbidden.last{
 
 
 @media all and (min-width: 481px) {
-	/*------- CONTENT -------*/
-	#intContentLeft{
-	}
-	
-	#intContentLeft.notFull{
-		width:60%;
-		margin-right:10%;
-		float:left;
-	}
-	
-	#intContentRight{
-		width:30%;
-		float:left;
-	}
-	
-	
-	/*------- FOOTER -------*/
+	/****** FOOTER ******/
 	#footerLeft{
 		width: 30%;
 		float: left;
@@ -1266,7 +1250,7 @@ li.comment_forbidden.last{
 		padding: 0 1.66%;
 	}
 	
-	/*------- COPY -------*/
+	/****** COPY ******/
 	#copy{
 		margin:0 auto;
 		padding:9px 36px;
@@ -1287,12 +1271,12 @@ li.comment_forbidden.last{
 }
 
 @media all and (min-width: 829px) {
-	/*------ INPUTS -------*/
+	/****** INPUTS ******/
 	input[type="submit"]{
 		width:180px;
 	}
 	
-	/*------- NAVIGATION -------*/
+	/****** NAVIGATION ******/
 	#navigation{
 		padding:0 36px;
 		border-bottom:1px solid #E6E6E6;
@@ -1327,7 +1311,7 @@ li.comment_forbidden.last{
 	#navigationLeft ul li a:active{
 	}
 	
-	/*------- HEADER -------*/
+	/****** HEADER ******/
 	#header{
 		padding:0 36px;
 	}
@@ -1372,7 +1356,7 @@ li.comment_forbidden.last{
 	}
 	
 	
-	/*------ FILTER ------*/
+	/****** FILTER ******/
 	#filter,
 	#intFilter{
 		text-align:center;
@@ -1400,13 +1384,13 @@ li.comment_forbidden.last{
 	}
 	
 	
-	/*------ BANNER ------*/
+	/****** BANNER ******/
 	#banner{
 		height:300px;
 	}
 	
 	
-	/*------ SIDEDISH ------*/
+	/****** SIDEDISH ******/
 	.sidedish{
 		width:30%;
 		float:left;
@@ -1419,10 +1403,25 @@ li.comment_forbidden.last{
 		padding-right:18px;
 	}
 	
+	/****** INT CONTENT ******/
+	#intContentLeft{
+	}
+	
+	#intContentLeft.notFull{
+		width:60%;
+		margin-right:10%;
+		float:left;
+	}
+	
+	#intContentRight{
+		width:30%;
+		float:left;
+	}
+	
 }
 
 @media all and (min-width: 1024px) {
-	/*------ HEADER ------*/
+	/****** HEADER ******/
 	#headerLeft{
 		width:33.33%;
 		padding:18px 0 0;
