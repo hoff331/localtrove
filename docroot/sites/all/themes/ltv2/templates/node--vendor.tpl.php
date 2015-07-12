@@ -67,11 +67,7 @@
 	<!--promoted content view-->
 		<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 	
-		<?php print $user_picture; ?>
-	
-		<?php print render($title_prefix); ?>
-			<h3<?php print $title_attributes; ?>><a href="<?php print $node_url; ?>"><?php print $title; ?></a></h3>
-		<?php print render($title_suffix); ?>
+		<?php print $user_picture; ?>]
 			
 		<?php if ($display_submitted): ?>
 			<div class="submitted">
@@ -100,11 +96,7 @@
 		<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 	
 		<?php print $user_picture; ?>
-	
-		<?php print render($title_prefix); ?>
-			<h3<?php print $title_attributes; ?>><a href="<?php print $node_url; ?>"><?php print $title; ?></a></h3>
-		<?php print render($title_suffix); ?>
-			
+		
 		<?php if ($display_submitted): ?>
 			<div class="submitted">
 				<?php print $submitted; ?>
