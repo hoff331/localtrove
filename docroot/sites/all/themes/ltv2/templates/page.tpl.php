@@ -48,9 +48,11 @@
 	</div>
 </section>
 
-<section id="vendorHeader">
-	<?php print render($page['vendorHeader']); ?>
-</section>
+<?php if($page['vendorHeader']): ?>
+	<section id="vendorHeader">
+		<?php print render($page['vendorHeader']); ?>
+	</section>
+<?php endif; ?>
 
 
 <div id="contentWrapper">
