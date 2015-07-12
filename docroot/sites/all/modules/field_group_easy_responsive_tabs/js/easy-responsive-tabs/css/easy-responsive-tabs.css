@@ -58,17 +58,19 @@ h2.resp-accordion {
 }
 
 h2.resp-accordion {
-    font-size: 13px;
+    /*font-size: 13px;*/
     border: 1px solid #c1c1c1;
     border-top: 0px solid #c1c1c1;
     margin: 0px;
     padding: 10px 15px;
+	background: #DBDBDB !important;
 }
 
 h2.resp-tab-active {
     border-bottom: 0px solid #c1c1c1 !important;
     margin-bottom: 0px !important;
     padding: 10px 15px !important;
+	color: #8CC63F;
 }
 
 h2.resp-tab-title:last-child {
@@ -135,7 +137,7 @@ h2.resp-tab-active span.resp-arrow {
 
 /*-----------Accordion styles-----------*/
 h2.resp-tab-active {
-    background: #DBDBDB !important;
+	background: #FFFFFF !important;
 }
 .resp-easy-accordion  h2.resp-accordion {
         display: block;
@@ -173,6 +175,7 @@ h2.resp-accordion:first-child {
 
     .resp-vtabs .resp-tab-content {
         border: 1px solid #C1C1C1;
+		border-top: none;
     }
 
     .resp-vtabs .resp-tabs-container {
