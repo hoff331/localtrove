@@ -67,7 +67,7 @@
 	<!--promoted content view-->
 		<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 	
-		<?php print $user_picture; ?>]
+		<?php print $user_picture; ?>
 			
 		<?php if ($display_submitted): ?>
 			<div class="submitted">
