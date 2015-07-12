@@ -742,14 +742,9 @@ a.feature.browse:hover{
 }
 
 #intContentLeft.notFull{
-	width:60%;
-	margin-right:10%;
-	float:left;
 }
 
 #intContentRight{
-	width:30%;
-	float:left;
 }
 
 #intContentRight p{
@@ -1236,6 +1231,22 @@ li.comment_forbidden.last{
 
 
 @media all and (min-width: 481px) {
+	/*------- CONTENT -------*/
+	#intContentLeft{
+	}
+	
+	#intContentLeft.notFull{
+		width:60%;
+		margin-right:10%;
+		float:left;
+	}
+	
+	#intContentRight{
+		width:30%;
+		float:left;
+	}
+	
+	
 	/*------- FOOTER -------*/
 	#footerLeft{
 		width: 30%;

@@ -1,6 +1,3 @@
-<?php
-
-?>
 <?php if ($teaser): ?>
     <div class="listing contextual-links-region">
         <div class="listingLeft">
