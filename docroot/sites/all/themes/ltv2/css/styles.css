@@ -612,6 +612,10 @@ a.feature.browse:hover{
 	line-height:0;
 }
 
+#vendorHeader img{
+	max-height:400px;
+}
+
 
 /****** BREADCRUMBS ******/
 .breadcrumb,
@@ -799,22 +803,22 @@ li.vertical-tab-button{
   margin-right:16px;
 }
 
-.field-name-field-vendor-facebook{
+.field.field-name-field-vendor-facebook{
   background-image: url("/sites/default/files/default_images/facebook.png");
   background-repeat:no-repeat;
 }
 
-.field-name-field-vendor-twitter{
+.field.field-name-field-vendor-twitter{
   background-image: url("/sites/default/files/default_images/twitter.png");
   background-repeat:no-repeat;
 }
 
-.field-name-field-vendor-pinterest{
+.field.field-name-field-vendor-pinterest{
   background-image: url("/sites/default/files/default_images/pinterest.png");
   background-repeat:no-repeat;
 }
 
-.field-name-field-vendor-etsy{
+.field.field-name-field-vendor-etsy{
   background-image: url("/sites/default/files/default_images/etsy.png");
   background-repeat:no-repeat;
 }
