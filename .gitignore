@@ -2,5 +2,6 @@
 docroot/files
 docroot/sites/*/files
 docroot/sites/*/private
+.DS_Store
 loc1230010500526.20140201_071903.tar.gz
 
